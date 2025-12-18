@@ -46,7 +46,9 @@ export default function LoginPage() {
     <div className="min-h-screen honeycomb-bg flex items-center justify-center p-4 relative">
       <div className="w-full max-w-md bg-white/90 backdrop-blur-sm p-8 rounded-xl shadow-2xl border border-[#E67E22]/20">
         <div className="text-center mb-8">
-          <div className="text-6xl mb-4">🐝</div>
+          <div className="flex justify-center mb-6">
+            <img src="/icon-512.png" alt="TBH Beekeeper Logo" className="w-32 h-32 object-contain drop-shadow-lg" />
+          </div>
           <h1 className="text-3xl font-bold text-[#4A3C28]">TBH Beekeeper</h1>
           <p className="text-gray-600 text-sm mt-2">{isSignUp ? 'Create your account' : 'Welcome back'}</p>
         </div>
@@ -105,24 +107,7 @@ export default function LoginPage() {
         </form>
       </div>
 
-      <div className="fixed bottom-4 right-4 opacity-70 hover:opacity-100">
-        <button
-          type="button"
-          onClick={async () => {
-            if (confirm('Clear local database? This fixes "Duplicate Key" errors.')) {
-              try {
-                const { resetAndSeed } = await import('../lib/seed');
-                await resetAndSeed();
-              } catch (e) {
-                alert('Error resetting: ' + e);
-              }
-            }
-          }}
-          className="text-[10px] bg-red-100 text-red-800 px-3 py-1.5 rounded-full border border-red-200 shadow-sm font-semibold hover:bg-red-200 transition-colors"
-        >
-          ⚠️ Fix Database Error
-        </button>
-      </div>
+
     </div>
   );
 }

@@ -286,8 +286,8 @@ const ApiarySelectionRaw = ({ apiaries, userId, userEmail, onLogout }: { apiarie
             {/* 1. Header */}
             <header className="bg-[#FFFBF0] px-8 py-4 flex justify-between items-center border-b border-[#E6DCC3]">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-[#8B4513] rounded-full flex items-center justify-center text-white font-bold">
-                        🐝
+                    <div className="w-8 h-8 rounded-full overflow-hidden">
+                        <img src="/icon-192.png" alt="Logo" className="w-full h-full object-cover" />
                     </div>
                     <div>
                         <h1 className="text-xl font-serif font-bold text-[#4A3C28]">Beekeeping Manager</h1>
@@ -309,15 +309,17 @@ const ApiarySelectionRaw = ({ apiaries, userId, userEmail, onLogout }: { apiarie
             </header>
 
             {/* 2. Top Toolbar */}
-            <div className="bg-white border-b border-[#E6DCC3] px-8 py-3 shadow-sm">
-                <div className="grid grid-cols-3 items-center gap-4">
-                    {/* Left: Selector */}
-                    <div className="flex items-center gap-3">
-                        <label className="font-bold text-[#4A3C28]">Select Apiary:</label>
+            <div className="bg-white border-b border-[#E6DCC3] px-4 md:px-8 py-3 shadow-sm">
+                <div className="flex flex-col md:grid md:grid-cols-3 gap-4 items-center">
+
+                    {/* Mobile: Row 1 - Selector */}
+                    {/* Desktop: Col 1 - Selector */}
+                    <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 md:gap-3">
+                        <label className="font-bold text-[#4A3C28] whitespace-nowrap hidden md:block">Select Apiary:</label>
                         <select
                             value={selectedApiaryId}
                             onChange={handleDropdownChange}
-                            className="border border-[#D1C4A9] rounded px-3 py-1.5 min-w-[200px] text-sm focus:ring-1 focus:ring-[#8B4513] outline-none"
+                            className="flex-1 md:flex-none border border-[#D1C4A9] rounded px-3 py-2 md:py-1.5 text-sm focus:ring-1 focus:ring-[#8B4513] outline-none max-w-[200px] md:max-w-none"
                         >
                             {safeApiaries.length === 0 && <option value="">(No Apiaries)</option>}
                             {safeApiaries.map(a => (
@@ -327,65 +329,57 @@ const ApiarySelectionRaw = ({ apiaries, userId, userEmail, onLogout }: { apiarie
                         <button
                             onClick={() => handleGo()}
                             disabled={!selectedApiaryId}
-                            className="bg-[#C19A6B] hover:bg-[#A68257] text-white px-4 py-1.5 rounded text-sm font-bold transition-colors disabled:opacity-50"
+                            className="bg-[#C19A6B] hover:bg-[#A68257] text-white px-4 py-2 md:py-1.5 rounded text-sm font-bold transition-colors disabled:opacity-50"
                         >
                             OK
                         </button>
-                        {!selectedApiaryId && safeApiaries.length === 0 && (
-                            <span className="text-xs text-red-500 animate-pulse">← Create one first!</span>
-                        )}
                     </div>
 
-                    {/* Center: Forecast Button */}
-                    <div className="flex justify-center">
-                        <button
-                            onClick={() => {
-                                if (selectedApiaryId) {
-                                    router.push(`/apiary-selection/forecast?apiaryId=${selectedApiaryId}`);
-                                } else {
-                                    alert('Please select an apiary first');
-                                }
-                            }}
-                            disabled={!selectedApiaryId}
-                            className="px-6 py-1.5 bg-[#F5A623] text-white rounded text-sm font-medium hover:bg-[#E09612] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            📊 View Forecast
-                        </button>
-                    </div>
-
-                    {/* Right: Actions */}
-                    <div className="flex gap-2 justify-end">
-                        <button
-                            onClick={() => setIsManaging(!isManaging)}
-                            className={`px-4 py-1.5 rounded text-sm font-medium border transition-colors ${isManaging
-                                ? 'bg-gray-200 border-gray-300 text-gray-700'
-                                : 'bg-white border-[#D1C4A9] text-[#8B4513] hover:bg-[#FFFBF0]'
-                                }`}
-                        >
-                            {isManaging ? 'Done' : 'Manage Apiaries'}
-                        </button>
-                        <div className="flex flex-col items-end mr-2">
-                            {lastSync && (
-                                <span className="text-[10px] text-green-600 font-mono">
-                                    ✅ Saved {lastSync.toLocaleTimeString()}
-                                </span>
-                            )}
+                    {/* Mobile: Row 2 - Actions Bar */}
+                    {/* Desktop: Col 2 & 3 Split */}
+                    <div className="w-full md:w-auto flex md:contents justify-between gap-2 overflow-x-auto">
+                        {/* Desktop: Col 2 - Forecast */}
+                        <div className="flex justify-center md:flex-none">
+                            <button
+                                onClick={() => {
+                                    if (selectedApiaryId) {
+                                        router.push(`/apiary-selection/forecast?apiaryId=${selectedApiaryId}`);
+                                    } else {
+                                        alert('Please select an apiary first');
+                                    }
+                                }}
+                                disabled={!selectedApiaryId}
+                                className="px-4 md:px-6 py-2 md:py-1.5 bg-[#F5A623] text-white rounded text-xs md:text-sm font-medium hover:bg-[#E09612] transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                            >
+                                📊 Forecast
+                            </button>
                         </div>
-                        <button
-                            onClick={handleSyncNow}
-                            disabled={isSyncing}
-                            className="px-4 py-1.5 bg-white border border-[#D1C4A9] text-[#8B4513] rounded text-sm font-medium hover:bg-[#FFFBF0] transition-colors flex items-center gap-1 disabled:opacity-50"
-                        >
-                            {isSyncing ? (
-                                <>
-                                    <span className="animate-spin">🔄</span> Syncing...
-                                </>
-                            ) : (
-                                <>
-                                    <span>☁️</span> Sync Now
-                                </>
-                            )}
-                        </button>
+
+                        {/* Desktop: Col 3 - Manager & Sync */}
+                        <div className="flex gap-2 justify-end md:ml-auto">
+                            <button
+                                onClick={() => setIsManaging(!isManaging)}
+                                className={`px-3 md:px-4 py-2 md:py-1.5 rounded text-xs md:text-sm font-medium border transition-colors whitespace-nowrap ${isManaging
+                                    ? 'bg-gray-200 border-gray-300 text-gray-700'
+                                    : 'bg-white border-[#D1C4A9] text-[#8B4513] hover:bg-[#FFFBF0]'
+                                    }`}
+                            >
+                                {isManaging ? 'Done' : 'Manage'}
+                            </button>
+
+                            <button
+                                onClick={handleSyncNow}
+                                disabled={isSyncing}
+                                className="px-3 md:px-4 py-2 md:py-1.5 bg-white border border-[#D1C4A9] text-[#8B4513] rounded text-xs md:text-sm font-medium hover:bg-[#FFFBF0] transition-colors flex items-center gap-1 disabled:opacity-50 whitespace-nowrap"
+                            >
+                                {isSyncing ? (
+                                    <span className="animate-spin">🔄</span>
+                                ) : (
+                                    <span>☁️</span>
+                                )}
+                                <span className="hidden sm:inline">Sync</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -396,8 +390,8 @@ const ApiarySelectionRaw = ({ apiaries, userId, userEmail, onLogout }: { apiarie
                 {/* Empty State / Prompt */}
                 {!isManaging && (
                     <div className="text-center opacity-70 mb-4">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border-4 border-[#E6DCC3] text-[#E6DCC3] mb-2">
-                            <span className="text-3xl font-serif">i</span>
+                        <div className="mb-4">
+                            <img src="/icon-512.png" alt="TBH Beekeeper" className="w-32 h-32 object-contain opacity-80" />
                         </div>
                         <h2 className="text-xl font-serif font-bold text-[#4A3C28] mb-1">Select an apiary to begin</h2>
                         <p className="text-[#8B4513] text-sm">Or view your upcoming tasks below</p>
