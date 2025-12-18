@@ -289,7 +289,7 @@ const ApiarySelectionPage = () => {
                             </button>
                         </div>
                         <UserTaskList
-                            userId={userId}
+                            userId={userId || ''}
                             refreshKey={taskRefreshKey}
                             onRefresh={() => setTaskRefreshKey(prev => prev + 1)}
                             onEdit={(task) => {
