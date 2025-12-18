@@ -36,6 +36,7 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
     };
 
     const [bars, setBars] = useState<BarState[]>([]);
+    const [isCapturing, setIsCapturing] = useState(false);
 
     useEffect(() => {
         const rawBars = readOnly ? snapshot?.bars : hive?.bars;
