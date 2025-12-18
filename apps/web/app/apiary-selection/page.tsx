@@ -157,8 +157,7 @@ const ApiarySelectionRaw = ({ apiaries, userId, userEmail, onLogout }: { apiarie
     const [editingApiary, setEditingApiary] = useState<Apiary | undefined>(undefined);
     const [isRecovering, setIsRecovering] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
-
-    // Task Management State
+    const [syncError, setSyncError] = useState<string | null>(null);
     const [isAddingTask, setIsAddingTask] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
     const [taskRefreshKey, setTaskRefreshKey] = useState(0);
@@ -166,8 +165,14 @@ const ApiarySelectionRaw = ({ apiaries, userId, userEmail, onLogout }: { apiarie
     // Auto-sync on mount
     useEffect(() => {
         sync()
-            .then(() => setLastSync(new Date()))
-            .catch(err => console.error('Auto-sync failed:', err));
+            .then(() => {
+                setLastSync(new Date());
+                setSyncError(null);
+            })
+            .catch(err => {
+                console.error('Auto-sync failed:', err);
+                setSyncError(err.message);
+            });
     }, []);
 
     // Auto-select first apiary if available and none selected
