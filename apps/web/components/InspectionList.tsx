@@ -201,6 +201,37 @@ export const InspectionList = ({ hive, refreshKey, onRefresh, onEdit }: { hive: 
                                 Queen: {viewingItem.queen_status}
                             </div>
                         </div>
+
+                        <div className="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded">
+                            <div>
+                                <span className="text-[10px] text-gray-500 uppercase font-bold block">Temperament</span>
+                                <span className="text-sm font-medium">{viewingItem.temperament ? viewingItem.temperament.replace(/_/g, ' ') : '-'}</span>
+                            </div>
+                            <div>
+                                <span className="text-[10px] text-gray-500 uppercase font-bold block">Brood Pattern</span>
+                                <span className="text-sm font-medium">{viewingItem.brood_pattern ? viewingItem.brood_pattern.replace(/_/g, ' ') : '-'}</span>
+                            </div>
+                            <div>
+                                <span className="text-[10px] text-gray-500 uppercase font-bold block">Honey Stores</span>
+                                <span className="text-sm font-medium">{viewingItem.honey_stores ? viewingItem.honey_stores.replace(/_/g, ' ') : '-'}</span>
+                            </div>
+                            <div>
+                                <span className="text-[10px] text-gray-500 uppercase font-bold block">Pollen Stores</span>
+                                <span className="text-sm font-medium">{viewingItem.pollen_stores ? viewingItem.pollen_stores.replace(/_/g, ' ') : '-'}</span>
+                            </div>
+                            <div>
+                                <span className="text-[10px] text-gray-500 uppercase font-bold block">Population</span>
+                                <span className="text-sm font-medium">{viewingItem.population_strength ? viewingItem.population_strength.replace(/_/g, ' ') : '-'}</span>
+                            </div>
+                            <div>
+                                <span className="text-[10px] text-gray-500 uppercase font-bold block">Weather</span>
+                                <span className="text-sm font-medium">
+                                    {viewingItem.weather
+                                        ? `${Math.round(viewingItem.weather.temperature || 0)}°F`
+                                        : '-'}
+                                </span>
+                            </div>
+                        </div>
                         <div className="bg-amber-50 p-3 rounded border border-amber-100">
                             <span className="text-amber-800/60 block mb-1 uppercase tracking-wider text-[9px] font-bold">Observations</span>
                             <p className="text-sm text-gray-800">{viewingItem.observations || 'No notes.'}</p>
