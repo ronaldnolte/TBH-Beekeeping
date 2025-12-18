@@ -37,9 +37,11 @@ export interface WeatherData {
 export type QueenStatus =
     | 'seen'          // Queen directly observed
     | 'not_seen'      // Not observed
+    | 'no_queen'      // Confirmed absence (Action required)
     | 'eggs_present'  // Fresh eggs visible
     | 'capped_brood'  // Capped brood pattern (evidence)
     | 'queen_cells'   // Queen cells present
+    | 'virgin'        // Virgin queen seen
     | 'unknown';      // Not checked
 
 export type BroodPattern = 'excellent' | 'good' | 'spotty' | 'poor';

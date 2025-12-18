@@ -10,7 +10,8 @@
         "lint": "eslint src/"
     },
     "dependencies": {
-        "@nozbe/watermelondb": "^0.27.1"
+        "@nozbe/watermelondb": "^0.27.1",
+        "date-fns": "^3.6.0"
     },
     "devDependencies": {
         "@types/node": "^20.10.0",

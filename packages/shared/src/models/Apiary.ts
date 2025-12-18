@@ -6,6 +6,9 @@ import { field, readonly, date, children, relation } from '@nozbe/watermelondb/d
  */
 export default class Apiary extends Model {
     static table = 'apiaries';
+    static associations = {
+        hives: { type: 'has_many', foreignKey: 'apiary_id' },
+    } as const;
 
     @field('user_id') userId!: string;
     @field('name') name!: string;
