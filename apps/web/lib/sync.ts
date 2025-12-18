@@ -43,6 +43,7 @@ export async function sync() {
                 const deleted: any[] = [];
 
                 data.forEach((row: any) => {
+                    // @ts-ignore
                     if (row.deleted_at) {
                         deleted.push(row.id);
                     } else if (new Date(row.created_at).getTime() > (lastPulledAt || 0)) {
