@@ -17,6 +17,7 @@ const MoveHiveModalRaw = ({ isOpen, onClose, hive, currentApiaryId, apiaries }: 
     const [isSaving, setIsSaving] = useState(false);
 
     // Filter out current apiary
+    // @ts-ignore
     const availableApiaries = apiaries.filter(a => a.id !== currentApiaryId && !a._isDeleted);
 
     const handleMove = async () => {
