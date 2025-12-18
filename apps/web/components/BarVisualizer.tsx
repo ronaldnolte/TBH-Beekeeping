@@ -23,18 +23,23 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
     onSnapshotCreate?: () => void;
     readOnly?: boolean;
 }) {
-    const initialBars = readOnly
-        ? (snapshot ? (typeof snapshot.bars === 'string' ? JSON.parse(snapshot.bars) : snapshot.bars) : [])
-        : (hive?.bars || []);
+    const parseBars = (source: any) => {
+        try {
+            if (!source) return [];
+            if (typeof source === 'string') return JSON.parse(source);
+            if (Array.isArray(source)) return source;
+            return [];
+        } catch (e) {
+            console.error('Error parsing bars:', e);
+            return [];
+        }
+    };
 
-    const [bars, setBars] = useState<BarState[]>(initialBars);
-    const [isCapturing, setIsCapturing] = useState(false);
+    const [bars, setBars] = useState<BarState[]>([]);
 
     useEffect(() => {
-        const targetBars = readOnly
-            ? (snapshot ? (typeof snapshot.bars === 'string' ? JSON.parse(snapshot.bars) : snapshot.bars) : [])
-            : (hive?.bars || []);
-        setBars(targetBars || []);
+        const rawBars = readOnly ? snapshot?.bars : hive?.bars;
+        setBars(parseBars(rawBars));
     }, [snapshot, hive, readOnly]);
 
     if (!bars || bars.length === 0) return <div className="p-4 text-center text-gray-400">No bar configuration data</div>;
