@@ -1,0 +1,3 @@
+﻿../../node_modules/expo/tsconfig.base.json(10,15): error TS6046: Argument for '--module' option must be: 'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'nodenext'.
+src/screens/ApiarySelectionScreen.tsx(4,48): error TS2307: Cannot find module '@react-navigation/native-stack' or its corresponding type declarations.
+src/screens/LoginScreen.tsx(3,48): error TS2307: Cannot find module '@react-navigation/native-stack' or its corresponding type declarations.

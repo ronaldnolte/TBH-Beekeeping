@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Connectivity Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="font-family: sans-serif; padding: 2rem;">
+    <h1>Supabase Connection Test</h1>
+    <div id="status">Connecting...</div>
+    <div id="logs" style="background: #f0f0f0; padding: 1rem; margin-top: 1rem; font-family: monospace;"></div>
+
+    <script>
+        const supabaseUrl = 'https://ayeqrbcvnhztxbnxmrth.supabase.co';
+        const supabaseKey = 'sb_publishable_YeFrbZkCUwM-cSAm3ZODrg_ie0j1Maa';
+
+        function log(msg) {
+            document.getElementById('logs').innerHTML += `<div>${msg}</div>`;
+            console.log(msg);
+        }
+
+        async function test() {
+            try {
+                log('Initializing Supabase Client...');
+                const { createClient } = window.supabase;
+                const client = createClient(supabaseUrl, supabaseKey);
+                
+                log('Client created. Fetching session...');
+                const { data, error } = await client.auth.getSession();
+
+                if (error) {
+                    log('❌ Error: ' + error.message);
+                    document.getElementById('status').innerText = 'Failed';
+                    document.getElementById('status').style.color = 'red';
+                } else {
+                    log('✅ Success! Supabase is reachable.');
+                    log('Session: ' + (data.session ? 'Active' : 'None'));
+                    document.getElementById('status').innerText = 'Success';
+                    document.getElementById('status').style.color = 'green';
+                }
+            } catch (e) {
+                log('❌ Exception: ' + e.message);
+                document.getElementById('status').innerText = 'Exception';
+                document.getElementById('status').style.color = 'red';
+            }
+        }
+
+        test();
+    </script>
+</body>
+</html>
