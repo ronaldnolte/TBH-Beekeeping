@@ -27,17 +27,40 @@ const BAR_COLORS = {
 type BarStatus = keyof typeof BAR_COLORS;
 
 const HistoryItem = ({ snapshot, onSelect, onDelete }: { snapshot: HiveSnapshot, onSelect: () => void, onDelete: () => void }) => {
-    const bars: BarState[] = snapshot.bars || [];
+    // Safely parse bars if it's a string (JSON) or array
+    let bars: BarState[] = [];
+    try {
+        if (typeof snapshot.bars === 'string') {
+            bars = JSON.parse(snapshot.bars);
+        } else if (Array.isArray(snapshot.bars)) {
+            bars = snapshot.bars;
+        }
+    } catch (e) {
+        console.error('Failed to parse snapshot bars', e);
+    }
+
+    // Safely parse date
+    let dateStr = 'Invalid Date';
+    let timeStr = '';
+    try {
+        const d = new Date(snapshot.timestamp);
+        if (!isNaN(d.getTime())) {
+            dateStr = d.toLocaleDateString();
+            timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+    } catch (e) {
+        console.error('Failed to parse snapshot date', e);
+    }
 
     return (
         <div onClick={onSelect} className="flex-shrink-0 w-[200px] flex flex-col p-2 hover:bg-gray-50 rounded border border-gray-100 transition-colors cursor-pointer group bg-white mr-2 snapping-card">
             <div className="flex justify-between items-start mb-2">
                 <div className="flex flex-col">
                     <span className="text-[10px] font-bold text-gray-800">
-                        {new Date(snapshot.timestamp).toLocaleDateString()}
+                        {dateStr}
                     </span>
                     <span className="text-[9px] text-gray-500">
-                        {new Date(snapshot.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {timeStr}
                     </span>
                 </div>
                 <button
