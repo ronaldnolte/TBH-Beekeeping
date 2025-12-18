@@ -461,9 +461,25 @@ const ApiarySelectionRaw = ({ apiaries, userId, userEmail, onLogout }: { apiarie
                         <div className="mt-4 pt-4 border-t">
                             <button
                                 onClick={handleCreate}
-                                className="w-full py-2 bg-[#E67E22] text-white rounded font-bold hover:bg-[#D35400]"
+                                className="w-full py-2 bg-[#E67E22] text-white rounded font-bold hover:bg-[#D35400] mb-2"
                             >
                                 + Create New Apiary
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    if (confirm("This will wipe all local data and re-download from the server. Use this if you are missing data. Continue?")) {
+                                        try {
+                                            await resetAndSeed();
+                                            alert("Reset complete. App will reload.");
+                                            window.location.reload();
+                                        } catch (e) {
+                                            alert("Reset failed: " + e);
+                                        }
+                                    }
+                                }}
+                                className="w-full py-2 bg-red-100 text-red-700 border border-red-200 rounded font-bold hover:bg-red-200 text-xs"
+                            >
+                                ⚠️ Hard Reset (Fix Missing Data)
                             </button>
                         </div>
                     </div>
