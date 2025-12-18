@@ -7,7 +7,7 @@ import { Q } from '@nozbe/watermelondb';
 
 import { Modal } from './Modal';
 
-const InterventionItem = ({ intervention, onDelete, onEdit }: { intervention: Intervention, onDelete: (intervention: Intervention) => void, onEdit: (intervention: Intervention) => void }) => {
+const InterventionItem = ({ intervention, onDelete, onEdit, onView }: { intervention: Intervention, onDelete: (intervention: Intervention) => void, onEdit: (intervention: Intervention) => void, onView?: (intervention: Intervention) => void }) => {
     const date = new Date(intervention.timestamp);
 
     const getTypeColor = (type: string) => {
@@ -22,7 +22,7 @@ const InterventionItem = ({ intervention, onDelete, onEdit }: { intervention: In
     };
 
     return (
-        <div className="grid grid-cols-[60px_80px_130px_1fr] border-b border-gray-100 hover:bg-gray-50 transition-colors group items-center py-0">
+        <div className="grid grid-cols-[60px_80px_130px_1fr] border-b border-gray-100 hover:bg-gray-50 transition-colors group items-center py-0" onClick={() => onView?.(intervention)}>
             {/* Actions */}
             <div className="flex gap-1 justify-center px-1 items-center">
                 <button
@@ -78,6 +78,11 @@ const InterventionList = ({ hive, refreshKey, onRefresh, onEdit }: { hive: Hive,
     const [isLoading, setIsLoading] = useState(true);
     const [isExpanded, setIsExpanded] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<Intervention | null>(null);
+    const [viewingItem, setViewingItem] = useState<Intervention | null>(null);
+
+    const handleViewDetails = (intervention: Intervention) => {
+        setViewingItem(intervention);
+    };
 
     useEffect(() => {
         // Direct Query for robust reactivity
@@ -144,6 +149,7 @@ const InterventionList = ({ hive, refreshKey, onRefresh, onEdit }: { hive: Hive,
                         intervention={intervention}
                         onDelete={setItemToDelete}
                         onEdit={onEdit}
+                        onView={handleViewDetails}
                     />
                 ))}
 
@@ -181,6 +187,46 @@ const InterventionList = ({ hive, refreshKey, onRefresh, onEdit }: { hive: Hive,
                         </button>
                     </div>
                 </div>
+            </Modal>
+
+            <Modal
+                isOpen={!!viewingItem}
+                onClose={() => setViewingItem(null)}
+                title="Intervention Details"
+            >
+                {viewingItem && (
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-start border-b pb-2">
+                            <div>
+                                <div className="text-sm font-bold text-gray-800">
+                                    {new Date(viewingItem.timestamp).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                    {new Date(viewingItem.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </div>
+                            </div>
+                            <div className="px-2 py-1 bg-yellow-50 rounded text-xs font-bold text-yellow-800 border border-yellow-200 uppercase tracking-wider">
+                                {viewingItem.type.replace(/_/g, ' ')}
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-50 p-4 rounded border border-gray-100">
+                            <span className="text-gray-500 block mb-1 uppercase tracking-wider text-[9px] font-bold">Details</span>
+                            <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+                                {viewingItem.description || <span className="italic text-gray-400">No description provided.</span>}
+                            </p>
+                        </div>
+
+                        <div className="flex justify-end pt-2">
+                            <button
+                                onClick={() => setViewingItem(null)}
+                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded font-medium text-xs"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                )}
             </Modal>
         </>
     );

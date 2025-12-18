@@ -396,7 +396,7 @@ const ApiarySelectionRaw = ({ apiaries, userId, userEmail, onLogout }: { apiarie
                 {!isManaging && (
                     <div className="text-center opacity-70 mb-4">
                         <div className="mb-4">
-                            <img src="/icon-512.png" alt="TBH Beekeeper" className="w-32 h-32 object-contain opacity-80" />
+                            <img src="/icon-512.png" alt="TBH Beekeeper" className="w-20 h-20 object-contain opacity-80 mx-auto" />
                         </div>
                         <h2 className="text-xl font-serif font-bold text-[#4A3C28] mb-1">Select an apiary to begin</h2>
                         <p className="text-[#8B4513] text-sm">Or view your upcoming tasks below</p>

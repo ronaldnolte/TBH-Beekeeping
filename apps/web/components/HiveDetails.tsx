@@ -48,50 +48,46 @@ const HistoryItemRaw = ({ snapshot, onSelect }: { snapshot: HiveSnapshot, onSele
         }
     };
 
+    const [viewingSnapshot, setViewingSnapshot] = useState<HiveSnapshot | null>(null);
+
     return (
-        <div onClick={onSelect} className="flex items-center justify-between p-1 hover:bg-gray-50 rounded border border-gray-100 transition-colors cursor-pointer group">
-            <div className="flex items-center gap-3 overflow-hidden">
-                <div className="flex flex-col min-w-[70px]">
-                    <span className="text-[10px] font-semibold text-gray-700">
-                        {snapshot.timestamp.toLocaleDateString()}
-                    </span>
-                    <span className="text-[9px] text-gray-500">
-                        {snapshot.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+        <>
+            <div onClick={onSelect} className="flex-shrink-0 w-[200px] flex flex-col p-2 hover:bg-gray-50 rounded border border-gray-100 transition-colors cursor-pointer group bg-white mr-2 snapping-card">
+                <div className="flex justify-between items-start mb-2">
+                    <div className="flex flex-col">
+                        <span className="text-[10px] font-bold text-gray-800">
+                            {snapshot.timestamp.toLocaleDateString()}
+                        </span>
+                        <span className="text-[9px] text-gray-500">
+                            {snapshot.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                    </div>
+                    <button
+                        onClick={handleDelete}
+                        className="text-gray-300 hover:text-red-500 hover:bg-red-50 rounded px-1 transition-colors"
+                        title="Delete Snapshot"
+                    >
+                        ×
+                    </button>
                 </div>
 
                 {/* Mini Visualizer */}
-                <div className="flex gap-[2px]">
-                    {bars.map((bar) => (
+                <div className="flex gap-[1px] h-8 items-end overflow-hidden">
+                    {bars.slice(0, 30).map((bar) => (
                         <div
                             key={bar.position}
-                            className="w-4 h-8 rounded-[1px] border border-black flex items-center justify-center"
+                            className="w-1.5 h-full rounded-[0.5px] border-[0.5px] border-black/10"
                             style={{
                                 backgroundColor: BAR_COLORS[bar.status as BarStatus] || BAR_COLORS.inactive,
+                                height: '100%'
                             }}
                             title={`Bar ${bar.position}: ${bar.status}`}
-                        >
-                            <span className="text-[8px] font-bold text-black/70 leading-none">
-                                {bar.position}
-                            </span>
-                        </div>
+                        />
                     ))}
+                    {bars.length > 30 && <div className="text-[8px] text-gray-300 self-center">...</div>}
                 </div>
             </div>
-
-            <div className="ml-2 flex items-center gap-2">
-                <button
-                    onClick={handleDelete}
-                    className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
-                    title="Delete Snapshot"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                </button>
-                <span className="text-gray-300 text-xs">›</span>
-            </div>
-        </div>
+        </>
     );
 };
 
@@ -215,15 +211,15 @@ function HiveDetailsRaw({ hive, latestSnapshot, renderedSnapshots, onSnapshotCre
                         <h3 className="text-sm font-bold text-[#4A3C28] uppercase tracking-wide">History</h3>
                         <button
                             className="text-xs text-[#E67E22] font-medium"
-                            onClick={() => selectedSnapshotId ? setSelectedSnapshotId(null) : setViewAllHistory(!viewAllHistory)}
+                            onClick={() => setSelectedSnapshotId(null)}
                         >
-                            {selectedSnapshotId ? 'Back to Latest' : (viewAllHistory ? 'Show Less' : 'View All')}
+                            {selectedSnapshotId ? 'Back to Latest' : ''}
                         </button>
                     </div>
-                    {/* History List */}
-                    <div className="space-y-1 mt-2">
-                        {(!renderedSnapshots || renderedSnapshots.length === 0) && <div className="text-xs text-center text-gray-400 py-2">No history loaded</div>}
-                        {visibleSnapshots?.map((snapshot) => (
+                    {/* History List - Horizontal Scroll */}
+                    <div className="flex overflow-x-auto pb-2 -mx-2 px-2 snap-x">
+                        {(!renderedSnapshots || renderedSnapshots.length === 0) && <div className="text-xs text-center text-gray-400 py-2 w-full">No history loaded</div>}
+                        {renderedSnapshots?.map((snapshot) => (
                             <HistoryItem
                                 key={snapshot.id}
                                 snapshot={snapshot}

@@ -7,7 +7,7 @@ import { Q, Query } from '@nozbe/watermelondb';
 import { Modal } from './Modal';
 
 // --- Task Item Component (UI Only) ---
-const TaskItem = ({ task, onToggle, onDelete, onEdit }: { task: Task, onToggle: (task: Task) => void, onDelete: (task: Task) => void, onEdit: (task: Task) => void }) => {
+const TaskItem = ({ task, onToggle, onDelete, onEdit, onView }: { task: Task, onToggle: (task: Task) => void, onDelete: (task: Task) => void, onEdit: (task: Task) => void, onView?: (task: Task) => void }) => {
     const dueDate = task.dueDate ? new Date(task.dueDate) : null;
     const isOverdue = dueDate && dueDate < new Date() && task.status !== 'completed';
 
@@ -21,7 +21,7 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: { task: Task, onToggle: 
     };
 
     return (
-        <div className={`grid grid-cols-[50px_40px_60px_80px_140px_1fr] border-b border-gray-100 hover:bg-gray-50 transition-colors group items-center py-0 ${task.status === 'completed' ? 'opacity-50' : ''}`}>
+        <div className={`grid grid-cols-[50px_40px_60px_80px_140px_1fr] border-b border-gray-100 hover:bg-gray-50 transition-colors group items-center py-0 ${task.status === 'completed' ? 'opacity-50' : ''}`} onClick={() => onView?.(task)}>
             {/* Actions */}
             <div className="flex gap-1 justify-center px-1 items-center h-8">
                 <button
@@ -93,6 +93,11 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: { task: Task, onToggle: 
 export const TaskGrid = ({ tasks, onEdit, onRefresh }: { tasks: Task[], onEdit: (task: Task) => void, onRefresh?: () => void }) => {
     const [showCompleted, setShowCompleted] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<Task | null>(null);
+    const [viewingItem, setViewingItem] = useState<Task | null>(null);
+
+    const handleViewDetails = (task: Task) => {
+        setViewingItem(task);
+    };
 
     const handleToggle = async (task: Task) => {
         await database.write(async () => {
@@ -152,6 +157,7 @@ export const TaskGrid = ({ tasks, onEdit, onRefresh }: { tasks: Task[], onEdit: 
                         onToggle={handleToggle}
                         onDelete={setItemToDelete}
                         onEdit={onEdit}
+                        onView={handleViewDetails}
                     />
                 ))}
             </div>
@@ -168,6 +174,59 @@ export const TaskGrid = ({ tasks, onEdit, onRefresh }: { tasks: Task[], onEdit: 
                         <button onClick={confirmDelete} className="px-3 py-1 text-xs bg-red-600 text-white rounded">Delete</button>
                     </div>
                 </div>
+            </Modal>
+
+            <Modal
+                isOpen={!!viewingItem}
+                onClose={() => setViewingItem(null)}
+                title="Task Details"
+            >
+                {viewingItem && (
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-start border-b pb-2">
+                            <div>
+                                <h4 className="text-lg font-bold text-gray-800">{viewingItem.title}</h4>
+                                <div className="text-xs text-gray-500 mt-1">
+                                    Due: {viewingItem.dueDate ? new Date(viewingItem.dueDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'No due date'}
+                                </div>
+                            </div>
+                            <div className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${viewingItem.priority === 'high' ? 'bg-red-100 text-red-800' :
+                                    viewingItem.priority === 'medium' ? 'bg-amber-100 text-amber-800' :
+                                        'bg-blue-100 text-blue-800'
+                                }`}>
+                                {viewingItem.priority}
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-50 p-4 rounded border border-gray-100">
+                            <span className="text-gray-500 block mb-1 uppercase tracking-wider text-[9px] font-bold">Description</span>
+                            <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+                                {viewingItem.description || <span className="italic text-gray-400">No description provided.</span>}
+                            </p>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer p-2 hover:bg-gray-100 rounded w-full">
+                                <input
+                                    type="checkbox"
+                                    checked={viewingItem.status === 'completed'}
+                                    readOnly // UI only, use list to toggle
+                                    className="w-4 h-4 text-amber-500 border-gray-300 rounded focus:ring-amber-500"
+                                />
+                                <span>Completed</span>
+                            </label>
+                        </div>
+
+                        <div className="flex justify-end pt-2">
+                            <button
+                                onClick={() => setViewingItem(null)}
+                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded font-medium text-xs"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                )}
             </Modal>
         </>
     );

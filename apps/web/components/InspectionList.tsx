@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 import { database } from '../lib/database';
 import { Modal } from './Modal';
 
-const InspectionItemRaw = ({ inspection, onDelete, onEdit }: { inspection: Inspection, onDelete: (inspection: Inspection) => void, onEdit: (inspection: Inspection) => void }) => {
+const InspectionItemRaw = ({ inspection, onDelete, onEdit, onView }: { inspection: Inspection, onDelete: (inspection: Inspection) => void, onEdit: (inspection: Inspection) => void, onView?: (inspection: Inspection) => void }) => {
     const date = new Date(inspection.timestamp);
 
     // Helper for status colors
@@ -67,7 +67,7 @@ const InspectionItemRaw = ({ inspection, onDelete, onEdit }: { inspection: Inspe
     );
 
     return (
-        <div className="grid grid-cols-[60px_80px_90px_60px_60px_60px_60px_1fr] border-b border-gray-100 hover:bg-gray-50 transition-colors group items-center py-0">
+        <div className="grid grid-cols-[50px_80px_90px_60px_60px_60px_60px_1fr_30px] border-b border-gray-100 hover:bg-gray-50 transition-colors group items-center py-0" onClick={() => onView?.(inspection)}>
             {/* Actions */}
             <div className="flex gap-1 justify-center px-1 items-center">
                 <button
@@ -76,16 +76,10 @@ const InspectionItemRaw = ({ inspection, onDelete, onEdit }: { inspection: Inspe
                 >
                     ✎
                 </button>
-                <button
-                    onClick={(e) => { e.stopPropagation(); onDelete(inspection); }}
-                    className="text-gray-300 hover:text-red-500 p-1"
-                >
-                    ×
-                </button>
             </div>
 
-            {/* Date */}
-            <div className="px-3">
+            {/* Date - Clickable for Details */}
+            <div className="px-3 cursor-pointer" onClick={() => (onView ? onView(inspection) : null)}>
                 <div className="text-[11px] font-bold text-gray-700 whitespace-nowrap">
                     {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                 </div>
@@ -116,6 +110,15 @@ const InspectionItemRaw = ({ inspection, onDelete, onEdit }: { inspection: Inspe
                 )}
             </div>
 
+            <div className="flex justify-center px-1">
+                <button
+                    onClick={(e) => { e.stopPropagation(); onDelete(inspection); }}
+                    className="text-gray-300 hover:text-red-500 p-1 text-[10px]"
+                >
+                    ×
+                </button>
+            </div>
+
 
         </div>
     );
@@ -143,6 +146,12 @@ const InspectionListRaw = ({ inspections, onRefresh, onEdit }: { inspections: In
         }
     };
 
+    const [viewingItem, setViewingItem] = useState<Inspection | null>(null);
+
+    const handleViewDetails = (inspection: Inspection) => {
+        setViewingItem(inspection);
+    };
+
     if (!inspections || inspections.length === 0) {
         return <div className="text-center py-4 text-gray-400 text-xs italic">No inspections recorded.</div>;
     }
@@ -154,7 +163,7 @@ const InspectionListRaw = ({ inspections, onRefresh, onEdit }: { inspections: In
         <>
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
                 {/* Header Row */}
-                <div className="grid grid-cols-[60px_80px_90px_60px_60px_60px_60px_1fr] bg-gray-50 border-b border-gray-200 py-1.5 items-center">
+                <div className="grid grid-cols-[50px_80px_90px_60px_60px_60px_60px_1fr_30px] bg-gray-50 border-b border-gray-200 py-1.5 items-center">
                     <div></div>
                     <div className="px-3 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Date</div>
                     <div className="px-1 text-center text-[9px] font-bold text-gray-400 uppercase tracking-wider">Queen</div>
@@ -172,6 +181,7 @@ const InspectionListRaw = ({ inspections, onRefresh, onEdit }: { inspections: In
                         inspection={inspection}
                         onDelete={setItemToDelete}
                         onEdit={onEdit}
+                        onView={handleViewDetails}
                     />
                 ))}
 
@@ -209,6 +219,62 @@ const InspectionListRaw = ({ inspections, onRefresh, onEdit }: { inspections: In
                         </button>
                     </div>
                 </div>
+            </Modal>
+
+            <Modal
+                isOpen={!!viewingItem}
+                onClose={() => setViewingItem(null)}
+                title="Inspection Details"
+            >
+                {viewingItem && (
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-start border-b pb-2">
+                            <div>
+                                <div className="text-sm font-bold text-gray-800">
+                                    {new Date(viewingItem.timestamp).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                    {new Date(viewingItem.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </div>
+                            </div>
+                            <div className="px-2 py-1 bg-gray-100 rounded text-xs font-bold text-gray-700">
+                                Queen: {viewingItem.queenStatus ? viewingItem.queenStatus.replace(/_/g, ' ') : '?'}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 text-xs">
+                            <div className="bg-gray-50 p-2 rounded">
+                                <span className="text-gray-400 block mb-1 uppercase tracking-wider text-[9px]">Conditions</span>
+                                <div className="font-medium">
+                                    Temp: {viewingItem.temperament || '-'}<br />
+                                </div>
+                            </div>
+                            <div className="bg-gray-50 p-2 rounded">
+                                <span className="text-gray-400 block mb-1 uppercase tracking-wider text-[9px]">Resources</span>
+                                <div className="font-medium">
+                                    Honey: {viewingItem.honeyStores || '-'}<br />
+                                    Pollen: {viewingItem.pollenStores || '-'}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-amber-50 p-3 rounded border border-amber-100">
+                            <span className="text-amber-800/60 block mb-1 uppercase tracking-wider text-[9px] font-bold">Observations / Notes</span>
+                            <p className="text-sm text-gray-800 whitespace-pre-wrap">
+                                {viewingItem.observations || <span className="italic text-gray-400">No notes recorded.</span>}
+                            </p>
+                        </div>
+
+                        <div className="flex justify-end pt-2">
+                            <button
+                                onClick={() => setViewingItem(null)}
+                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded font-medium text-xs"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                )}
             </Modal>
         </>
     );
