@@ -11,6 +11,10 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "TBH Beekeeper",
   },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
   formatDetection: {
     telephone: false,
   },
