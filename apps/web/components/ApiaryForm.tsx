@@ -39,6 +39,7 @@ export function ApiaryForm({
                         record.name = name;
                         record.zipCode = zipCode;
                         record.notes = notes;
+                        // @ts-ignore
                         record.userId = userId;
                         // Explicitly set dates to ensure sorting works immediately
                         // @ts-ignore
