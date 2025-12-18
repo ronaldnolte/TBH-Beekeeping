@@ -115,6 +115,18 @@ export const InspectionList = ({ hive, refreshKey }: { hive: Hive, refreshKey?: 
                             <Text style={styles.detailLabel}>Pollen</Text>
                             <Text style={styles.gridValue}>{selectedInspection.pollen_stores || '-'}</Text>
                         </View>
+                        <View style={styles.gridItem}>
+                            <Text style={styles.detailLabel}>Population</Text>
+                            <Text style={styles.gridValue}>{selectedInspection.population_strength || '-'}</Text>
+                        </View>
+                        <View style={styles.gridItem}>
+                            <Text style={styles.detailLabel}>Weather</Text>
+                            <Text style={styles.gridValue}>
+                                {selectedInspection.weather
+                                    ? `${Math.round(selectedInspection.weather.tempF)}°F ${selectedInspection.weather.condition}`
+                                    : '-'}
+                            </Text>
+                        </View>
                     </View>
 
                     <Text style={styles.sectionHeader}>Observations</Text>
