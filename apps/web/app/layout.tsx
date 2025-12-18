@@ -11,8 +11,9 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "TBH Beekeeper",
   },
+  manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon-192.png",
     apple: "/apple-icon.png",
   },
   formatDetection: {
