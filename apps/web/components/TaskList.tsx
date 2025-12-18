@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { Hive, Task } from '@tbh-beekeeper/shared';
-import { database } from '../lib/database';
-import { Q, Query } from '@nozbe/watermelondb';
+import { supabase } from '../lib/supabase';
 import { Modal } from './Modal';
 
 // --- Task Item Component (UI Only) ---
 const TaskItem = ({ task, onToggle, onDelete, onEdit, onView }: { task: Task, onToggle: (task: Task) => void, onDelete: (task: Task) => void, onEdit: (task: Task) => void, onView?: (task: Task) => void }) => {
-    const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+    const dueDate = task.due_date ? new Date(task.due_date) : null;
     const isOverdue = dueDate && dueDate < new Date() && task.status !== 'completed';
 
     const getPriorityColor = (priority: string) => {
@@ -22,23 +21,11 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit, onView }: { task: Task, on
 
     return (
         <div className={`grid grid-cols-[50px_40px_60px_80px_140px_1fr] border-b border-gray-100 hover:bg-gray-50 transition-colors group items-center py-0 ${task.status === 'completed' ? 'opacity-50' : ''}`} onClick={() => onView?.(task)}>
-            {/* Actions */}
             <div className="flex gap-1 justify-center px-1 items-center h-8">
-                <button
-                    onClick={(e) => { e.stopPropagation(); onEdit(task); }}
-                    className="text-gray-300 hover:text-amber-500 p-1"
-                >
-                    ✎
-                </button>
-                <button
-                    onClick={(e) => { e.stopPropagation(); onDelete(task); }}
-                    className="text-gray-300 hover:text-red-500 p-1"
-                >
-                    ×
-                </button>
+                <button onClick={(e) => { e.stopPropagation(); onEdit(task); }} className="text-gray-300 hover:text-amber-500 p-1">✎</button>
+                <button onClick={(e) => { e.stopPropagation(); onDelete(task); }} className="text-gray-300 hover:text-red-500 p-1">×</button>
             </div>
 
-            {/* Checkbox */}
             <div className="flex justify-center items-center h-8">
                 <input
                     type="checkbox"
@@ -48,43 +35,27 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit, onView }: { task: Task, on
                 />
             </div>
 
-            {/* Priority */}
             <div className="px-2 flex items-center justify-center h-8">
                 <span className={`text-[10px] uppercase tracking-wider ${getPriorityColor(task.priority)}`}>
                     {task.priority === 'medium' ? 'Med' : task.priority}
                 </span>
             </div>
 
-            {/* Due Date */}
             <div className="px-2 flex items-center h-8">
                 {dueDate ? (
                     <span className={`text-[10px] truncate ${isOverdue ? 'text-red-500 font-bold' : 'text-gray-500'}`}>
                         {dueDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                     </span>
-                ) : (
-                    <span className="text-[10px] text-gray-300">-</span>
-                )}
+                ) : <span className="text-[10px] text-gray-300">-</span>}
             </div>
 
-            {/* Title */}
-            <div className="px-2 min-w-0 flex items-center h-8">
-                <span className={`text-[11px] text-gray-700 truncate ${task.status === 'completed' ? 'line-through' : ''}`} title={task.title}>
-                    {task.title}
-                </span>
+            <div className={`px-2 min-w-0 flex items-center h-8 text-[11px] text-gray-700 truncate ${task.status === 'completed' ? 'line-through' : ''}`} title={task.title}>
+                {task.title}
             </div>
 
-            {/* Description */}
-            <div className="px-2 min-w-0 flex items-center h-8">
-                {task.description ? (
-                    <span className="text-[11px] text-gray-500 truncate" title={task.description}>
-                        {task.description}
-                    </span>
-                ) : (
-                    <span className="text-[10px] text-gray-300 italic">-</span>
-                )}
+            <div className="px-2 min-w-0 flex items-center h-8 text-[11px] text-gray-500 truncate" title={task.description}>
+                {task.description || '-'}
             </div>
-
-
         </div>
     );
 };
@@ -95,51 +66,39 @@ export const TaskGrid = ({ tasks, onEdit, onRefresh }: { tasks: Task[], onEdit: 
     const [itemToDelete, setItemToDelete] = useState<Task | null>(null);
     const [viewingItem, setViewingItem] = useState<Task | null>(null);
 
-    const handleViewDetails = (task: Task) => {
-        setViewingItem(task);
-    };
-
     const handleToggle = async (task: Task) => {
-        await database.write(async () => {
-            await task.update(t => {
-                t.status = t.status === 'completed' ? 'pending' : 'completed';
-                t.completedAt = t.status === 'completed' ? new Date() : undefined;
-            });
-        });
+        const newStatus = task.status === 'completed' ? 'pending' : 'completed';
+        const completedAt = newStatus === 'completed' ? new Date().toISOString() : null;
+
+        await supabase
+            .from('tasks')
+            .update({ status: newStatus, completed_at: completedAt })
+            .eq('id', task.id);
+
         if (onRefresh) onRefresh();
     };
 
     const confirmDelete = async () => {
         if (!itemToDelete) return;
-        await database.write(async () => {
-            await itemToDelete.destroyPermanently();
-        });
+        await supabase.from('tasks').delete().eq('id', itemToDelete.id);
         setItemToDelete(null);
         if (onRefresh) onRefresh();
     };
 
     const visibleTasks = tasks.filter(t => showCompleted || t.status !== 'completed');
 
-    if (tasks.length === 0) {
-        return <div className="text-center py-4 text-gray-400 text-xs italic">No tasks.</div>;
-    }
+    if (tasks.length === 0) return <div className="text-center py-4 text-gray-400 text-xs italic">No tasks.</div>;
 
     return (
         <>
             <div className="flex justify-end mb-2">
                 <label className="flex items-center text-[10px] text-gray-500 cursor-pointer select-none space-x-1.5 hover:text-gray-700">
-                    <input
-                        type="checkbox"
-                        checked={showCompleted}
-                        onChange={(e) => setShowCompleted(e.target.checked)}
-                        className="w-3 h-3 text-gray-500 border-gray-300 rounded focus:ring-0"
-                    />
+                    <input type="checkbox" checked={showCompleted} onChange={(e) => setShowCompleted(e.target.checked)} className="w-3 h-3 text-gray-500 border-gray-300 rounded focus:ring-0" />
                     <span>Show Completed</span>
                 </label>
             </div>
 
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
-                {/* Header */}
                 <div className="grid grid-cols-[50px_40px_60px_80px_140px_1fr] bg-gray-50 border-b border-gray-200 py-1.5 items-center">
                     <div></div>
                     <div className="px-2 text-center text-[9px] font-bold text-gray-400 uppercase tracking-wider">Done</div>
@@ -147,7 +106,6 @@ export const TaskGrid = ({ tasks, onEdit, onRefresh }: { tasks: Task[], onEdit: 
                     <div className="px-2 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Due</div>
                     <div className="px-2 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Title</div>
                     <div className="px-2 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Description</div>
-                    <div></div>
                 </div>
 
                 {visibleTasks.map(task => (
@@ -157,16 +115,12 @@ export const TaskGrid = ({ tasks, onEdit, onRefresh }: { tasks: Task[], onEdit: 
                         onToggle={handleToggle}
                         onDelete={setItemToDelete}
                         onEdit={onEdit}
-                        onView={handleViewDetails}
+                        onView={setViewingItem}
                     />
                 ))}
             </div>
 
-            <Modal
-                isOpen={!!itemToDelete}
-                onClose={() => setItemToDelete(null)}
-                title="Delete Task"
-            >
+            <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)} title="Delete Task">
                 <div className="space-y-4">
                     <p className="text-sm text-gray-600">Delete "{itemToDelete?.title}"?</p>
                     <div className="flex gap-2 justify-end">
@@ -176,54 +130,21 @@ export const TaskGrid = ({ tasks, onEdit, onRefresh }: { tasks: Task[], onEdit: 
                 </div>
             </Modal>
 
-            <Modal
-                isOpen={!!viewingItem}
-                onClose={() => setViewingItem(null)}
-                title="Task Details"
-            >
+            <Modal isOpen={!!viewingItem} onClose={() => setViewingItem(null)} title="Task Details">
                 {viewingItem && (
                     <div className="space-y-4">
                         <div className="flex justify-between items-start border-b pb-2">
                             <div>
                                 <h4 className="text-lg font-bold text-gray-800">{viewingItem.title}</h4>
-                                <div className="text-xs text-gray-500 mt-1">
-                                    Due: {viewingItem.dueDate ? new Date(viewingItem.dueDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'No due date'}
-                                </div>
+                                <div className="text-xs text-gray-500 mt-1">Due: {viewingItem.due_date ? new Date(viewingItem.due_date).toLocaleDateString() : 'No due date'}</div>
                             </div>
-                            <div className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${viewingItem.priority === 'high' ? 'bg-red-100 text-red-800' :
-                                    viewingItem.priority === 'medium' ? 'bg-amber-100 text-amber-800' :
-                                        'bg-blue-100 text-blue-800'
-                                }`}>
-                                {viewingItem.priority}
-                            </div>
+                            <div className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${viewingItem.priority === 'high' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}`}>{viewingItem.priority}</div>
                         </div>
-
                         <div className="bg-gray-50 p-4 rounded border border-gray-100">
-                            <span className="text-gray-500 block mb-1 uppercase tracking-wider text-[9px] font-bold">Description</span>
-                            <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
-                                {viewingItem.description || <span className="italic text-gray-400">No description provided.</span>}
-                            </p>
+                            <p className="text-sm text-gray-800">{viewingItem.description || 'No description.'}</p>
                         </div>
-
-                        <div className="flex items-center gap-2">
-                            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer p-2 hover:bg-gray-100 rounded w-full">
-                                <input
-                                    type="checkbox"
-                                    checked={viewingItem.status === 'completed'}
-                                    readOnly // UI only, use list to toggle
-                                    className="w-4 h-4 text-amber-500 border-gray-300 rounded focus:ring-amber-500"
-                                />
-                                <span>Completed</span>
-                            </label>
-                        </div>
-
                         <div className="flex justify-end pt-2">
-                            <button
-                                onClick={() => setViewingItem(null)}
-                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded font-medium text-xs"
-                            >
-                                Close
-                            </button>
+                            <button onClick={() => setViewingItem(null)} className="px-4 py-2 bg-gray-100 rounded text-xs">Close</button>
                         </div>
                     </div>
                 )}
@@ -242,26 +163,14 @@ const sortTasks = (tasks: Task[]) => {
     };
 
     return [...tasks].sort((a, b) => {
-        // 1. Completion status (should be filtered out usually, but just in case)
         if (a.status !== b.status) return a.status === 'completed' ? 1 : -1;
-
-        // 2. Due Date: Items WITH dates come before items WITHOUT
-        const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Number.MAX_SAFE_INTEGER;
-        const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Number.MAX_SAFE_INTEGER;
-
-        if (dateA !== dateB) {
-            return dateA - dateB; // Ascending (earliest first), nulls last
-        }
-
-        // 3. Priority (High > Medium > Low)
+        const dateA = a.due_date ? new Date(a.due_date).getTime() : Number.MAX_SAFE_INTEGER;
+        const dateB = b.due_date ? new Date(b.due_date).getTime() : Number.MAX_SAFE_INTEGER;
+        if (dateA !== dateB) return dateA - dateB;
         const priA = getPriorityVal(a.priority);
         const priB = getPriorityVal(b.priority);
-        if (priA !== priB) {
-            return priB - priA; // Descending value
-        }
-
-        // 4. Created At (Newest first)
-        return b.createdAt.getTime() - a.createdAt.getTime();
+        if (priA !== priB) return priB - priA;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 };
 
@@ -270,13 +179,11 @@ export const TaskList = ({ hive, refreshKey, onRefresh, onEdit }: { hive: Hive, 
     const [tasks, setTasks] = useState<Task[]>([]);
 
     useEffect(() => {
-        const query = database.collections.get<Task>('tasks').query(
-            Q.where('hive_id', hive.id)
-        );
-        const subscription = query.observe().subscribe(records => {
-            setTasks(sortTasks(records));
-        });
-        return () => subscription.unsubscribe();
+        const fetchTasks = async () => {
+            const { data } = await supabase.from('tasks').select('*').eq('hive_id', hive.id);
+            setTasks(sortTasks(data || []));
+        };
+        fetchTasks();
     }, [hive.id, refreshKey]);
 
     return <TaskGrid tasks={tasks} onEdit={onEdit} onRefresh={onRefresh} />;
@@ -287,18 +194,12 @@ export const UserTaskList = ({ userId, refreshKey, onRefresh, onEdit }: { userId
     const [tasks, setTasks] = useState<Task[]>([]);
 
     useEffect(() => {
-        if (!userId) {
-            setTasks([]);
-            return;
-        }
-
-        const query = database.collections.get<Task>('tasks').query(
-            Q.where('assigned_user_id', userId)
-        );
-        const subscription = query.observe().subscribe(records => {
-            setTasks(sortTasks(records));
-        });
-        return () => subscription.unsubscribe();
+        if (!userId) return;
+        const fetchTasks = async () => {
+            const { data } = await supabase.from('tasks').select('*').eq('assigned_user_id', userId);
+            setTasks(sortTasks(data || []));
+        };
+        fetchTasks();
     }, [userId, refreshKey]);
 
     return <TaskGrid tasks={tasks} onEdit={onEdit} onRefresh={onRefresh} />;

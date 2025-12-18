@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { database } from '../lib/database';
+import { supabase } from '../lib/supabase';
 import { Hive } from '@tbh-beekeeper/shared';
 
 // Helper to generate default bars for a new hive
@@ -33,7 +33,7 @@ export function HiveForm({
     onCancel: () => void
 }) {
     const [name, setName] = useState(initialData?.name || '');
-    const [barCount, setBarCount] = useState(initialData?.barCount || 30);
+    const [barCount, setBarCount] = useState(initialData?.bar_count || 30);
     const [isSaving, setIsSaving] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -41,49 +41,41 @@ export function HiveForm({
         setIsSaving(true);
 
         try {
-            await database.write(async () => {
-                const hivesCollection = database.collections.get<Hive>('hives');
+            if (initialData) {
+                const { error } = await supabase.from('hives').update({
+                    name,
+                    bar_count: barCount
+                    // TODO: Handle bar resizing logic if count changes (complex)
+                }).eq('id', initialData.id);
+                if (error) throw error;
+            } else {
+                const initialBars = generateDefaultBars(barCount);
 
-                if (initialData) {
-                    await initialData.update(record => {
-                        record.name = name;
-                        record.barCount = barCount;
-                        // TODO: Handle bar resizing logic if count changes (complex)
-                    });
-                } else {
-                    const initialBars = generateDefaultBars(barCount);
-                    const newHive = await hivesCollection.create(record => {
-                        record.apiaryId = apiaryId;
-                        record.name = name;
-                        record.barCount = barCount;
-                        record.isActive = true;
-                        record.rawBars = JSON.stringify(initialBars);
+                // 1. Create Hive
+                const { data: newHive, error: hiveError } = await supabase.from('hives').insert({
+                    apiary_id: apiaryId,
+                    name,
+                    bar_count: barCount,
+                    is_active: true,
+                    raw_bars: initialBars
+                }).select().single();
 
-                        // Explicit timestamps for sorting
-                        // @ts-ignore
-                        record._raw.created_at = Date.now();
-                        // @ts-ignore
-                        record._raw.updated_at = Date.now();
-                    });
+                if (hiveError) throw hiveError;
 
-                    // Create initial snapshot
-                    await database.collections.get('hive_snapshots').create((record: any) => {
-                        record.hiveId = newHive.id;
-                        record.timestamp = Date.now();
-                        record.bars = initialBars;
-                        record.activeBarCount = 1;
-                        record.broodBarCount = 5;
-                        record.resourceBarCount = 4;
-                        record.emptyBarCount = 3;
-                        record.inactiveBarCount = barCount - 1 - 5 - 4 - 3;
+                // 2. Create Initial Snapshot
+                const { error: snapshotError } = await supabase.from('hive_snapshots').insert({
+                    hive_id: newHive.id,
+                    timestamp: new Date().toISOString(),
+                    bars: initialBars,
+                    active_bar_count: 1,
+                    brood_bar_count: 5,
+                    resource_bar_count: 4,
+                    empty_bar_count: 3,
+                    inactive_bar_count: barCount - 1 - 5 - 4 - 3
+                });
 
-                        // @ts-ignore
-                        record._raw.created_at = Date.now();
-                        // @ts-ignore
-                        record._raw.updated_at = Date.now();
-                    });
-                }
-            });
+                if (snapshotError) throw snapshotError;
+            }
             onSuccess();
         } catch (error) {
             console.error('Failed to save hive:', error);

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
-import { database } from '../database';
-import Apiary from '@tbh-beekeeper/shared/src/models/Apiary';
+import { Apiary } from '@tbh-beekeeper/shared';
+import { supabase } from '../lib/supabase';
 
 type Props = {
     initialData?: Apiary;
@@ -11,7 +11,7 @@ type Props = {
 
 export const ApiaryForm = ({ initialData, onSuccess, onCancel }: Props) => {
     const [name, setName] = useState(initialData?.name || '');
-    const [zipCode, setZipCode] = useState(initialData?.zipCode || '');
+    const [zipCode, setZipCode] = useState(initialData?.zip_code || '');
     const [notes, setNotes] = useState(initialData?.notes || '');
     const [isSaving, setIsSaving] = useState(false);
 
@@ -24,28 +24,22 @@ export const ApiaryForm = ({ initialData, onSuccess, onCancel }: Props) => {
         setIsSaving(true);
 
         try {
-            await database.write(async () => {
-                const apiariesCollection = database.collections.get<Apiary>('apiaries');
+            const userId = 'user_1'; // TODO: real auth
 
-                if (initialData) {
-                    await initialData.update(record => {
-                        record.name = name;
-                        record.zipCode = zipCode;
-                        record.notes = notes;
-                    });
-                } else {
-                    await apiariesCollection.create(record => {
-                        record.name = name;
-                        record.zipCode = zipCode;
-                        record.notes = notes;
-                        record.userId = 'user_1'; // TODO: Get real user ID
-                        // @ts-ignore
-                        record._raw.created_at = Date.now();
-                        // @ts-ignore
-                        record._raw.updated_at = Date.now();
-                    });
-                }
-            });
+            const payload = {
+                name,
+                zip_code: zipCode,
+                notes,
+                user_id: userId,
+            };
+
+            if (initialData) {
+                const { error } = await supabase.from('apiaries').update(payload).eq('id', initialData.id);
+                if (error) throw error;
+            } else {
+                const { error } = await supabase.from('apiaries').insert(payload);
+                if (error) throw error;
+            }
             onSuccess();
         } catch (error) {
             console.error('Failed to save apiary:', error);

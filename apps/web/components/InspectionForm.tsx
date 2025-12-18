@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { database } from '../lib/database';
-import { Q } from '@nozbe/watermelondb';
 import { Inspection, QueenStatus, BroodPattern, Temperament, StoreLevel } from '@tbh-beekeeper/shared';
+import { supabase } from '../lib/supabase';
 
 const QUEEN_STATUS_OPTIONS: { value: QueenStatus; label: string }[] = [
     { value: 'seen', label: 'Seen' },
@@ -28,7 +27,7 @@ const TEMPERAMENT_OPTIONS: { value: Temperament; label: string }[] = [
 
 const STORES_OPTIONS: { value: StoreLevel; label: string }[] = [
     { value: 'abundant', label: 'Abundant' },
-    { value: 'adequate', label: 'Medium' }, // Map 'Medium' to 'adequate' if preferred, or 'Average'
+    { value: 'adequate', label: 'Medium' },
     { value: 'low', label: 'Low' },
     { value: 'none', label: 'None' },
 ];
@@ -72,12 +71,11 @@ export const InspectionForm = ({ hiveId, initialData, onSuccess, onCancel }: { h
         const offset = d.getTimezoneOffset() * 60000;
         return new Date(d.getTime() - offset).toISOString().split('T')[0];
     });
-    // Set safe defaults to ensure data is always stored but not optimistically biased
-    const [queenStatus, setQueenStatus] = useState<QueenStatus>(initialData?.queenStatus || 'unknown');
-    const [broodPattern, setBroodPattern] = useState<BroodPattern>(initialData?.broodPattern || 'good');
+    const [queenStatus, setQueenStatus] = useState<QueenStatus>(initialData?.queen_status || 'unknown');
+    const [broodPattern, setBroodPattern] = useState<BroodPattern>(initialData?.brood_pattern || 'good');
     const [temperament, setTemperament] = useState<Temperament>(initialData?.temperament || 'moderate');
-    const [honeyStores, setHoneyStores] = useState<StoreLevel>(initialData?.honeyStores || 'adequate');
-    const [pollenStores, setPollenStores] = useState<StoreLevel>(initialData?.pollenStores || 'adequate');
+    const [honeyStores, setHoneyStores] = useState<StoreLevel>(initialData?.honey_stores || 'adequate');
+    const [pollenStores, setPollenStores] = useState<StoreLevel>(initialData?.pollen_stores || 'adequate');
     const [observations, setObservations] = useState(initialData?.observations || '');
     const [isSaving, setIsSaving] = useState(false);
 
@@ -85,31 +83,29 @@ export const InspectionForm = ({ hiveId, initialData, onSuccess, onCancel }: { h
         if (!date) return alert('Please key in a date');
         setIsSaving(true);
         try {
-            await database.write(async () => {
-                if (initialData) {
-                    await initialData.update(inspection => {
-                        inspection.timestamp = new Date(date);
-                        inspection.queenStatus = queenStatus;
-                        inspection.broodPattern = broodPattern;
-                        inspection.temperament = temperament;
-                        inspection.honeyStores = honeyStores;
-                        inspection.pollenStores = pollenStores;
-                        inspection.observations = observations;
-                    });
-                } else {
-                    const inspectionCollection = database.get<Inspection>('inspections');
-                    await inspectionCollection.create(inspection => {
-                        inspection.hiveId = hiveId;
-                        inspection.timestamp = new Date(date);
-                        inspection.queenStatus = queenStatus;
-                        inspection.broodPattern = broodPattern;
-                        inspection.temperament = temperament;
-                        inspection.honeyStores = honeyStores;
-                        inspection.pollenStores = pollenStores;
-                        inspection.observations = observations;
-                    });
-                }
-            });
+            const payload = {
+                hive_id: hiveId,
+                timestamp: new Date(date).toISOString(),
+                queen_status: queenStatus,
+                brood_pattern: broodPattern,
+                temperament: temperament,
+                honey_stores: honeyStores,
+                pollen_stores: pollenStores,
+                observations: observations
+            };
+
+            if (initialData) {
+                const { error } = await supabase
+                    .from('inspections')
+                    .update(payload)
+                    .eq('id', initialData.id);
+                if (error) throw error;
+            } else {
+                const { error } = await supabase
+                    .from('inspections')
+                    .insert(payload);
+                if (error) throw error;
+            }
             onSuccess();
         } catch (error) {
             console.error('Failed to save inspection:', error);
@@ -121,7 +117,6 @@ export const InspectionForm = ({ hiveId, initialData, onSuccess, onCancel }: { h
 
     return (
         <div className="space-y-4">
-            {/* Date */}
             <div className="space-y-1">
                 <label className="block text-xs font-medium text-gray-700">Date</label>
                 <input
@@ -132,7 +127,6 @@ export const InspectionForm = ({ hiveId, initialData, onSuccess, onCancel }: { h
                 />
             </div>
 
-            {/* Quick Stats Grid */}
             <SelectPills
                 label="Queen Status"
                 options={QUEEN_STATUS_OPTIONS}
@@ -170,7 +164,6 @@ export const InspectionForm = ({ hiveId, initialData, onSuccess, onCancel }: { h
                 />
             </div>
 
-            {/* Observations */}
             <div className="space-y-1">
                 <label className="block text-xs font-medium text-gray-700">Observations</label>
                 <textarea
@@ -182,7 +175,6 @@ export const InspectionForm = ({ hiveId, initialData, onSuccess, onCancel }: { h
                 />
             </div>
 
-            {/* Actions */}
             <div className="flex gap-2 pt-2">
                 <button
                     onClick={onCancel}

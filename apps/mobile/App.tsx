@@ -1,46 +1,60 @@
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+
+import LoginScreen from './src/screens/LoginScreen';
+import ApiarySelectionScreen from './src/screens/ApiarySelectionScreen';
+import ApiaryDashboardScreen from './src/screens/ApiaryDashboardScreen';
+import HiveDetailsScreen from './src/screens/HiveDetailsScreen';
+
+export type RootStackParamList = {
+  Login: undefined;
+  ApiarySelection: undefined;
+  ApiaryDashboard: { apiaryId: string };
+  HiveDetails: { hiveId: string };
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.icon}>🐝</Text>
-      <Text style={styles.title}>TBH Beekeeper</Text>
-      <Text style={styles.subtitle}>Mobile App</Text>
+    <NavigationContainer>
       <StatusBar style="auto" />
-      <Text style={styles.info}>
-        Setting up navigation and database...
-      </Text>
-    </View>
+      <Stack.Navigator
+        initialRouteName="Login"
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#E67E22',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+          headerBackTitleVisible: false,
+        }}
+      >
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ApiarySelection"
+          component={ApiarySelectionScreen}
+          options={{ title: 'Select Apiary', headerLeft: () => null }}
+        />
+        <Stack.Screen
+          name="ApiaryDashboard"
+          component={ApiaryDashboardScreen}
+          options={{ title: 'Apiary Dashboard' }}
+        />
+        <Stack.Screen
+          name="HiveDetails"
+          component={HiveDetailsScreen}
+          options={{ title: 'Hive Details' }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF8F0',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  icon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#4A3C28',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#8B4513',
-    marginBottom: 32,
-  },
-  info: {
-    fontSize: 14,
-    color: '#999',
-    textAlign: 'center',
-  },
-});

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { HiveSnapshot, BarState, Hive } from '@tbh-beekeeper/shared';
-import { database } from '../lib/database';
+import { supabase } from '../lib/supabase';
 
 // Bar status colors from prototype
 const BAR_COLORS = {
@@ -17,15 +17,12 @@ const BAR_COLORS = {
 type BarStatus = keyof typeof BAR_COLORS;
 
 export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOnly = false }: {
-    snapshot?: HiveSnapshot; // Optional now, used for history viewing
-    hive?: Hive; // The live hive record
+    snapshot?: HiveSnapshot;
+    hive?: Hive;
     hiveId: string;
     onSnapshotCreate?: () => void;
     readOnly?: boolean;
 }) {
-    // If viewing history (readOnly), show snapshot bars.
-    // If editing live (hive present), show hive bars.
-    // Fallback to empty array.
     const initialBars = readOnly
         ? (snapshot ? (typeof snapshot.bars === 'string' ? JSON.parse(snapshot.bars) : snapshot.bars) : [])
         : (hive?.bars || []);
@@ -33,7 +30,6 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
     const [bars, setBars] = useState<BarState[]>(initialBars);
     const [isCapturing, setIsCapturing] = useState(false);
 
-    // Sync state when props change (switching between history and live view)
     useEffect(() => {
         const targetBars = readOnly
             ? (snapshot ? (typeof snapshot.bars === 'string' ? JSON.parse(snapshot.bars) : snapshot.bars) : [])
@@ -44,10 +40,9 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
     if (!bars || bars.length === 0) return <div className="p-4 text-center text-gray-400">No bar configuration data</div>;
 
     const toggleBarStatus = async (position: number) => {
-        if (readOnly) return; // Prevent editing historical snapshots directly here
-        if (!hive) return; // Cannot edit without a live hive record
+        if (readOnly) return;
+        if (!hive) return;
 
-        // Find index of bar to change
         const index = bars.findIndex((b) => b.position === position);
         if (index === -1) return;
 
@@ -59,26 +54,22 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
         const newBars = [...bars];
         newBars[index] = { ...currentBar, status: nextStatus };
 
-        // UPDATE UI IMMEDIATELY
         setBars(newBars);
 
-        // UPDATE HIVE RECORD IMMEDIATELY (Live Persistence)
         try {
-            await database.write(async () => {
-                await hive.update(record => {
-                    record.rawBars = JSON.stringify(newBars);
-                });
-            });
+            await supabase
+                .from('hives')
+                .update({ bars: newBars }) // Supabase handles JSONB automatically with mapped types usually, ensure Hive type matches
+                .eq('id', hive.id);
         } catch (e) {
             console.error("Failed to update hive record", e);
         }
     };
 
     const handleCapture = async () => {
-        if (isCapturing) return; // Prevent double clicks
+        if (isCapturing) return;
         setIsCapturing(true);
 
-        // Calculate counts for denormalization based on CURRENT bars
         const inactiveCount = bars.filter(b => b.status === 'inactive').length;
         const activeCount = bars.filter(b => b.status === 'active').length;
         const emptyCount = bars.filter(b => b.status === 'empty').length;
@@ -87,24 +78,19 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
         const followerBoardPosition = bars.find(b => b.status === 'follower_board')?.position;
 
         try {
-            await database.write(async () => {
-                // EXPLICIT CAPTURE: Create a snapshot from the current bars state
-                await database.get('hive_snapshots').create((record: any) => {
-                    record.hiveId = hiveId;
-                    record.timestamp = new Date();
-                    record.bars = bars;
-
-                    // Set counts
-                    record.inactiveBarCount = inactiveCount;
-                    record.activeBarCount = activeCount;
-                    record.emptyBarCount = emptyCount;
-                    record.broodBarCount = broodCount;
-                    record.resourceBarCount = resourceCount;
-                    if (followerBoardPosition) {
-                        record.followerBoardPosition = followerBoardPosition;
-                    }
-                });
+            const { error } = await supabase.from('hive_snapshots').insert({
+                hive_id: hiveId,
+                timestamp: new Date().toISOString(),
+                bars: bars,
+                inactive_bar_count: inactiveCount,
+                active_bar_count: activeCount,
+                empty_bar_count: emptyCount,
+                brood_bar_count: broodCount,
+                resource_bar_count: resourceCount,
+                follower_board_position: followerBoardPosition || null,
             });
+
+            if (error) throw error;
             console.log("Captured new snapshot!");
 
             if (onSnapshotCreate) {
@@ -132,7 +118,6 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
                 )}
             </div>
 
-            {/* Horizontal Scrollable Bar Container */}
             <div className="overflow-x-auto pb-2 -mx-3 px-3 scrollbar-hide">
                 <div className="flex gap-0 min-w-max">
                     {bars.map((bar) => (
@@ -160,7 +145,6 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
                 </div>
             </div>
 
-            {/* Legend */}
             <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                 {Object.entries(BAR_COLORS).map(([status, color]) => (
                     <div key={status} className="flex items-center gap-1.5">

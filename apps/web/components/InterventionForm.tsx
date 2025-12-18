@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { database } from '../lib/database';
-import { InterventionType } from '@tbh-beekeeper/shared';
+import { Intervention, InterventionType } from '@tbh-beekeeper/shared';
+import { supabase } from '../lib/supabase';
 
-// Intervention Types (matching shared/types.ts)
 const INTERVENTION_TYPES: { value: InterventionType; label: string }[] = [
     { value: 'feeding', label: 'Feeding' },
     { value: 'treatment', label: 'Treatment' },
@@ -12,8 +11,6 @@ const INTERVENTION_TYPES: { value: InterventionType; label: string }[] = [
     { value: 'cross_comb_fix', label: 'Cross Comb Fix' },
     { value: 'other', label: 'Other' },
 ];
-
-import { Intervention } from '@tbh-beekeeper/shared';
 
 export function InterventionForm({ hiveId, initialData, onSuccess, onCancel }: { hiveId: string, initialData?: Intervention, onSuccess: () => void, onCancel: () => void }) {
     const [type, setType] = useState<InterventionType>(initialData?.type || 'feeding');
@@ -30,25 +27,25 @@ export function InterventionForm({ hiveId, initialData, onSuccess, onCancel }: {
         setIsSubmitting(true);
 
         try {
-            console.log('Saving intervention...', { type, date, description, hiveId });
-            await database.write(async () => {
-                if (initialData) {
-                    await initialData.update(record => {
-                        record.type = type;
-                        record.timestamp = new Date(date);
-                        record.description = description;
-                    });
-                } else {
-                    await database.get('interventions').create((record: any) => {
-                        record.hiveId = hiveId;
-                        record.type = type;
-                        // @date decorator expects a Date object, not a number, in the setter usually
-                        record.timestamp = new Date(date);
-                        record.description = description;
-                    });
-                }
-            });
-            console.log('Intervention saved successfully');
+            const payload = {
+                hive_id: hiveId,
+                type: type,
+                timestamp: new Date(date).toISOString(),
+                description: description
+            };
+
+            if (initialData) {
+                const { error } = await supabase
+                    .from('interventions')
+                    .update(payload)
+                    .eq('id', initialData.id);
+                if (error) throw error;
+            } else {
+                const { error } = await supabase
+                    .from('interventions')
+                    .insert(payload);
+                if (error) throw error;
+            }
             onSuccess();
         } catch (error) {
             console.error('Failed to create/update intervention:', error);

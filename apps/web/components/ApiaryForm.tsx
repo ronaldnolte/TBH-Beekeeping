@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { database } from '../lib/database';
 import { Apiary } from '@tbh-beekeeper/shared';
 import { useCurrentUser } from '../hooks/useCurrentUser';
+import { supabase } from '../lib/supabase';
 
 export function ApiaryForm({
     initialData,
@@ -15,7 +15,7 @@ export function ApiaryForm({
     onCancel: () => void
 }) {
     const [name, setName] = useState(initialData?.name || '');
-    const [zipCode, setZipCode] = useState(initialData?.zipCode || '');
+    const [zipCode, setZipCode] = useState(initialData?.zip_code || '');
     const [notes, setNotes] = useState(initialData?.notes || '');
     const [isSaving, setIsSaving] = useState(false);
     const { userId } = useCurrentUser();
@@ -25,34 +25,34 @@ export function ApiaryForm({
         setIsSaving(true);
 
         try {
-            await database.write(async () => {
-                const apiariesCollection = database.collections.get<Apiary>('apiaries');
+            if (initialData) {
+                const { error } = await supabase
+                    .from('apiaries')
+                    .update({
+                        name,
+                        zip_code: zipCode,
+                        notes,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', initialData.id);
 
-                if (initialData) {
-                    await initialData.update(record => {
-                        record.name = name;
-                        record.zipCode = zipCode;
-                        record.notes = notes;
+                if (error) throw error;
+            } else {
+                const { error } = await supabase
+                    .from('apiaries')
+                    .insert({
+                        name,
+                        zip_code: zipCode,
+                        notes,
+                        user_id: userId
                     });
-                } else {
-                    await apiariesCollection.create(record => {
-                        record.name = name;
-                        record.zipCode = zipCode;
-                        record.notes = notes;
-                        // @ts-ignore
-                        record.userId = userId;
-                        // Explicitly set dates to ensure sorting works immediately
-                        // @ts-ignore
-                        record._raw.created_at = Date.now();
-                        // @ts-ignore
-                        record._raw.updated_at = Date.now();
-                    });
-                }
-            });
+
+                if (error) throw error;
+            }
             onSuccess();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to save apiary:', error);
-            alert('Failed to save apiary');
+            alert('Failed to save apiary: ' + error.message);
         } finally {
             setIsSaving(false);
         }

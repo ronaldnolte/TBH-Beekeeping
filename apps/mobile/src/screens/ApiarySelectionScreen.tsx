@@ -1,31 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { withObservables } from '@nozbe/watermelondb/react';
-import { database } from '../database';
-import Apiary from '@tbh-beekeeper/shared/src/models/Apiary';
+import { Picker } from '@react-native-picker/picker'; // Ensure this package is installed or use standard
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../App';
+import { Apiary } from '@tbh-beekeeper/shared';
+import { supabase } from '../lib/supabase';
 
-type RootStackParamList = {
-    Login: undefined;
-    ApiarySelection: undefined;
-    ApiaryDashboard: { apiaryId: string };
-};
+type Props = NativeStackScreenProps<RootStackParamList, 'ApiarySelection'>;
 
-type Props = {
-    navigation: NativeStackNavigationProp<RootStackParamList, 'ApiarySelection'>;
-    apiaries: Apiary[];
-};
-
-const ApiarySelectionScreen = ({ navigation, apiaries }: Props) => {
+const ApiarySelectionScreen = ({ navigation }: Props) => {
+    const [apiaries, setApiaries] = useState<Apiary[]>([]);
     const [selectedApiaryId, setSelectedApiaryId] = useState<string>('');
+    const [loading, setLoading] = useState(true);
 
-    // Auto-select first apiary if available and none selected
-    useEffect(() => {
-        if (!selectedApiaryId && apiaries.length > 0) {
-            setSelectedApiaryId(apiaries[0].id);
+    const fetchApiaries = async () => {
+        setLoading(true);
+        // TODO: Get real user ID from auth context or similar
+        const userId = 'user_1';
+        const { data, error } = await supabase
+            .from('apiaries')
+            .select('*')
+            // .eq('user_id', userId) // Uncomment when auth is ready or if RLS is off for now
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            console.error('Error fetching apiaries:', error);
+        } else {
+            setApiaries(data || []);
+            if (data && data.length > 0 && !selectedApiaryId) {
+                setSelectedApiaryId(data[0].id);
+            }
         }
-    }, [apiaries, selectedApiaryId]);
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        fetchApiaries();
+        // Add listener for focus to refresh if coming back from management
+        const unsubscribe = navigation.addListener('focus', () => {
+            fetchApiaries();
+        });
+        return unsubscribe;
+    }, [navigation]);
 
     const handleOk = () => {
         if (selectedApiaryId) {
@@ -39,9 +55,16 @@ const ApiarySelectionScreen = ({ navigation, apiaries }: Props) => {
     };
 
     const handleSyncNow = () => {
-        // TODO: Trigger sync
-        console.log('Sync now');
+        fetchApiaries();
     };
+
+    if (loading && apiaries.length === 0) {
+        return (
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color="#E67E22" />
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -91,7 +114,7 @@ const ApiarySelectionScreen = ({ navigation, apiaries }: Props) => {
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.outlineButton} onPress={handleSyncNow}>
-                        <Text style={styles.outlineButtonText}>🔄 Sync Now</Text>
+                        <Text style={styles.outlineButtonText}>🔄 Refresh</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -103,11 +126,7 @@ const ApiarySelectionScreen = ({ navigation, apiaries }: Props) => {
     );
 }
 
-const enhance = withObservables([], () => ({
-    apiaries: database.collections.get<Apiary>('apiaries').query(),
-}));
-
-export default enhance(ApiarySelectionScreen);
+export default ApiarySelectionScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -119,9 +138,12 @@ const styles = StyleSheet.create({
     header: {
         alignItems: 'center',
         marginBottom: 40,
+        justifyContent: 'center',
     },
     icon: {
-        fontSize: 48,
+        fontSize: 80,
+        marginBottom: 16,
+        textAlign: 'center',
     },
     title: {
         fontSize: 20,

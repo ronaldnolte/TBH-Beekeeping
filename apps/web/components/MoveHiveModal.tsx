@@ -1,35 +1,47 @@
-import React, { useState } from 'react';
-import { withObservables } from '@nozbe/watermelondb/react';
-import { database } from '../lib/database';
+'use client';
+
+// Refactored to remove WatermelonDB. This Modal now needs to accept callbacks or use Supabase directly.
+// Given it was wrapped with observables, we will refactor it to use Supabase fetching.
+
+import React, { useState, useEffect } from 'react';
 import { Apiary, Hive } from '@tbh-beekeeper/shared';
 import { Modal } from './Modal';
+import { supabase } from '../lib/supabase';
 
 interface MoveHiveModalProps {
     isOpen: boolean;
     onClose: () => void;
     hive: Hive;
     currentApiaryId: string;
-    apiaries: Apiary[];
 }
 
-const MoveHiveModalRaw = ({ isOpen, onClose, hive, currentApiaryId, apiaries }: MoveHiveModalProps) => {
+export const MoveHiveModal = ({ isOpen, onClose, hive, currentApiaryId }: MoveHiveModalProps) => {
     const [selectedApiaryId, setSelectedApiaryId] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+    const [apiaries, setApiaries] = useState<Apiary[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (isOpen) {
+            const fetchApiaries = async () => {
+                setLoading(true);
+                const { data } = await supabase.from('apiaries').select('*').eq('is_active', true);
+                setApiaries((data || []) as unknown as Apiary[]); // Type assertion for now due to snake_case mismatches if any
+                setLoading(false);
+            };
+            fetchApiaries();
+        }
+    }, [isOpen]);
 
     // Filter out current apiary
-    // @ts-ignore
-    const availableApiaries = apiaries.filter(a => a.id !== currentApiaryId && !a._isDeleted);
+    const availableApiaries = apiaries.filter(a => a.id !== currentApiaryId);
 
     const handleMove = async () => {
         if (!selectedApiaryId) return;
 
         setIsSaving(true);
         try {
-            await database.write(async () => {
-                await hive.update(h => {
-                    h.apiaryId = selectedApiaryId;
-                });
-            });
+            await supabase.from('hives').update({ apiary_id: selectedApiaryId }).eq('id', hive.id);
             onClose();
         } catch (error) {
             console.error('Failed to move hive:', error);
@@ -46,7 +58,9 @@ const MoveHiveModalRaw = ({ isOpen, onClose, hive, currentApiaryId, apiaries }: 
             <div className="space-y-4">
                 <p className="text-gray-600">Select the destination apiary for this hive.</p>
 
-                {availableApiaries.length > 0 ? (
+                {loading ? (
+                    <div className="text-center py-4">Loading apiaries...</div>
+                ) : availableApiaries.length > 0 ? (
                     <div className="space-y-2">
                         <select
                             value={selectedApiaryId}
@@ -56,7 +70,7 @@ const MoveHiveModalRaw = ({ isOpen, onClose, hive, currentApiaryId, apiaries }: 
                             <option value="">-- Select Apiary --</option>
                             {availableApiaries.map(apiary => (
                                 <option key={apiary.id} value={apiary.id}>
-                                    {apiary.name} ({apiary.zipCode})
+                                    {apiary.name} ({apiary.zip_code})
                                 </option>
                             ))}
                         </select>
@@ -94,7 +108,3 @@ const MoveHiveModalRaw = ({ isOpen, onClose, hive, currentApiaryId, apiaries }: 
         </Modal>
     );
 };
-
-export const MoveHiveModal = withObservables([], () => ({
-    apiaries: database.collections.get<Apiary>('apiaries').query()
-}))(MoveHiveModalRaw);

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-import DatabaseProvider from "../components/DatabaseProvider";
+
 
 export const metadata: Metadata = {
   title: "TBH Beekeeper",
@@ -38,9 +38,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
 
-        <DatabaseProvider>
-          {children}
-        </DatabaseProvider>
+        {children}
       </body>
     </html>
   );

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { database } from '../lib/database';
 import { Task, TaskPriority } from '@tbh-beekeeper/shared';
 import { useCurrentUser } from '../hooks/useCurrentUser';
+import { supabase } from '../lib/supabase';
 
 const PRIORITIES: { value: TaskPriority; label: string; color: string }[] = [
     { value: 'low', label: 'Low', color: 'bg-blue-100 text-blue-800' },
@@ -19,7 +19,7 @@ export function TaskForm({
     onCancel
 }: {
     hiveId?: string,
-    scope?: 'hive' | 'apiary' | 'user', // Simplified type for now, relying on model to handle string
+    scope?: 'hive' | 'apiary' | 'user',
     initialData?: Task,
     onSuccess: () => void,
     onCancel: () => void
@@ -29,10 +29,9 @@ export function TaskForm({
     const [description, setDescription] = useState(initialData?.description || '');
     const [priority, setPriority] = useState<TaskPriority>(initialData?.priority || 'medium');
     const [dueDate, setDueDate] = useState<string>(() => {
-        if (initialData?.dueDate) {
-            return new Date(initialData.dueDate).toISOString().split('T')[0];
+        if (initialData?.due_date) {
+            return new Date(initialData.due_date).toISOString().split('T')[0];
         }
-        // Default to today
         const d = new Date();
         const offset = d.getTimezoneOffset() * 60000;
         return new Date(d.getTime() - offset).toISOString().split('T')[0];
@@ -50,27 +49,24 @@ export function TaskForm({
         setIsSubmitting(true);
 
         try {
-            await database.write(async () => {
-                if (initialData) {
-                    await initialData.update(record => {
-                        record.title = title;
-                        record.description = description;
-                        record.priority = priority;
-                        record.dueDate = dueDate ? new Date(dueDate) : undefined;
-                    });
-                } else {
-                    await database.get('tasks').create((record: any) => {
-                        record.title = title;
-                        record.description = description;
-                        record.priority = priority;
-                        record.dueDate = dueDate ? new Date(dueDate) : undefined;
-                        record.scope = scope;
-                        if (hiveId) record.hiveId = hiveId;
-                        record.status = 'pending';
-                        record.assignedUserId = userId;
-                    });
-                }
-            });
+            const payload = {
+                title,
+                description,
+                priority,
+                due_date: dueDate ? new Date(dueDate).toISOString() : null,
+                scope,
+                hive_id: hiveId || null,
+                status: initialData?.status || 'pending',
+                assigned_user_id: userId
+            };
+
+            if (initialData) {
+                const { error } = await supabase.from('tasks').update(payload).eq('id', initialData.id);
+                if (error) throw error;
+            } else {
+                const { error } = await supabase.from('tasks').insert(payload);
+                if (error) throw error;
+            }
             onSuccess();
         } catch (error) {
             console.error('Failed to save task:', error);
