@@ -76,7 +76,7 @@ const HistoryItem = ({ snapshot, onSelect, onDelete }: { snapshot: HiveSnapshot,
                 {bars.slice(0, 30).map((bar) => (
                     <div
                         key={bar.position}
-                        className="w-1.5 h-full rounded-[0.5px] border-[0.5px] border-black/10"
+                        className="w-1.5 h-full rounded-[0.5px] border-[0.5px] border-black/50"
                         style={{
                             backgroundColor: BAR_COLORS[bar.status as BarStatus] || BAR_COLORS.inactive,
                             height: '100%'
