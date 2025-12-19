@@ -14,8 +14,7 @@
         "production": {
             "android": {
                 "buildType": "app-bundle"
-            },
-            "prebuildCommand": "node scripts/fix-settings-gradle.js"
+            }
         }
     },
     "submit": {
