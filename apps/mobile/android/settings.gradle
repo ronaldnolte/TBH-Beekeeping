@@ -9,9 +9,8 @@ pluginManagement {
   includeBuild(reactNativeGradlePlugin)
 }
 
-plugins {
-  id("com.facebook.react.settings")
-}
+apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle")
+apply plugin: 'com.facebook.react.settings'
 
 extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   if (System.getenv('EXPO_UNSTABLE_CORE_AUTOLINKING') == '1') {
@@ -28,6 +27,4 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
 }
 
 rootProject.name = 'TBH Beekeeper'
-
 include ':app'
-apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle")
