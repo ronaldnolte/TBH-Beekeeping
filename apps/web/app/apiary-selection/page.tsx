@@ -119,6 +119,7 @@ const ApiarySelectionPage = () => {
     const [isAddingTask, setIsAddingTask] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
     const [taskRefreshKey, setTaskRefreshKey] = useState(0);
+    const [showCompletedTasks, setShowCompletedTasks] = useState(false);
 
     const fetchApiaries = async () => {
         if (!userId) return;
@@ -133,10 +134,7 @@ const ApiarySelectionPage = () => {
             console.error('Error fetching apiaries:', error);
         } else {
             setApiaries(data || []);
-            // Auto-select first if none selected
-            if (data && data.length > 0 && !selectedApiaryId) {
-                setSelectedApiaryId(data[0].id);
-            }
+            // Auto-select logic removed to force user interaction
         }
         setIsLoading(false);
     };
@@ -219,49 +217,29 @@ const ApiarySelectionPage = () => {
 
             {/* 2. Top Toolbar */}
             <div className="bg-white border-b border-[#E6DCC3] px-4 md:px-8 py-3 shadow-sm">
-                <div className="flex flex-col md:grid md:grid-cols-3 gap-4 items-center">
-                    <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-2 md:gap-3">
+                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div className="w-full md:w-auto flex flex-wrap items-center gap-2 md:gap-3 flex-1">
                         <label className="font-bold text-[#4A3C28] whitespace-nowrap hidden md:block">Select Apiary:</label>
                         <select
                             value={selectedApiaryId}
-                            onChange={(e) => setSelectedApiaryId(e.target.value)}
-                            className="flex-1 md:flex-none border border-[#D1C4A9] rounded px-3 py-2 text-sm max-w-[200px]"
+                            onChange={(e) => {
+                                const id = e.target.value;
+                                setSelectedApiaryId(id);
+                                handleGo(id);
+                            }}
+                            className="flex-1 border border-[#D1C4A9] rounded px-3 py-2 text-sm min-w-[150px] max-w-[300px]"
                         >
-                            {apiaries.length === 0 && <option value="">(No Apiaries)</option>}
+                            <option value="">Select an apiary...</option>
                             {apiaries.map(a => (
                                 <option key={a.id} value={a.id}>{a.name}</option>
                             ))}
                         </select>
                         <button
-                            onClick={() => handleGo()}
-                            disabled={!selectedApiaryId}
-                            className="bg-[#C19A6B] hover:bg-[#A68257] text-white px-4 py-2 rounded text-sm font-bold transition-colors disabled:opacity-50"
+                            onClick={() => setIsManaging(!isManaging)}
+                            className={`px-4 py-2 rounded text-sm font-medium border whitespace-nowrap ${isManaging ? 'bg-gray-200' : 'bg-white'}`}
                         >
-                            OK
+                            {isManaging ? 'Done' : '⚙️ Manage Apiaries'}
                         </button>
-                    </div>
-
-                    <div className="w-full md:w-auto flex md:contents justify-between gap-2">
-                        <div className="flex justify-center md:flex-none">
-                            <button
-                                onClick={() => {
-                                    if (selectedApiaryId) router.push(`/apiary-selection/forecast?apiaryId=${selectedApiaryId}`);
-                                }}
-                                disabled={!selectedApiaryId}
-                                className="px-4 py-2 bg-[#F5A623] text-white rounded text-sm font-medium hover:bg-[#E09612] disabled:opacity-50"
-                            >
-                                📊 Forecast
-                            </button>
-                        </div>
-
-                        <div className="flex gap-2 justify-end md:ml-auto">
-                            <button
-                                onClick={() => setIsManaging(!isManaging)}
-                                className={`px-4 py-2 rounded text-sm font-medium border ${isManaging ? 'bg-gray-200' : 'bg-white'}`}
-                            >
-                                {isManaging ? 'Done' : 'Manage'}
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -280,13 +258,19 @@ const ApiarySelectionPage = () => {
                 {!isManaging && (
                     <div className="bg-white/95 backdrop-blur shadow-sm border border-[#E6DCC3] rounded-xl p-4 w-full max-w-4xl mx-auto">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-[#4A3C28]">📋 My Upcoming Tasks</h3>
-                            <button
-                                onClick={() => setIsAddingTask(true)}
-                                className="text-xs px-3 py-1 bg-[#E67E22] text-white rounded hover:bg-[#D35400] font-semibold"
-                            >
-                                + New Task
-                            </button>
+                            <div className="flex items-center gap-4">
+                                <h3 className="text-lg font-bold text-[#4A3C28]">📋 My Upcoming Tasks</h3>
+                                <button
+                                    onClick={() => setIsAddingTask(true)}
+                                    className="text-xs px-3 py-1 bg-[#E67E22] text-white rounded hover:bg-[#D35400] font-semibold"
+                                >
+                                    + New Task
+                                </button>
+                            </div>
+                            <label className="flex items-center text-[10px] text-gray-500 cursor-pointer select-none space-x-1.5 hover:text-gray-700 bg-white px-2 py-1 rounded border border-gray-100">
+                                <input type="checkbox" checked={showCompletedTasks} onChange={(e) => setShowCompletedTasks(e.target.checked)} className="w-3 h-3 text-gray-500 border-gray-300 rounded focus:ring-0" />
+                                <span>Show Completed</span>
+                            </label>
                         </div>
                         <UserTaskList
                             userId={userId || ''}
@@ -296,6 +280,7 @@ const ApiarySelectionPage = () => {
                                 setEditingTask(task);
                                 setIsAddingTask(true);
                             }}
+                            showCompleted={showCompletedTasks}
                         />
                     </div>
                 )}

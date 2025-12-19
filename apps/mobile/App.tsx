@@ -1,60 +1,25 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { WebView } from 'react-native-webview';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import LoginScreen from './src/screens/LoginScreen';
-import ApiarySelectionScreen from './src/screens/ApiarySelectionScreen';
-import ApiaryDashboardScreen from './src/screens/ApiaryDashboardScreen';
-import HiveDetailsScreen from './src/screens/HiveDetailsScreen';
-
-export type RootStackParamList = {
-  Login: undefined;
-  ApiarySelection: undefined;
-  ApiaryDashboard: { apiaryId: string };
-  HiveDetails: { hiveId: string };
-};
-
-const Stack = createNativeStackNavigator<RootStackParamList>();
+// Your computer's IP address (verified earlier)
+const WEB_APP_URL = 'http://10.0.0.164:3000';
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <StatusBar style="auto" />
-      <Stack.Navigator
-        initialRouteName="Login"
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: '#E67E22',
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-          headerBackTitleVisible: false,
-        }}
-      >
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="ApiarySelection"
-          component={ApiarySelectionScreen}
-          options={{ title: 'Select Apiary', headerLeft: () => null }}
-        />
-        <Stack.Screen
-          name="ApiaryDashboard"
-          component={ApiaryDashboardScreen}
-          options={{ title: 'Apiary Dashboard' }}
-        />
-        <Stack.Screen
-          name="HiveDetails"
-          component={HiveDetailsScreen}
-          options={{ title: 'Hive Details' }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#E67E22' }}>
+      {/* Status bar matches the app theme */}
+      <StatusBar style="light" backgroundColor="#E67E22" />
+
+      {/* The WebView acts as the "browser" for your app */}
+      <WebView
+        source={{ uri: WEB_APP_URL }}
+        style={{ flex: 1 }}
+        // Allow file uploads if needed in future
+        allowFileAccessFromFileURLs={true}
+        allowUniversalAccessFromFileURLs={true}
+      />
+    </SafeAreaView>
   );
 }

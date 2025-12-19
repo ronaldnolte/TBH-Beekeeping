@@ -61,8 +61,8 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
         setIsLoading(true);
         const { data: apiaryData } = await supabase.from('apiaries').select('*').eq('id', apiaryId).single();
         if (apiaryData) {
-            setApiary(apiaryData);
             const { data: hiveData } = await supabase.from('hives').select('*').eq('apiary_id', apiaryId).order('created_at', { ascending: false });
+            setApiary(apiaryData);
             setHives(hiveData || []);
         }
         setIsLoading(false);
@@ -90,14 +90,22 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
         }
     };
 
-    if (isLoading && !apiary) return <div className="p-10 text-center">Loading Apiary...</div>;
+    if (isLoading) return <div className="p-10 text-center">Loading Apiary...</div>;
     if (!apiary) return <div className="p-10 text-center">Apiary not found.</div>;
 
     return (
         <div className="min-h-screen honeycomb-bg">
             <div className="bg-[#E67E22] text-white p-6 shadow-md relative">
                 <div className="max-w-7xl mx-auto">
-                    <button onClick={() => router.push('/apiary-selection')} className="bg-white/20 text-white px-4 py-2 rounded-lg text-sm mb-2">← Back to Apiaries</button>
+                    <div className="flex justify-between items-start mb-2">
+                        <button onClick={() => router.push('/apiary-selection')} className="bg-white/20 text-white px-4 py-2 rounded-lg text-sm">← Back to Apiaries</button>
+                        <button
+                            onClick={() => router.push(`/apiary-selection/forecast?apiaryId=${apiaryId}`)}
+                            className="bg-white text-[#E67E22] px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-gray-100"
+                        >
+                            📊 View Forecast
+                        </button>
+                    </div>
                     <h1 className="text-3xl font-bold">{apiary.name}</h1>
                     <p className="text-sm opacity-90 mt-1">{hives.length} hives • {apiary.zip_code}</p>
                 </div>

@@ -53,13 +53,13 @@ const HistoryItem = ({ snapshot, onSelect, onDelete }: { snapshot: HiveSnapshot,
     }
 
     return (
-        <div onClick={onSelect} className="flex-shrink-0 w-[200px] flex flex-col p-2 hover:bg-gray-50 rounded border border-gray-100 transition-colors cursor-pointer group bg-white mr-2 snapping-card">
-            <div className="flex justify-between items-start mb-2">
-                <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-gray-800">
+        <div onClick={onSelect} className="w-full flex flex-col px-2 py-1 hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer group bg-white">
+            <div className="flex justify-between items-center">
+                <div className="flex items-baseline gap-2">
+                    <span className="text-[11px] font-bold text-gray-800">
                         {dateStr}
                     </span>
-                    <span className="text-[9px] text-gray-500">
+                    <span className="text-[10px] text-gray-500">
                         {timeStr}
                     </span>
                 </div>
@@ -72,7 +72,7 @@ const HistoryItem = ({ snapshot, onSelect, onDelete }: { snapshot: HiveSnapshot,
                 </button>
             </div>
 
-            <div className="flex gap-[1px] h-8 items-end overflow-hidden">
+            <div className="flex gap-[1px] h-4 items-end overflow-hidden mt-0.5">
                 {bars.slice(0, 30).map((bar) => (
                     <div
                         key={bar.position}
@@ -84,7 +84,7 @@ const HistoryItem = ({ snapshot, onSelect, onDelete }: { snapshot: HiveSnapshot,
                         title={`Bar ${bar.position}: ${bar.status}`}
                     />
                 ))}
-                {bars.length > 30 && <div className="text-[8px] text-gray-300 self-center">...</div>}
+                {bars.length > 30 && <div className="text-[6px] text-gray-300 self-center">...</div>}
             </div>
         </div>
     );
@@ -97,6 +97,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
     const [loading, setLoading] = useState(true);
 
     const [selectedSnapshotId, setSelectedSnapshotId] = useState<string | null>(null);
+    const [showAllHistory, setShowAllHistory] = useState(false);
     const [activeTab, setActiveTab] = useState<'Inspections' | 'Interventions' | 'Tasks'>('Inspections');
 
     const [isAddingIntervention, setIsAddingIntervention] = useState(false);
@@ -110,6 +111,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
     const [isAddingTask, setIsAddingTask] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
     const [taskRefreshKey, setTaskRefreshKey] = useState(0);
+    const [showCompletedTasks, setShowCompletedTasks] = useState(false);
 
     const [isEditingSettings, setIsEditingSettings] = useState(false);
     const [apiaryList, setApiaryList] = useState<Apiary[]>([]);
@@ -210,8 +212,8 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                     readOnly={!!selectedSnapshotId}
                 />
 
-                <div className="bg-white rounded-lg shadow-sm p-3 border border-gray-100">
-                    <div className="flex justify-between items-center mb-2">
+                <div className="bg-white rounded-lg shadow-sm px-2 pt-2 pb-0 border border-gray-100 overflow-hidden">
+                    <div className="flex justify-between items-center mb-1 px-1">
                         <h3 className="text-sm font-bold text-[#4A3C28] uppercase tracking-wide">History</h3>
                         <button
                             className="text-xs text-[#E67E22] font-medium"
@@ -220,9 +222,9 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                             {selectedSnapshotId ? 'Back to Latest' : ''}
                         </button>
                     </div>
-                    <div className="flex overflow-x-auto pb-2 -mx-2 px-2 snap-x">
+                    <div className="flex flex-col space-y-0">
                         {snapshots.length === 0 && <div className="text-xs text-center text-gray-400 py-2 w-full">No history loaded</div>}
-                        {snapshots.map((snapshot) => (
+                        {snapshots.slice(0, showAllHistory ? undefined : 3).map((snapshot) => (
                             <HistoryItem
                                 key={snapshot.id}
                                 snapshot={snapshot}
@@ -231,6 +233,14 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                             />
                         ))}
                     </div>
+                    {snapshots.length > 3 && (
+                        <button
+                            onClick={() => setShowAllHistory(!showAllHistory)}
+                            className="w-full text-center text-xs text-[#E67E22] font-medium py-2 hover:bg-[#FFF8F0] border-t border-gray-100"
+                        >
+                            {showAllHistory ? 'Show Less' : `View All (${snapshots.length})`}
+                        </button>
+                    )}
                 </div>
 
                 <div className="flex border-b border-gray-200 mb-4">
@@ -293,9 +303,15 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
 
                 {activeTab === 'Tasks' && (
                     <div className="space-y-3">
-                        <div className="flex items-center gap-6 mb-2">
-                            <h3 className="text-xs font-bold text-[#4A3C28] uppercase tracking-wide opacity-80">Pending Tasks</h3>
-                            <button onClick={() => setIsAddingTask(true)} className="text-xs bg-white border border-[#E67E22] text-[#E67E22] px-3 py-1 rounded hover:bg-[#E67E22] hover:text-white font-semibold">+ Add</button>
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-4">
+                                <h3 className="text-xs font-bold text-[#4A3C28] uppercase tracking-wide opacity-80">Pending Tasks</h3>
+                                <button onClick={() => setIsAddingTask(true)} className="text-xs bg-white border border-[#E67E22] text-[#E67E22] px-3 py-1 rounded hover:bg-[#E67E22] hover:text-white font-semibold">+ Add</button>
+                            </div>
+                            <label className="flex items-center text-[10px] text-gray-500 cursor-pointer select-none space-x-1.5 hover:text-gray-700 bg-white px-2 py-1 rounded border border-gray-100">
+                                <input type="checkbox" checked={showCompletedTasks} onChange={(e) => setShowCompletedTasks(e.target.checked)} className="w-3 h-3 text-gray-500 border-gray-300 rounded focus:ring-0" />
+                                <span>Show Completed</span>
+                            </label>
                         </div>
                         <Modal isOpen={isAddingTask} onClose={() => setIsAddingTask(false)} title={editingTask ? 'Edit Task' : 'New Task'}>
                             <TaskForm
@@ -310,6 +326,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                             refreshKey={taskRefreshKey}
                             onRefresh={() => setTaskRefreshKey(p => p + 1)}
                             onEdit={(item) => { setEditingTask(item); setIsAddingTask(true); }}
+                            showCompleted={showCompletedTasks}
                         />
                     </div>
                 )}

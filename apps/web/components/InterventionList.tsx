@@ -21,8 +21,8 @@ const InterventionItem = ({ intervention, onDelete, onEdit, onView }: { interven
     return (
         <div className="grid grid-cols-[60px_80px_130px_1fr] border-b border-gray-100 hover:bg-gray-50 transition-colors group items-center py-0" onClick={() => onView?.(intervention)}>
             <div className="flex gap-1 justify-center px-1 items-center">
-                <button onClick={(e) => { e.stopPropagation(); onEdit(intervention); }} className="text-gray-300 hover:text-amber-500 p-1">✎</button>
-                <button onClick={(e) => { e.stopPropagation(); onDelete(intervention); }} className="text-gray-300 hover:text-red-500 p-1">×</button>
+                <button onClick={(e) => { e.stopPropagation(); onEdit(intervention); }} className="text-gray-400 p-2 text-lg">✎</button>
+                <button onClick={(e) => { e.stopPropagation(); onDelete(intervention); }} className="text-gray-400 p-2 text-lg">×</button>
             </div>
             <div className="px-3">
                 <div className="text-[11px] font-bold text-gray-700 whitespace-nowrap">{date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
@@ -140,7 +140,11 @@ export const InterventionList = ({ hive, refreshKey, onRefresh, onEdit }: { hive
                             <span className="text-gray-500 block mb-1 uppercase tracking-wider text-[9px] font-bold">Details</span>
                             <p className="text-sm text-gray-800">{viewingItem.description || 'No description.'}</p>
                         </div>
-                        <div className="flex justify-end pt-2">
+                        <div className="flex justify-between pt-2">
+                            <div className="flex gap-2">
+                                <button onClick={() => { setViewingItem(null); onEdit(viewingItem); }} className="px-3 py-2 bg-amber-100 text-amber-800 rounded text-xs font-bold">Edit</button>
+                                <button onClick={() => { setViewingItem(null); setItemToDelete(viewingItem); }} className="px-3 py-2 bg-red-100 text-red-800 rounded text-xs font-bold">Delete</button>
+                            </div>
                             <button onClick={() => setViewingItem(null)} className="px-4 py-2 bg-gray-100 rounded text-xs">Close</button>
                         </div>
                     </div>

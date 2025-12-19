@@ -21,9 +21,9 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit, onView }: { task: Task, on
 
     return (
         <div className={`grid grid-cols-[50px_40px_60px_80px_140px_1fr] border-b border-gray-100 hover:bg-gray-50 transition-colors group items-center py-0 ${task.status === 'completed' ? 'opacity-50' : ''}`} onClick={() => onView?.(task)}>
-            <div className="flex gap-1 justify-center px-1 items-center h-8">
-                <button onClick={(e) => { e.stopPropagation(); onEdit(task); }} className="text-gray-300 hover:text-amber-500 p-1">✎</button>
-                <button onClick={(e) => { e.stopPropagation(); onDelete(task); }} className="text-gray-300 hover:text-red-500 p-1">×</button>
+            <div className="flex gap-2 justify-center px-1 items-center h-8">
+                <button onClick={(e) => { e.stopPropagation(); onEdit(task); }} className="text-gray-400 p-2 text-lg">✎</button>
+                <button onClick={(e) => { e.stopPropagation(); onDelete(task); }} className="text-gray-400 p-2 text-lg">×</button>
             </div>
 
             <div className="flex justify-center items-center h-8">
@@ -61,8 +61,7 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit, onView }: { task: Task, on
 };
 
 // --- Reusable Task Grid (Accepts List of Tasks) ---
-export const TaskGrid = ({ tasks, onEdit, onRefresh }: { tasks: Task[], onEdit: (task: Task) => void, onRefresh?: () => void }) => {
-    const [showCompleted, setShowCompleted] = useState(false);
+export const TaskGrid = ({ tasks, onEdit, onRefresh, showCompleted = false }: { tasks: Task[], onEdit: (task: Task) => void, onRefresh?: () => void, showCompleted?: boolean }) => {
     const [itemToDelete, setItemToDelete] = useState<Task | null>(null);
     const [viewingItem, setViewingItem] = useState<Task | null>(null);
 
@@ -91,12 +90,7 @@ export const TaskGrid = ({ tasks, onEdit, onRefresh }: { tasks: Task[], onEdit: 
 
     return (
         <>
-            <div className="flex justify-end mb-2">
-                <label className="flex items-center text-[10px] text-gray-500 cursor-pointer select-none space-x-1.5 hover:text-gray-700">
-                    <input type="checkbox" checked={showCompleted} onChange={(e) => setShowCompleted(e.target.checked)} className="w-3 h-3 text-gray-500 border-gray-300 rounded focus:ring-0" />
-                    <span>Show Completed</span>
-                </label>
-            </div>
+
 
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
                 <div className="grid grid-cols-[50px_40px_60px_80px_140px_1fr] bg-gray-50 border-b border-gray-200 py-1.5 items-center">
@@ -143,7 +137,11 @@ export const TaskGrid = ({ tasks, onEdit, onRefresh }: { tasks: Task[], onEdit: 
                         <div className="bg-gray-50 p-4 rounded border border-gray-100">
                             <p className="text-sm text-gray-800">{viewingItem.description || 'No description.'}</p>
                         </div>
-                        <div className="flex justify-end pt-2">
+                        <div className="flex justify-between pt-2">
+                            <div className="flex gap-2">
+                                <button onClick={() => { setViewingItem(null); onEdit(viewingItem); }} className="px-3 py-2 bg-amber-100 text-amber-800 rounded text-xs font-bold">Edit</button>
+                                <button onClick={() => { setViewingItem(null); setItemToDelete(viewingItem); }} className="px-3 py-2 bg-red-100 text-red-800 rounded text-xs font-bold">Delete</button>
+                            </div>
                             <button onClick={() => setViewingItem(null)} className="px-4 py-2 bg-gray-100 rounded text-xs">Close</button>
                         </div>
                     </div>
@@ -175,7 +173,7 @@ const sortTasks = (tasks: Task[]) => {
 };
 
 // --- Hive-Specific List ---
-export const TaskList = ({ hive, refreshKey, onRefresh, onEdit }: { hive: Hive, refreshKey?: number, onRefresh?: () => void, onEdit: (task: Task) => void }) => {
+export const TaskList = ({ hive, refreshKey, onRefresh, onEdit, showCompleted = false }: { hive: Hive, refreshKey?: number, onRefresh?: () => void, onEdit: (task: Task) => void, showCompleted?: boolean }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
 
     useEffect(() => {
@@ -186,11 +184,11 @@ export const TaskList = ({ hive, refreshKey, onRefresh, onEdit }: { hive: Hive, 
         fetchTasks();
     }, [hive.id, refreshKey]);
 
-    return <TaskGrid tasks={tasks} onEdit={onEdit} onRefresh={onRefresh} />;
+    return <TaskGrid tasks={tasks} onEdit={onEdit} onRefresh={onRefresh} showCompleted={showCompleted} />;
 };
 
 // --- User-Specific List (Dashboard) ---
-export const UserTaskList = ({ userId, refreshKey, onRefresh, onEdit }: { userId: string, refreshKey?: number, onRefresh?: () => void, onEdit: (task: Task) => void }) => {
+export const UserTaskList = ({ userId, refreshKey, onRefresh, onEdit, showCompleted = false }: { userId: string, refreshKey?: number, onRefresh?: () => void, onEdit: (task: Task) => void, showCompleted?: boolean }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
 
     useEffect(() => {
@@ -202,5 +200,5 @@ export const UserTaskList = ({ userId, refreshKey, onRefresh, onEdit }: { userId
         fetchTasks();
     }, [userId, refreshKey]);
 
-    return <TaskGrid tasks={tasks} onEdit={onEdit} onRefresh={onRefresh} />;
+    return <TaskGrid tasks={tasks} onEdit={onEdit} onRefresh={onRefresh} showCompleted={showCompleted} />;
 };
