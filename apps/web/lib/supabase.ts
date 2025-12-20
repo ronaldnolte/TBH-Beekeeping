@@ -9,4 +9,18 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 console.log('Initializing Supabase Client with URL:', supabaseUrl);
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Detect WebView
+const isWebView = typeof navigator !== 'undefined' && /TBHBeekeeperApp/.test(navigator.userAgent);
+console.log('Is WebView:', isWebView);
+
+// Create Supabase client with WebView-friendly configuration
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+        // Force storage to be synchronous and persistent
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+        storageKey: 'supabase.auth.token',
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: false, // Disable URL-based session detection in WebView
+    },
+});

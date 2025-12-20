@@ -2,19 +2,52 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Session } from '@supabase/supabase-js';
 
+// Type declaration for React Native WebView
+declare global {
+    interface Window {
+        ReactNativeWebView?: {
+            postMessage: (message: string) => void;
+        };
+    }
+}
+
+
 export function useCurrentUser() {
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Detect WebView
+        const isWebView = typeof window !== 'undefined' && /TBHBeekeeperApp/.test(navigator.userAgent);
+        console.log('[useCurrentUser] Is WebView:', isWebView);
+        console.log('[useCurrentUser] User Agent:', typeof window !== 'undefined' ? navigator.userAgent : 'SSR');
+
         // 1. Get initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setLoading(false);
-        }).catch(err => {
-            console.error('Auth check failed', err);
-            setLoading(false);
-        });
+        supabase.auth.getSession()
+            .then(({ data: { session }, error }) => {
+                if (error) {
+                    console.error('[useCurrentUser] Error getting session:', error);
+                    if (isWebView && window.ReactNativeWebView) {
+                        window.ReactNativeWebView.postMessage(JSON.stringify({
+                            type: 'auth_session_error',
+                            error: error.message
+                        }));
+                    }
+                }
+                console.log('[useCurrentUser] Initial session:', session ? 'Found' : 'None');
+                setSession(session);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error('[useCurrentUser] Auth check failed:', err);
+                if (isWebView && window.ReactNativeWebView) {
+                    window.ReactNativeWebView.postMessage(JSON.stringify({
+                        type: 'auth_check_failed',
+                        error: err.message || err.toString()
+                    }));
+                }
+                setLoading(false);
+            });
 
         // 2. Listen for changes
         const {

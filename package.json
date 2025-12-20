@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "apps/*",
+    "apps/web",
     "packages/*"
   ],
   "scripts": {
@@ -16,6 +16,7 @@
     "shared:build": "npm run build --workspace=packages/shared"
   },
   "devDependencies": {
+    "eas-cli": "^16.28.0",
     "turbo": "^2.3.3"
   },
   "engines": {
@@ -26,7 +27,22 @@
   "pnpm": {
     "overrides": {
       "react": "18.3.1",
-      "react-dom": "18.3.1"
+      "react-dom": "18.3.1",
+      "metro": "0.83.3",
+      "metro-cache": "0.83.3",
+      "metro-cache-key": "0.83.3",
+      "metro-config": "0.83.3",
+      "metro-core": "0.83.3",
+      "metro-file-map": "0.83.3",
+      "metro-inspector-proxy": "0.83.3",
+      "metro-minify-terser": "0.83.3",
+      "metro-resolver": "0.83.3",
+      "metro-runtime": "0.83.3",
+      "metro-source-map": "0.83.3",
+      "metro-symbolicate": "0.83.3",
+      "metro-transform-plugins": "0.83.3",
+      "metro-transform-worker": "0.83.3",
+      "@expo/cli": "^54.0.0"
     }
   }
 }

@@ -4,6 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabase';
 
+// Type declaration for React Native WebView
+declare global {
+  interface Window {
+    ReactNativeWebView?: {
+      postMessage: (message: string) => void;
+    };
+  }
+}
+
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -12,6 +22,7 @@ export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [debugLog, setDebugLog] = useState<string[]>([]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,24 +30,56 @@ export default function LoginPage() {
     setError(null);
     setMessage(null);
 
+    // Detect WebView
+    const isWebView = /TBHBeekeeperApp/.test(navigator.userAgent);
+    console.log('[Login] Is WebView:', isWebView);
+    console.log('[Login] Starting authentication...');
+
     try {
       if (isSignUp) {
+        console.log('[Login] Attempting sign up...');
         const { error } = await supabase.auth.signUp({
           email,
           password,
         });
-        if (error) throw error;
+        if (error) {
+          console.error('[Login] SignUp error:', error);
+          throw error;
+        }
+        console.log('[Login] SignUp successful');
         setMessage('Check your email for the confirmation link!');
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        console.log('[Login] Attempting sign in...');
+        const { error, data } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        if (error) throw error;
+        if (error) {
+          console.error('[Login] SignIn error:', error);
+          throw error;
+        }
+        console.log('[Login] SignIn successful, session:', data.session ? 'Created' : 'None');
+
+        // Wait a bit for session to be stored
+        console.log('[Login] Waiting for session storage...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        console.log('[Login] Navigating to apiary-selection...');
         router.push('/apiary-selection');
+        console.log('[Login] Navigation triggered');
       }
     } catch (err: any) {
+      console.error('[Login] Auth error:', err);
       setError(err.message);
+
+      // Report error to native app
+      if (isWebView && window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: 'login_error',
+          error: err.message,
+          stack: err.stack
+        }));
+      }
     } finally {
       setLoading(false);
     }
