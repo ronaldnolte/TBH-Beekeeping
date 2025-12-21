@@ -131,7 +131,7 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
                             <button
                                 onClick={() => toggleBarStatus(bar.position)}
                                 disabled={readOnly}
-                                className={`w-8 h-24 md:w-14 md:h-40 border border-black transition-all relative group -ml-[1px] ${!readOnly ? 'hover:border-2 hover:border-[#E67E22]' : 'cursor-default'}`}
+                                className={`w-8 h-24 md:w-10 md:h-30 border border-black transition-all relative group -ml-[1px] ${!readOnly ? 'hover:border-2 hover:border-[#E67E22]' : 'cursor-default'}`}
                                 style={{
                                     backgroundColor: BAR_COLORS[bar.status as BarStatus] || BAR_COLORS.inactive,
                                     zIndex: 1
