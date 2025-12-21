@@ -64,12 +64,16 @@ export default function LoginPage() {
         console.log('[Login] Waiting for session storage...');
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // DON'T navigate - just show success message to test
-        console.log('[Login] Login complete - NOT navigating to test');
-        setMessage('✅ Login Successful! (Navigation disabled for testing)');
-        // console.log('[Login] Navigating to success page...');
-        // window.location.href = '/success';
-        // console.log('[Login] Navigation triggered');
+        // Use meta refresh for WebView-compatible navigation
+        console.log('[Login] Login complete - using meta refresh to navigate');
+
+        // Create meta refresh tag
+        const meta = document.createElement('meta');
+        meta.httpEquiv = 'refresh';
+        meta.content = '0; url=/apiary-selection';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+
+        console.log('[Login] Meta refresh added');
       }
     } catch (err: any) {
       console.error('[Login] Auth error:', err);
