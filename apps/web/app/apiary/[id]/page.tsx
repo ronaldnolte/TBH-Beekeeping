@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Apiary, Hive } from '@tbh-beekeeper/shared';
+import { navigateTo } from '../../../lib/navigation';
 import { Modal } from '../../../components/Modal';
 import { HiveForm } from '../../../components/HiveForm';
 import { MoveHiveModal } from '../../../components/MoveHiveModal';
@@ -98,9 +99,9 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
             <div className="bg-[#E67E22] text-white p-6 shadow-md relative">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex justify-between items-start mb-2">
-                        <button onClick={() => router.push('/apiary-selection')} className="bg-white/20 text-white px-4 py-2 rounded-lg text-sm">← Back to Apiaries</button>
+                        <button onClick={() => navigateTo('/apiary-selection')} className="bg-white/20 text-white px-4 py-2 rounded-lg text-sm">← Back to Apiaries</button>
                         <button
-                            onClick={() => router.push(`/apiary-selection/forecast?apiaryId=${apiaryId}`)}
+                            onClick={() => navigateTo(`/apiary-selection/forecast?apiaryId=${apiaryId}`)}
                             className="bg-white text-[#E67E22] px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-gray-100"
                         >
                             📊 View Forecast
