@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { navigateTo } from '../lib/navigation';
 
 // Type declaration for React Native WebView
 declare global {
@@ -32,7 +33,7 @@ export default function LoginPage() {
     // If already authenticated, redirect to apiary selection
     if (!authLoading && session) {
       console.log('[Login] Session found, redirecting to apiary-selection');
-      router.push('/apiary-selection');
+      navigateTo('/apiary-selection');
     }
   }, [session, authLoading, router]);
 
@@ -75,10 +76,10 @@ export default function LoginPage() {
         // Show success message
         setMessage('Login successful! Redirecting...');
 
-        // Brief delay for better UX, then navigate
+        // Use WebView-compatible navigation
         console.log('[Login] Redirecting to apiary-selection');
-        await new Promise(resolve => setTimeout(resolve, 500));
-        router.push('/apiary-selection');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        navigateTo('/apiary-selection');
       }
     } catch (err: any) {
       console.error('[Login] Auth error:', err);
