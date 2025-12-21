@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabase';
+import { navigateTo } from '../lib/navigation';
 
 // Type declaration for React Native WebView
 declare global {

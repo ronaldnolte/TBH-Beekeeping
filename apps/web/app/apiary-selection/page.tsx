@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Apiary } from '@tbh-beekeeper/shared';
+import { navigateTo } from '../../lib/navigation';
 import { Modal } from '../../components/Modal';
 import { ApiaryForm } from '../../components/ApiaryForm';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
@@ -141,7 +142,7 @@ const ApiarySelectionPage = () => {
 
     useEffect(() => {
         if (!authLoading && !userId) {
-            router.push('/');
+            navigateTo('/');
             return;
         }
         if (userId) {
@@ -152,7 +153,7 @@ const ApiarySelectionPage = () => {
 
     const handleGo = (id: string = selectedApiaryId) => {
         if (id) {
-            router.push(`/apiary/${id}`);
+            navigateTo(`/apiary/${id}`);
         }
     };
 
