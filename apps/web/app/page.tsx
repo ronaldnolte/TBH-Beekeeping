@@ -61,9 +61,12 @@ export default function LoginPage() {
         }
         console.log('[Login] SignIn successful, session:', data.session ? 'Created' : 'None');
 
-        // Wait a bit for session to be stored
-        console.log('[Login] Waiting for session storage...');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Show success message to user
+        setMessage('Login successful! Redirecting...');
+
+        // Wait longer for session storage AND browser password manager to save credentials
+        console.log('[Login] Waiting for session storage and password manager...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
         // Use meta refresh for WebView-compatible navigation
         console.log('[Login] Login complete - using meta refresh to navigate');

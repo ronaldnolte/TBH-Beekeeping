@@ -62,9 +62,10 @@ const InspectionItem = ({ inspection, onDelete, onEdit, onView }: { inspection: 
     );
 
     return (
-        <div className="grid grid-cols-[50px_80px_90px_60px_60px_60px_60px_1fr_30px] border-b border-gray-100 hover:bg-gray-50 transition-colors group items-center py-0" onClick={() => onView?.(inspection)}>
+        <div className="grid grid-cols-[60px_80px_90px_60px_60px_60px_60px_1fr] border-b border-gray-100 hover:bg-gray-50 transition-colors group items-center py-0" onClick={() => onView?.(inspection)}>
             <div className="flex gap-1 justify-center px-1 items-center">
                 <button onClick={(e) => { e.stopPropagation(); onEdit(inspection); }} className="text-gray-400 p-2 text-lg">✎</button>
+                <button onClick={(e) => { e.stopPropagation(); onDelete(inspection); }} className="text-gray-400 p-2 text-lg">×</button>
             </div>
 
             <div className="px-3 cursor-pointer" onClick={() => (onView ? onView(inspection) : null)}>
@@ -91,10 +92,6 @@ const InspectionItem = ({ inspection, onDelete, onEdit, onView }: { inspection: 
                         {inspection.observations}
                     </div>
                 )}
-            </div>
-
-            <div className="flex justify-center px-1">
-                <button onClick={(e) => { e.stopPropagation(); onDelete(inspection); }} className="text-gray-400 p-2 text-lg">×</button>
             </div>
         </div>
     );
@@ -148,7 +145,7 @@ export const InspectionList = ({ hive, refreshKey, onRefresh, onEdit }: { hive: 
     return (
         <>
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
-                <div className="grid grid-cols-[50px_80px_90px_60px_60px_60px_60px_1fr_30px] bg-gray-50 border-b border-gray-200 py-1.5 items-center">
+                <div className="grid grid-cols-[60px_80px_90px_60px_60px_60px_60px_1fr] bg-gray-50 border-b border-gray-200 py-1.5 items-center">
                     <div></div>
                     <div className="px-3 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Date</div>
                     <div className="px-1 text-center text-[9px] font-bold text-gray-400 uppercase tracking-wider">Queen</div>
@@ -157,7 +154,6 @@ export const InspectionList = ({ hive, refreshKey, onRefresh, onEdit }: { hive: 
                     <div className="px-2 text-center text-[9px] font-bold text-gray-400 uppercase tracking-wider">Hon</div>
                     <div className="px-2 text-center text-[9px] font-bold text-gray-400 uppercase tracking-wider">Pol</div>
                     <div className="px-2 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Observations</div>
-                    <div></div>
                 </div>
 
                 {visibleInspections.map(inspection => (

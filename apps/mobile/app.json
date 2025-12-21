@@ -2,8 +2,8 @@
   "expo": {
     "name": "TBH Beekeeper",
     "slug": "tbh-beekeeper",
-    "version": "1.0.5",
-    "orientation": "portrait",
+    "version": "1.0.6",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -17,13 +17,15 @@
       "bundleIdentifier": "com.ronaldnolte.tbhbeekeeper"
     },
     "android": {
-      "versionCode": 7,
+      "versionCode": 9,
+      "supportsTablet": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.ronaldnolte.tbhbeekeeper"
+      "package": "com.ronaldnolte.tbhbeekeeper",
+      "screenOrientation": "default"
     },
     "web": {
       "favicon": "./assets/favicon.png"

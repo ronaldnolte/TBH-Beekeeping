@@ -13,6 +13,7 @@ import { TaskForm } from './TaskForm';
 import { Modal } from './Modal';
 import { Hive, HiveSnapshot, BarState, Inspection, Intervention, Apiary, Task } from '@tbh-beekeeper/shared';
 import { supabase } from '../lib/supabase';
+import { navigateTo } from '../lib/navigation';
 
 // Bar status colors from prototype
 const BAR_COLORS = {
@@ -181,12 +182,12 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
             <div className="bg-[#E67E22] text-white p-3 shadow-md sticky top-0 z-10">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     <div>
-                        <Link
-                            href={`/apiary/${hive.apiary_id}`}
+                        <button
+                            onClick={() => navigateTo(`/apiary/${hive.apiary_id}`)}
                             className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg backdrop-blur-sm transition-colors font-medium text-sm flex items-center gap-1 mb-1 w-fit"
                         >
                             <span>←</span> Back to Apiary
-                        </Link>
+                        </button>
                         <div className="flex items-baseline gap-2 mt-1">
                             <Link href="/" className="hover:underline decoration-white/50 underline-offset-4">
                                 <h1 className="text-xl font-bold leading-tight">{hive.name}</h1>
