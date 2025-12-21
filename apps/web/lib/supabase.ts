@@ -34,19 +34,26 @@ const cookieStorage = {
     },
     setItem: (key: string, value: string) => {
         if (typeof document === 'undefined') return;
-        // Set cookie for 1 year with specific attributes for WebView
+        // Set cookie for 1 year
         document.cookie = `${key}=${value}; path=/; max-age=31536000; SameSite=Lax; Secure`;
+        // Also sync to localStorage so the Mobile Bridge can pick it up
+        if (typeof window !== 'undefined' && window.localStorage) {
+            window.localStorage.setItem(key, value);
+        }
     },
     removeItem: (key: string) => {
         if (typeof document === 'undefined') return;
         document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+        if (typeof window !== 'undefined' && window.localStorage) {
+            window.localStorage.removeItem(key);
+        }
     }
 };
 
 // Create Supabase client with WebView-friendly configuration
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
-        // Use custom cookie storage instead of localStorage
+        // Use custom storage that syncs both Cookies and LocalStorage
         storage: typeof window !== 'undefined' ? cookieStorage : undefined,
         storageKey: 'supabase.auth.token',
         autoRefreshToken: true,
