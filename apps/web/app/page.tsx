@@ -64,9 +64,9 @@ export default function LoginPage() {
         console.log('[Login] Waiting for session storage...');
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        console.log('[Login] Navigating to apiary-selection...');
-        // Use window.location instead of router.push for WebView compatibility
-        window.location.href = '/apiary-selection';
+        console.log('[Login] Navigating to success page...');
+        // Test with simple page first to isolate the crash
+        window.location.href = '/success';
         console.log('[Login] Navigation triggered');
       }
     } catch (err: any) {
