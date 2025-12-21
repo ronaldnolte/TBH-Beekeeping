@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { cookieStorage } from './cookieStorage';
 
 // Use environment variables for better security and flexibility
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ayeqrbcvihztxbrxmrth.supabase.co';
@@ -14,14 +15,14 @@ console.log('[Supabase] Initializing client with URL:', supabaseUrl);
 const isWebView = typeof navigator !== 'undefined' && /TBHBeekeeperApp/.test(navigator.userAgent);
 console.log('[Supabase] Running in WebView:', isWebView);
 
-// Create Supabase client with optimized configuration
-// Using localStorage is more reliable than cookies for client-side auth in SPAs
+// Create Supabase client with cookie-based storage for better WebView persistence
+// Cookies persist more reliably than localStorage in WebView environments
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
-        // Use browser's localStorage for session persistence
-        // This is more reliable than cookies for Single Page Applications
-        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-        storageKey: 'supabase.auth.token',
+        // Use cookie storage for session persistence
+        // This works better in WebView environments than localStorage
+        storage: typeof window !== 'undefined' ? cookieStorage : undefined,
+        storageKey: 'supabase-auth-token',
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: false,
