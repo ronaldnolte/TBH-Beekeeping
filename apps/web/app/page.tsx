@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabase';
-import { navigateTo } from '../lib/navigation';
+import { useAuth } from '../contexts/AuthContext';
 
 // Type declaration for React Native WebView
 declare global {
@@ -17,13 +17,24 @@ declare global {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { session, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const [debugLog, setDebugLog] = useState<string[]>([]);
+
+  // Check for existing session on mount
+  useEffect(() => {
+    console.log('[Login] Component mounted, auth loading:', authLoading, 'session:', !!session);
+
+    // If already authenticated, redirect to apiary selection
+    if (!authLoading && session) {
+      console.log('[Login] Session found, redirecting to apiary-selection');
+      router.push('/apiary-selection');
+    }
+  }, [session, authLoading, router]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,23 +72,13 @@ export default function LoginPage() {
         }
         console.log('[Login] SignIn successful, session:', data.session ? 'Created' : 'None');
 
-        // Show success message to user
+        // Show success message
         setMessage('Login successful! Redirecting...');
 
-        // Wait longer for session storage AND browser password manager to save credentials
-        console.log('[Login] Waiting for session storage and password manager...');
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Use meta refresh for WebView-compatible navigation
-        console.log('[Login] Login complete - using meta refresh to navigate');
-
-        // Create meta refresh tag
-        const meta = document.createElement('meta');
-        meta.httpEquiv = 'refresh';
-        meta.content = '0; url=/apiary-selection';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-
-        console.log('[Login] Meta refresh added');
+        // Brief delay for better UX, then navigate
+        console.log('[Login] Redirecting to apiary-selection');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        router.push('/apiary-selection');
       }
     } catch (err: any) {
       console.error('[Login] Auth error:', err);
@@ -95,6 +96,18 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  // Show loading state while checking for existing session
+  if (authLoading) {
+    return (
+      <div className="min-h-screen honeycomb-bg flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-pulse text-6xl mb-4">🐝</div>
+          <p className="text-[#8B4513] text-lg">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen honeycomb-bg flex items-center justify-center p-4 relative">
