@@ -65,7 +65,8 @@ export default function LoginPage() {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         console.log('[Login] Navigating to apiary-selection...');
-        router.push('/apiary-selection');
+        // Use window.location instead of router.push for WebView compatibility
+        window.location.href = '/apiary-selection';
         console.log('[Login] Navigation triggered');
       }
     } catch (err: any) {

@@ -4,9 +4,7 @@ import { WebView } from 'react-native-webview';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 
-// TODO: Replace with your actual production URL when ready, or use local IP for dev
-// const WEB_APP_URL = 'https://tbh.beektools.com'; 
-// For now, using a placeholder. We will update this to your local IP or Vercel URL.
+// Production URL with navigation fix
 const WEB_APP_URL = 'https://tbh.beektools.com';
 
 export default function App() {
