@@ -53,7 +53,7 @@ export function TaskForm({
                 title,
                 description,
                 priority,
-                due_date: dueDate ? new Date(dueDate).toISOString() : null,
+                due_date: dueDate ? new Date(dueDate + 'T12:00:00').toISOString() : null,
                 scope,
                 hive_id: hiveId || null,
                 status: initialData?.status || 'pending',
