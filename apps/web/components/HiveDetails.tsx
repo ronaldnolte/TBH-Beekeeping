@@ -57,10 +57,10 @@ const HistoryItem = ({ snapshot, onSelect, onDelete }: { snapshot: HiveSnapshot,
         <div onClick={onSelect} className="w-full flex flex-col px-2 py-1 hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer group bg-white">
             <div className="flex justify-between items-center">
                 <div className="flex items-baseline gap-2">
-                    <span className="text-[11px] font-bold text-gray-800">
+                    <span className="text-[11px] md:text-sm font-bold text-gray-800">
                         {dateStr}
                     </span>
-                    <span className="text-[10px] text-gray-500">
+                    <span className="text-[10px] md:text-xs text-gray-500">
                         {timeStr}
                     </span>
                 </div>
@@ -73,11 +73,11 @@ const HistoryItem = ({ snapshot, onSelect, onDelete }: { snapshot: HiveSnapshot,
                 </button>
             </div>
 
-            <div className="flex gap-[1px] h-4 items-end overflow-hidden mt-0.5">
+            <div className="flex gap-[1px] h-4 md:h-10 items-end overflow-hidden mt-0.5">
                 {bars.slice(0, 30).map((bar) => (
                     <div
                         key={bar.position}
-                        className="w-1.5 h-full rounded-[0.5px] border-[0.5px] border-black/50"
+                        className="w-1.5 md:w-4 h-full rounded-[0.5px] border-[0.5px] border-black/50"
                         style={{
                             backgroundColor: BAR_COLORS[bar.status as BarStatus] || BAR_COLORS.inactive,
                             height: '100%'
