@@ -57,7 +57,7 @@ export function HiveForm({
                     name,
                     bar_count: barCount,
                     is_active: true,
-                    raw_bars: initialBars
+                    bars: initialBars
                 }).select().single();
 
                 if (hiveError) throw hiveError;

@@ -85,7 +85,7 @@ export const InspectionForm = ({ hiveId, initialData, onSuccess, onCancel }: { h
         try {
             const payload = {
                 hive_id: hiveId,
-                timestamp: new Date(date).toISOString(),
+                timestamp: new Date(date + 'T12:00:00').toISOString(),
                 queen_status: queenStatus,
                 brood_pattern: broodPattern,
                 temperament: temperament,

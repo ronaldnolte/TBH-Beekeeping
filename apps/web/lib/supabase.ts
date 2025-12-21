@@ -22,5 +22,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: false, // Disable URL-based session detection in WebView
+        flowType: 'pkce', // More secure flow type that works better with mobile
     },
 });

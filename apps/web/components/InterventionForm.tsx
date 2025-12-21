@@ -30,7 +30,7 @@ export function InterventionForm({ hiveId, initialData, onSuccess, onCancel }: {
             const payload = {
                 hive_id: hiveId,
                 type: type,
-                timestamp: new Date(date).toISOString(),
+                timestamp: new Date(date + 'T12:00:00').toISOString(),
                 description: description
             };
 
