@@ -132,13 +132,13 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleAuth} className="space-y-4">
+        <form onSubmit={handleAuth} className="space-y-4" autoComplete="off">
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Email</label>
             <input
               type="email"
               name="email"
-              autoComplete="email"
+              autoComplete="off"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#E67E22]"
@@ -151,7 +151,7 @@ export default function LoginPage() {
             <input
               type="password"
               name="password"
-              autoComplete={isSignUp ? "new-password" : "current-password"}
+              autoComplete="off"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#E67E22]"
