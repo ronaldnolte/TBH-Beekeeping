@@ -14,13 +14,43 @@ const isWebView = typeof navigator !== 'undefined' && /TBHBeekeeperApp/.test(nav
 console.log('Is WebView:', isWebView);
 
 // Create Supabase client with WebView-friendly configuration
+// Custom Cookie Storage Adapter for better WebView persistence
+const cookieStorage = {
+    getItem: (key: string) => {
+        if (typeof document === 'undefined') return null;
+        const name = key + "=";
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return null;
+    },
+    setItem: (key: string, value: string) => {
+        if (typeof document === 'undefined') return;
+        // Set cookie for 1 year with specific attributes for WebView
+        document.cookie = `${key}=${value}; path=/; max-age=31536000; SameSite=Lax; Secure`;
+    },
+    removeItem: (key: string) => {
+        if (typeof document === 'undefined') return;
+        document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+    }
+};
+
+// Create Supabase client with WebView-friendly configuration
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
-        // Force storage to be synchronous and persistent
-        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+        // Use custom cookie storage instead of localStorage
+        storage: typeof window !== 'undefined' ? cookieStorage : undefined,
         storageKey: 'supabase.auth.token',
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: false, // Disable URL-based session detection in WebView
+        detectSessionInUrl: false,
     },
 });
