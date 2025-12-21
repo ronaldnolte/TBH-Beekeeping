@@ -64,10 +64,12 @@ export default function LoginPage() {
         console.log('[Login] Waiting for session storage...');
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        console.log('[Login] Navigating to success page...');
-        // Test with simple page first to isolate the crash
-        window.location.href = '/success';
-        console.log('[Login] Navigation triggered');
+        // DON'T navigate - just show success message to test
+        console.log('[Login] Login complete - NOT navigating to test');
+        setMessage('✅ Login Successful! (Navigation disabled for testing)');
+        // console.log('[Login] Navigating to success page...');
+        // window.location.href = '/success';
+        // console.log('[Login] Navigation triggered');
       }
     } catch (err: any) {
       console.error('[Login] Auth error:', err);
