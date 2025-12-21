@@ -37,7 +37,7 @@ const HiveCard = ({ hive, apiaryName, onEditInfo, onDelete, onMove, isEditing }:
                     <div className="truncate">Last: {hive.last_inspection_date ? new Date(hive.last_inspection_date).toLocaleDateString() : 'Never'}</div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-2">
-                    <button onClick={() => window.location.href = `/hive/${hive.id}`} className="w-full bg-[#8B4513] text-white font-semibold py-1.5 px-2 rounded text-xs">View</button>
+                    <button onClick={() => navigateTo(`/hive/${hive.id}`)} className="w-full bg-[#8B4513] text-white font-semibold py-1.5 px-2 rounded text-xs">View</button>
                     <button onClick={onMove} className="w-full border border-gray-300 text-gray-700 font-semibold py-1.5 px-2 rounded text-xs">Move</button>
                 </div>
             </div>
