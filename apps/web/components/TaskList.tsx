@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import { Modal } from './Modal';
 
 // --- Task Item Component (UI Only) ---
-const TaskItem = ({ task, onToggle, onDelete, onEdit, onView }: { task: Task, onToggle: (task: Task) => void, onDelete: (task: Task) => void, onEdit: (task: Task) => void, onView?: (task: Task) => void }) => {
+const TaskItem = ({ task, onToggle, onDelete, onEdit, onView, location }: { task: Task, onToggle: (task: Task) => void, onDelete: (task: Task) => void, onEdit: (task: Task) => void, onView?: (task: Task) => void, location?: { apiaryName?: string, hiveName?: string } }) => {
     const dueDate = task.due_date ? new Date(task.due_date) : null;
     const isOverdue = dueDate && dueDate < new Date() && task.status !== 'completed';
 
@@ -20,7 +20,7 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit, onView }: { task: Task, on
     };
 
     return (
-        <div className={`grid grid-cols-[50px_40px_60px_80px_140px_1fr] border-b border-gray-100 hover:bg-gray-50 transition-colors group items-center py-0 ${task.status === 'completed' ? 'opacity-50' : ''}`} onClick={() => onView?.(task)}>
+        <div className={`grid grid-cols-[50px_40px_60px_80px_140px_1fr_160px] border-b border-gray-100 hover:bg-gray-50 transition-colors group items-center py-0 ${task.status === 'completed' ? 'opacity-50' : ''}`} onClick={() => onView?.(task)}>
             <div className="flex gap-2 justify-center px-1 items-center h-8">
                 <button onClick={(e) => { e.stopPropagation(); onEdit(task); }} className="text-gray-400 p-2 text-lg">✎</button>
                 <button onClick={(e) => { e.stopPropagation(); onDelete(task); }} className="text-gray-400 p-2 text-lg">×</button>
@@ -56,12 +56,22 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit, onView }: { task: Task, on
             <div className="px-2 min-w-0 flex items-center h-8 text-[11px] text-gray-500 truncate" title={task.description}>
                 {task.description || '-'}
             </div>
+
+            <div className="px-2 min-w-0 flex items-center h-8 text-[10px] text-gray-600 truncate">
+                {location?.apiaryName && (
+                    <span className="font-medium">{location.apiaryName}</span>
+                )}
+                {location?.hiveName && (
+                    <span className="ml-1 text-gray-400">/ {location.hiveName}</span>
+                )}
+                {!location?.apiaryName && !location?.hiveName && '-'}
+            </div>
         </div>
     );
 };
 
 // --- Reusable Task Grid (Accepts List of Tasks) ---
-export const TaskGrid = ({ tasks, onEdit, onRefresh, showCompleted = false }: { tasks: Task[], onEdit: (task: Task) => void, onRefresh?: () => void, showCompleted?: boolean }) => {
+export const TaskGrid = ({ tasks, onEdit, onRefresh, showCompleted = false, taskLocations = {} }: { tasks: Task[], onEdit: (task: Task) => void, onRefresh?: () => void, showCompleted?: boolean, taskLocations?: Record<string, { apiaryName?: string, hiveName?: string }> }) => {
     const [itemToDelete, setItemToDelete] = useState<Task | null>(null);
     const [viewingItem, setViewingItem] = useState<Task | null>(null);
 
@@ -93,13 +103,14 @@ export const TaskGrid = ({ tasks, onEdit, onRefresh, showCompleted = false }: { 
 
 
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
-                <div className="grid grid-cols-[50px_40px_60px_80px_140px_1fr] bg-gray-50 border-b border-gray-200 py-1.5 items-center">
+                <div className="grid grid-cols-[50px_40px_60px_80px_140px_1fr_160px] bg-gray-50 border-b border-gray-200 py-1.5 items-center">
                     <div></div>
                     <div className="px-2 text-center text-[9px] font-bold text-gray-400 uppercase tracking-wider">Done</div>
                     <div className="px-2 text-center text-[9px] font-bold text-gray-400 uppercase tracking-wider">Pri</div>
                     <div className="px-2 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Due</div>
                     <div className="px-2 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Title</div>
                     <div className="px-2 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Description</div>
+                    <div className="px-2 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Location</div>
                 </div>
 
                 {visibleTasks.map(task => (
@@ -110,6 +121,7 @@ export const TaskGrid = ({ tasks, onEdit, onRefresh, showCompleted = false }: { 
                         onDelete={setItemToDelete}
                         onEdit={onEdit}
                         onView={setViewingItem}
+                        location={taskLocations[task.id]}
                     />
                 ))}
             </div>
@@ -190,15 +202,35 @@ export const TaskList = ({ hive, refreshKey, onRefresh, onEdit, showCompleted = 
 // --- User-Specific List (Dashboard) ---
 export const UserTaskList = ({ userId, refreshKey, onRefresh, onEdit, showCompleted = false }: { userId: string, refreshKey?: number, onRefresh?: () => void, onEdit: (task: Task) => void, showCompleted?: boolean }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
+    const [taskLocations, setTaskLocations] = useState<Record<string, { apiaryName?: string, hiveName?: string }>>({});
 
     useEffect(() => {
         if (!userId) return;
         const fetchTasks = async () => {
-            const { data } = await supabase.from('tasks').select('*').eq('assigned_user_id', userId);
-            setTasks(sortTasks(data || []));
+            const { data } = await supabase
+                .from('tasks')
+                .select(`
+                    *,
+                    apiaries(name),
+                    hives(name)
+                `)
+                .eq('assigned_user_id', userId);
+
+            if (data) {
+                // Extract location names
+                const locations: Record<string, { apiaryName?: string, hiveName?: string }> = {};
+                data.forEach((task: any) => {
+                    locations[task.id] = {
+                        apiaryName: task.apiaries?.name,
+                        hiveName: task.hives?.name
+                    };
+                });
+                setTaskLocations(locations);
+                setTasks(sortTasks(data || []));
+            }
         };
         fetchTasks();
     }, [userId, refreshKey]);
 
-    return <TaskGrid tasks={tasks} onEdit={onEdit} onRefresh={onRefresh} showCompleted={showCompleted} />;
+    return <TaskGrid tasks={tasks} onEdit={onEdit} onRefresh={onRefresh} showCompleted={showCompleted} taskLocations={taskLocations} />;
 };

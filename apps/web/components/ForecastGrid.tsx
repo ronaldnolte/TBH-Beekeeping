@@ -50,11 +50,22 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
     const gridData: Record<string, Record<number, InspectionWindow>> = {};
     const uniqueDates = new Set<string>();
 
+    // Get today's date at midnight (local time) for comparison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayTime = today.getTime();
+
     windows.forEach(w => {
-        const dateKey = w.startTime.toISOString().split('T')[0];
-        uniqueDates.add(dateKey);
-        if (!gridData[dateKey]) gridData[dateKey] = {};
-        gridData[dateKey][w.startTime.getHours()] = w;
+        // Only include windows from today forward
+        const windowDate = new Date(w.startTime);
+        windowDate.setHours(0, 0, 0, 0);
+
+        if (windowDate.getTime() >= todayTime) {
+            const dateKey = w.startTime.toISOString().split('T')[0];
+            uniqueDates.add(dateKey);
+            if (!gridData[dateKey]) gridData[dateKey] = {};
+            gridData[dateKey][w.startTime.getHours()] = w;
+        }
     });
 
     const sortedDates = Array.from(uniqueDates).sort();

@@ -59,10 +59,10 @@ function ForecastPageContent() {
             <div className="bg-[#F5A623] text-white p-3 shadow-md">
                 <div className="flex items-center justify-between max-w-7xl mx-auto">
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => router.push('/apiary-selection')}
                         className="text-white hover:text-gray-200 flex items-center gap-1 text-sm"
                     >
-                        <span>←</span> Back
+                        <span>←</span> Back to Apiaries
                     </button>
                     <h1 className="text-lg font-bold">Hive Forecast</h1>
                     <div className="w-12"></div> {/* Spacer for centering */}
