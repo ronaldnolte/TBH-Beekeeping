@@ -64,7 +64,9 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit, onView, location }: { task
                 {location?.hiveName && (
                     <span className="ml-1 text-gray-400">/ {location.hiveName}</span>
                 )}
-                {!location?.apiaryName && !location?.hiveName && '-'}
+                {!location?.apiaryName && !location?.hiveName && (
+                    <span className="italic text-gray-400">General Task</span>
+                )}
             </div>
         </div>
     );
