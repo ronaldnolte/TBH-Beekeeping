@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../../../lib/supabase';
+import { navigateTo } from '../../../lib/navigation';
 import { Apiary } from '@tbh-beekeeper/shared';
 import { ForecastGrid } from '../../../components/ForecastGrid';
 
@@ -59,7 +60,7 @@ function ForecastPageContent() {
             <div className="bg-[#F5A623] text-white p-3 shadow-md">
                 <div className="flex items-center justify-between max-w-7xl mx-auto">
                     <button
-                        onClick={() => router.push('/apiary-selection')}
+                        onClick={() => navigateTo('/apiary-selection')}
                         className="text-white hover:text-gray-200 flex items-center gap-1 text-sm"
                     >
                         <span>←</span> Back to Apiaries

@@ -207,26 +207,60 @@ export const UserTaskList = ({ userId, refreshKey, onRefresh, onEdit, showComple
     useEffect(() => {
         if (!userId) return;
         const fetchTasks = async () => {
-            const { data } = await supabase
+            // Fetch tasks first
+            const { data: tasksData, error: tasksError } = await supabase
                 .from('tasks')
-                .select(`
-                    *,
-                    apiaries(name),
-                    hives(name)
-                `)
+                .select('*')
                 .eq('assigned_user_id', userId);
 
-            if (data) {
-                // Extract location names
+            if (tasksError) {
+                console.error('Error fetching tasks:', tasksError);
+                return;
+            }
+
+            if (tasksData) {
+                setTasks(sortTasks(tasksData || []));
+
+                // Fetch location names separately
                 const locations: Record<string, { apiaryName?: string, hiveName?: string }> = {};
-                data.forEach((task: any) => {
-                    locations[task.id] = {
-                        apiaryName: task.apiaries?.name,
-                        hiveName: task.hives?.name
-                    };
-                });
+
+                // Get unique apiary and hive IDs
+                const apiaryIds = [...new Set(tasksData.map(t => t.apiary_id).filter(Boolean))];
+                const hiveIds = [...new Set(tasksData.map(t => t.hive_id).filter(Boolean))];
+
+                // Fetch apiary names
+                if (apiaryIds.length > 0) {
+                    const { data: apiaries } = await supabase
+                        .from('apiaries')
+                        .select('id, name')
+                        .in('id', apiaryIds);
+
+                    const apiaryMap = new Map(apiaries?.map(a => [a.id, a.name]) || []);
+                    tasksData.forEach(task => {
+                        if (task.apiary_id) {
+                            if (!locations[task.id]) locations[task.id] = {};
+                            locations[task.id].apiaryName = apiaryMap.get(task.apiary_id);
+                        }
+                    });
+                }
+
+                // Fetch hive names
+                if (hiveIds.length > 0) {
+                    const { data: hives } = await supabase
+                        .from('hives')
+                        .select('id, name')
+                        .in('id', hiveIds);
+
+                    const hiveMap = new Map(hives?.map(h => [h.id, h.name]) || []);
+                    tasksData.forEach(task => {
+                        if (task.hive_id) {
+                            if (!locations[task.id]) locations[task.id] = {};
+                            locations[task.id].hiveName = hiveMap.get(task.hive_id);
+                        }
+                    });
+                }
+
                 setTaskLocations(locations);
-                setTasks(sortTasks(data || []));
             }
         };
         fetchTasks();

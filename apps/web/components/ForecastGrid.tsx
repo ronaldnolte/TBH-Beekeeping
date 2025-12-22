@@ -50,21 +50,20 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
     const gridData: Record<string, Record<number, InspectionWindow>> = {};
     const uniqueDates = new Set<string>();
 
-    // Get today's date at midnight (local time) for comparison
+    // Get today's date string in local timezone for comparison
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayTime = today.getTime();
+    const todayDateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
     windows.forEach(w => {
-        // Only include windows from today forward
+        // Get window date in local timezone
         const windowDate = new Date(w.startTime);
-        windowDate.setHours(0, 0, 0, 0);
+        const windowDateString = `${windowDate.getFullYear()}-${String(windowDate.getMonth() + 1).padStart(2, '0')}-${String(windowDate.getDate()).padStart(2, '0')}`;
 
-        if (windowDate.getTime() >= todayTime) {
-            const dateKey = w.startTime.toISOString().split('T')[0];
-            uniqueDates.add(dateKey);
-            if (!gridData[dateKey]) gridData[dateKey] = {};
-            gridData[dateKey][w.startTime.getHours()] = w;
+        // Only include windows from today forward
+        if (windowDateString >= todayDateString) {
+            uniqueDates.add(windowDateString);
+            if (!gridData[windowDateString]) gridData[windowDateString] = {};
+            gridData[windowDateString][w.startTime.getHours()] = w;
         }
     });
 
