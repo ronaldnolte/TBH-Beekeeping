@@ -148,7 +148,8 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                             <tr className="bg-gray-100">
                                 <th className="border border-gray-300 px-2 py-1 font-bold sticky left-0 bg-gray-100 z-10">Time</th>
                                 {filteredDates.map(dateStr => {
-                                    const date = new Date(dateStr);
+                                    // Parse as local date (not UTC) by adding a time component
+                                    const date = new Date(dateStr + 'T12:00:00');
                                     return (
                                         <th key={dateStr} className="border border-gray-300 px-2 py-1">
                                             <div className="font-bold">{date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
