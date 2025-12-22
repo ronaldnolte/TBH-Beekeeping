@@ -224,9 +224,36 @@ export const UserTaskList = ({ userId, refreshKey, onRefresh, onEdit, showComple
                 // Fetch location names separately
                 const locations: Record<string, { apiaryName?: string, hiveName?: string }> = {};
 
-                // Get unique apiary and hive IDs
-                const apiaryIds = [...new Set(tasksData.map(t => t.apiary_id).filter(Boolean))];
+                // Get unique hive IDs first (we'll get apiary info from hives)
                 const hiveIds = [...new Set(tasksData.map(t => t.hive_id).filter(Boolean))];
+
+                // Fetch hive names AND their apiary_ids
+                const hiveToApiaryMap = new Map<string, string>(); // Maps hive_id to apiary_id
+                if (hiveIds.length > 0) {
+                    const { data: hives } = await supabase
+                        .from('hives')
+                        .select('id, name, apiary_id')
+                        .in('id', hiveIds);
+
+                    const hiveMap = new Map(hives?.map(h => [h.id, h.name]) || []);
+                    hives?.forEach(h => {
+                        if (h.apiary_id) {
+                            hiveToApiaryMap.set(h.id, h.apiary_id);
+                        }
+                    });
+
+                    tasksData.forEach(task => {
+                        if (task.hive_id) {
+                            if (!locations[task.id]) locations[task.id] = {};
+                            locations[task.id].hiveName = hiveMap.get(task.hive_id);
+                        }
+                    });
+                }
+
+                // Collect all apiary IDs (both from tasks and from hives)
+                const apiaryIdsFromTasks = tasksData.map(t => t.apiary_id).filter(Boolean);
+                const apiaryIdsFromHives = Array.from(hiveToApiaryMap.values());
+                const apiaryIds = [...new Set([...apiaryIdsFromTasks, ...apiaryIdsFromHives])];
 
                 // Fetch apiary names
                 if (apiaryIds.length > 0) {
@@ -236,26 +263,17 @@ export const UserTaskList = ({ userId, refreshKey, onRefresh, onEdit, showComple
                         .in('id', apiaryIds);
 
                     const apiaryMap = new Map(apiaries?.map(a => [a.id, a.name]) || []);
+
                     tasksData.forEach(task => {
-                        if (task.apiary_id) {
-                            if (!locations[task.id]) locations[task.id] = {};
-                            locations[task.id].apiaryName = apiaryMap.get(task.apiary_id);
+                        // Try to get apiary from task first, then from hive
+                        let apiaryId = task.apiary_id;
+                        if (!apiaryId && task.hive_id) {
+                            apiaryId = hiveToApiaryMap.get(task.hive_id);
                         }
-                    });
-                }
 
-                // Fetch hive names
-                if (hiveIds.length > 0) {
-                    const { data: hives } = await supabase
-                        .from('hives')
-                        .select('id, name')
-                        .in('id', hiveIds);
-
-                    const hiveMap = new Map(hives?.map(h => [h.id, h.name]) || []);
-                    tasksData.forEach(task => {
-                        if (task.hive_id) {
+                        if (apiaryId) {
                             if (!locations[task.id]) locations[task.id] = {};
-                            locations[task.id].hiveName = hiveMap.get(task.hive_id);
+                            locations[task.id].apiaryName = apiaryMap.get(apiaryId);
                         }
                     });
                 }
