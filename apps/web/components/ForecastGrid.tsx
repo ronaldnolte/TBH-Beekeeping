@@ -70,6 +70,13 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
     });
 
     const sortedDates = Array.from(uniqueDates).sort();
+
+    // Additional safety filter to remove dates before today
+    // Compare date strings directly (YYYY-MM-DD format)
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const filteredDates = sortedDates.filter(dateStr => dateStr >= todayStr);
+
     const timeSlots = [6, 8, 10, 12, 14, 16];
 
     const getScoreColor = (score: number) => {
@@ -140,7 +147,7 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                         <thead>
                             <tr className="bg-gray-100">
                                 <th className="border border-gray-300 px-2 py-1 font-bold sticky left-0 bg-gray-100 z-10">Time</th>
-                                {sortedDates.map(dateStr => {
+                                {filteredDates.map(dateStr => {
                                     const date = new Date(dateStr);
                                     return (
                                         <th key={dateStr} className="border border-gray-300 px-2 py-1">
@@ -157,7 +164,7 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                                     <td className="border border-gray-300 px-2 py-1 font-bold sticky left-0 bg-white z-10">
                                         {formatTimeSlot(hour)}
                                     </td>
-                                    {sortedDates.map(dateStr => {
+                                    {filteredDates.map(dateStr => {
                                         const window = gridData[dateStr]?.[hour];
                                         if (!window) {
                                             return <td key={dateStr} className="border border-gray-300 bg-gray-100 h-12 w-16"></td>;
