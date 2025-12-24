@@ -12,6 +12,8 @@ import { TaskForm } from '../../components/TaskForm';
 import { Task } from '@tbh-beekeeper/shared';
 import { supabase } from '../../lib/supabase';
 import { WeatherService, InspectionWindow } from '@tbh-beekeeper/shared';
+import { Tour } from '../../components/Tour';
+import { apiarySelectionTour } from '../../lib/tourDefinitions';
 
 const WeatherWidget = ({ apiaryId, apiaries, onUpdateApiary }: { apiaryId: string, apiaries: Apiary[], onUpdateApiary: (a: Apiary) => void }) => {
     const [weather, setWeather] = useState<InspectionWindow | null>(null);
@@ -218,7 +220,7 @@ const ApiarySelectionPage = () => {
                         <div className="flex items-center gap-2 text-xs text-[#8B4513] opacity-80">
                             <span>Welcome back, {user?.email}</span>
                             <span className="text-[#E6DCC3]">|</span>
-                            <a href="/help" className="hover:text-[#E67E22] hover:underline font-medium">📚 Help</a>
+                            <a href="/help" id="help-link" className="hover:text-[#E67E22] hover:underline font-medium">📚 Help</a>
                             <span className="text-[#E6DCC3]">|</span>
                             <button onClick={handleLogout} className="hover:text-[#E67E22] hover:underline font-medium">Log Out</button>
                         </div>
@@ -239,6 +241,7 @@ const ApiarySelectionPage = () => {
                     <div className="w-full md:w-auto flex flex-wrap items-center gap-2 md:gap-3 flex-1">
                         <label className="font-bold text-[#4A3C28] whitespace-nowrap hidden md:block">Select Apiary:</label>
                         <select
+                            id="apiary-select-dropdown"
                             value={selectedApiaryId}
                             onChange={(e) => {
                                 const id = e.target.value;
@@ -253,6 +256,7 @@ const ApiarySelectionPage = () => {
                             ))}
                         </select>
                         <button
+                            id="manage-apiaries-button"
                             onClick={() => setIsManaging(!isManaging)}
                             className={`px-4 py-2 rounded text-sm font-medium border whitespace-nowrap ${isManaging ? 'bg-gray-200' : 'bg-white'}`}
                         >
@@ -274,11 +278,12 @@ const ApiarySelectionPage = () => {
                 )}
 
                 {!isManaging && (
-                    <div className="bg-white/95 backdrop-blur shadow-sm border border-[#E6DCC3] rounded-xl p-4 w-full max-w-4xl mx-auto">
+                    <div id="task-list-section" className="bg-white/95 backdrop-blur shadow-sm border border-[#E6DCC3] rounded-xl p-4 w-full max-w-4xl mx-auto">
                         <div className="flex justify-between items-center mb-4">
                             <div className="flex items-center gap-4">
                                 <h3 className="text-lg font-bold text-[#4A3C28]">📋 My Upcoming Tasks</h3>
                                 <button
+                                    id="add-task-button"
                                     onClick={() => setIsAddingTask(true)}
                                     className="text-xs px-3 py-1 bg-[#E67E22] text-white rounded hover:bg-[#D35400] font-semibold"
                                 >
@@ -344,6 +349,13 @@ const ApiarySelectionPage = () => {
                     scope="user"
                 />
             </Modal>
+
+            {/* Guided Tour */}
+            <Tour
+                tourId="apiary-selection"
+                steps={apiarySelectionTour}
+                autoStart={true}
+            />
         </div>
     );
 };

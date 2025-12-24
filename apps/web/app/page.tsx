@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { navigateTo } from '../lib/navigation';
+import { Tour } from '../components/Tour';
+import { loginTour } from '../lib/tourDefinitions';
 
 // Type declaration for React Native WebView
 declare global {
@@ -228,6 +230,7 @@ export default function LoginPage() {
           </div>
 
           <button
+            id="guest-login-button"
             type="button"
             onClick={handleGuestLogin}
             disabled={loading}
@@ -244,7 +247,7 @@ export default function LoginPage() {
       </div>
 
       {/* Footer with Help Link */}
-      <div className="absolute bottom-4 left-0 right-0 text-center">
+      <div id="help-tutorial-link" className="absolute bottom-4 left-0 right-0 text-center">
         <a
           href="/help"
           className="text-[#8B4513] hover:text-[#E67E22] text-sm hover:underline font-medium inline-flex items-center gap-1"
@@ -253,6 +256,13 @@ export default function LoginPage() {
           <span>Need help? View Tutorial</span>
         </a>
       </div>
+
+      {/* Guided Tour */}
+      <Tour
+        tourId="login-page"
+        steps={loginTour}
+        autoStart={true}
+      />
 
     </div>
   );
