@@ -196,7 +196,7 @@ export function Tour({ tourId, steps, onComplete, autoStart = false }: TourProps
                         onClick={handleNext}
                         className="px-4 py-2 rounded-lg font-semibold text-sm bg-[#E67E22] text-white hover:bg-[#D35400] transition-colors"
                     >
-                        {currentStep === steps.length - 1 ? 'Finish! 🎉' : 'Next →'}
+                        {currentStep === steps.length - 1 ? 'Got it! →' : 'Next →'}
                     </button>
                 </div>
             </div>
