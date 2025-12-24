@@ -89,33 +89,39 @@ export const apiaryDetailTour: TourStep[] = [
 
 export const hiveDetailTour: TourStep[] = [
     {
-        target: '#new-inspection-button',
-        title: 'Record an Inspection 🔍',
-        content: 'Click here to log your hive inspection. Record brood pattern, honey stores, queen sightings, and more!',
+        target: '#hive-snapshots',
+        title: 'Bar Configuration 📊',
+        content: 'Click on individual bars to set their status (brood, resource, empty, etc.). This lets you track the physical state of your top bar hive.',
         placement: 'bottom',
     },
     {
         target: '#hive-snapshots',
-        title: 'Bar-by-Bar Tracking',
-        content: 'View and manage individual bars in your Top Bar Hive. Track which bars have brood, honey, or are empty.',
-        placement: 'top',
+        title: 'Capture Snapshots 📸',
+        content: 'After setting your bar statuses, click the "📸 Capture" button to save a snapshot. Track how your hive configuration changes over time!',
+        placement: 'bottom',
     },
     {
         target: '#inspection-history',
-        title: 'Inspection History',
-        content: 'See all past inspections with dates and notes. Spot trends and track hive health over time.',
+        title: 'Configuration History',
+        content: 'View past bar configuration snapshots. Click any snapshot to see how your hive layout looked at that time.',
         placement: 'top',
+    },
+    {
+        target: '#new-inspection-button',
+        title: 'Record Inspections 🔍',
+        content: 'Switch to the Inspections tab to log detailed observations: brood pattern, queen sightings, temperament, and more. This is separate from bar configuration!',
+        placement: 'right',
     },
     {
         target: '#interventions-tab',
         title: 'Track Treatments 💊',
-        content: 'Log treatments, feeding, and hive modifications here. Keep a complete record of interventions.',
+        content: 'Use the Interventions tab to log treatments, feeding, and hive modifications. Keep a complete record of all actions taken.',
         placement: 'bottom',
     },
     {
         target: '#tasks-tab',
         title: 'Hive-Specific Tasks ✅',
-        content: 'Create tasks specific to this hive, like "Check for swarm cells" or "Add honey super".',
+        content: 'Create tasks specific to this hive in the Tasks tab, like "Check for swarm cells" or "Add honey super".',
         placement: 'bottom',
     },
 ];
