@@ -70,7 +70,7 @@ export const apiaryDetailTour: TourStep[] = [
     {
         target: '#weather-widget',
         title: 'Weather Forecast ⛅',
-        content: 'Check the 7-day weather forecast to plan your inspections. Ideal inspection conditions are shown in green!',
+        content: 'Check the 14-day weather forecast to plan your inspections. Ideal inspection conditions are shown in green!',
         placement: 'left',
     },
     {

@@ -72,7 +72,7 @@ export default function HelpPage() {
         },
         {
             title: "Check Weather Forecasts",
-            description: "Plan your inspections around the weather. View 7-day forecasts for each apiary.",
+            description: "Plan your inspections around the weather. View 14-day forecasts for each apiary.",
             icon: "🌤️",
             steps: [
                 "Open any apiary",
@@ -156,8 +156,8 @@ export default function HelpPage() {
                                         key={section.id}
                                         onClick={() => setActiveSection(section.id)}
                                         className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-2 text-sm ${activeSection === section.id
-                                                ? 'bg-[#E67E22] text-white font-semibold'
-                                                : 'hover:bg-gray-100 text-gray-700'
+                                            ? 'bg-[#E67E22] text-white font-semibold'
+                                            : 'hover:bg-gray-100 text-gray-700'
                                             }`}
                                     >
                                         <span>{section.icon}</span>
@@ -294,8 +294,8 @@ export default function HelpPage() {
                                                 key={idx}
                                                 onClick={() => setTutorialStep(idx)}
                                                 className={`w-3 h-3 rounded-full transition-all ${idx === tutorialStep
-                                                        ? 'bg-[#E67E22] w-8'
-                                                        : 'bg-gray-300 hover:bg-gray-400'
+                                                    ? 'bg-[#E67E22] w-8'
+                                                    : 'bg-gray-300 hover:bg-gray-400'
                                                     }`}
                                             />
                                         ))}
@@ -360,7 +360,7 @@ export default function HelpPage() {
                                         title: "Weather Integration",
                                         icon: "⛅",
                                         features: [
-                                            "7-day weather forecast for each apiary",
+                                            "14-day weather forecast for each apiary",
                                             "Plan inspections based on conditions",
                                             "Temperature and precipitation data",
                                             "Automatic updates based on zip code"
