@@ -114,7 +114,7 @@ export const hiveDetailTour: TourStep[] = [
     },
     {
         target: '#interventions-tab',
-        title: 'Track Treatments 💊',
+        title: 'Track Interventions 📋',
         content: 'Use the Interventions tab to log treatments, feeding, and hive modifications. Keep a complete record of all actions taken.',
         placement: 'bottom',
     },
