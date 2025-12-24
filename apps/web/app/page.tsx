@@ -117,9 +117,16 @@ export default function LoginPage() {
       }
 
       console.log('[Login] Guest login successful');
-      setMessage('Logged in as guest! Redirecting...');
+      setMessage('Preparing your demo environment...');
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Reset guest account to fresh seed data
+      console.log('[Login] Resetting guest account to fresh state...');
+      const { resetGuestAccount } = await import('../lib/guestReset');
+      await resetGuestAccount();
+      console.log('[Login] Guest account reset complete');
+
+      setMessage('Logged in as guest! Redirecting...');
+      await new Promise(resolve => setTimeout(resolve, 500));
       navigateTo('/apiary-selection');
     } catch (err: any) {
       console.error('[Login] Guest login error:', err);
