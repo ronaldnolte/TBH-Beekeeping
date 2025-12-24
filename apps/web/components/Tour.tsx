@@ -23,11 +23,29 @@ export function Tour({ tourId, steps, onComplete, autoStart = false }: TourProps
     const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
 
     useEffect(() => {
-        // Check if user has completed this tour
-        const completed = localStorage.getItem(`tour_completed_${tourId}`);
-        if (!completed && autoStart) {
-            setTimeout(() => setIsActive(true), 500); // Small delay for page load
-        }
+        // Only auto-start tours for guest users
+        const checkAndStartTour = async () => {
+            // Check if user has completed this tour
+            const completed = localStorage.getItem(`tour_completed_${tourId}`);
+            if (completed || !autoStart) return;
+
+            // Check if current user is guest
+            try {
+                // Try to get session from Supabase
+                const { supabase } = await import('../lib/supabase');
+                const { data: { session } } = await supabase.auth.getSession();
+
+                // Only auto-start for guest users
+                if (session?.user?.email === 'guest@beektools.com') {
+                    setTimeout(() => setIsActive(true), 500); // Small delay for page load
+                }
+            } catch (error) {
+                // If we can't check auth, don't auto-start
+                console.log('[Tour] Could not check user auth, skipping auto-start');
+            }
+        };
+
+        checkAndStartTour();
     }, [tourId, autoStart]);
 
     useEffect(() => {
