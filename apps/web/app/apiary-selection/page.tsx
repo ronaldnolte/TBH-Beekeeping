@@ -158,6 +158,21 @@ const ApiarySelectionPage = () => {
     };
 
     const handleLogout = async () => {
+        // Reset guest account data if this is the guest user
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user?.email === 'guest@beektools.com') {
+                console.log('[Logout] Guest user detected, resetting account data...');
+                // Import dynamically to avoid loading for non-guest users
+                const { resetGuestAccount } = await import('../../lib/guestReset');
+                await resetGuestAccount();
+                console.log('[Logout] Guest account reset complete');
+            }
+        } catch (error) {
+            console.error('[Logout] Error during guest reset:', error);
+            // Continue with logout even if reset fails
+        }
+
         await supabase.auth.signOut();
         navigateTo('/');
     };
