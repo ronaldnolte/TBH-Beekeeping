@@ -100,36 +100,44 @@ export function Tour({ tourId, steps, onComplete, autoStart = false }: TourProps
     const step = steps[currentStep];
     const placement = step.placement || 'bottom';
 
-    // Calculate tooltip position
-    let tooltipStyle: React.CSSProperties = {
-        position: 'fixed',
-        zIndex: 10001,
-    };
+    // Calculate tooltip position with viewport boundary checking
+    const tooltipWidth = 400;
+    const tooltipHeight = 250; // Approximate height
+    const margin = 20;
 
-    const tooltipOffset = 20;
+    let left = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
+    let top = targetRect.bottom + margin;
 
+    // Adjust based on placement preference
     switch (placement) {
         case 'top':
-            tooltipStyle.left = targetRect.left + targetRect.width / 2;
-            tooltipStyle.top = targetRect.top - tooltipOffset;
-            tooltipStyle.transform = 'translate(-50%, -100%)';
+            top = targetRect.top - tooltipHeight - margin;
             break;
         case 'bottom':
-            tooltipStyle.left = targetRect.left + targetRect.width / 2;
-            tooltipStyle.top = targetRect.bottom + tooltipOffset;
-            tooltipStyle.transform = 'translateX(-50%)';
+            top = targetRect.bottom + margin;
             break;
         case 'left':
-            tooltipStyle.left = targetRect.left - tooltipOffset;
-            tooltipStyle.top = targetRect.top + targetRect.height / 2;
-            tooltipStyle.transform = 'translate(-100%, -50%)';
+            left = targetRect.left - tooltipWidth - margin;
+            top = targetRect.top + targetRect.height / 2 - tooltipHeight / 2;
             break;
         case 'right':
-            tooltipStyle.left = targetRect.right + tooltipOffset;
-            tooltipStyle.top = targetRect.top + targetRect.height / 2;
-            tooltipStyle.transform = 'translateY(-50%)';
+            left = targetRect.right + margin;
+            top = targetRect.top + targetRect.height / 2 - tooltipHeight / 2;
             break;
     }
+
+    // Keep within viewport bounds
+    left = Math.max(margin, Math.min(left, window.innerWidth - tooltipWidth - margin));
+    top = Math.max(margin, Math.min(top, window.innerHeight - tooltipHeight - margin));
+
+    const tooltipStyle: React.CSSProperties = {
+        position: 'fixed',
+        zIndex: 10001,
+        left: `${left}px`,
+        top: `${top}px`,
+        width: `${Math.min(tooltipWidth, window.innerWidth - margin * 2)}px`,
+        maxWidth: '90vw',
+    };
 
     return (
         <>
@@ -155,7 +163,7 @@ export function Tour({ tourId, steps, onComplete, autoStart = false }: TourProps
             {/* Tooltip */}
             <div
                 style={tooltipStyle}
-                className="bg-white rounded-xl shadow-2xl p-6 max-w-sm border-2 border-[#E67E22]"
+                className="bg-white rounded-xl shadow-2xl p-6 border-2 border-[#E67E22]"
             >
                 {/* Progress indicator */}
                 <div className="flex justify-between items-center mb-3">
