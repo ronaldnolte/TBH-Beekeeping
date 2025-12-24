@@ -98,6 +98,37 @@ export default function LoginPage() {
     }
   };
 
+  const handleGuestLogin = async () => {
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+
+    console.log('[Login] Guest login initiated...');
+
+    try {
+      const { error, data } = await supabase.auth.signInWithPassword({
+        email: 'guest@beektools.com',
+        password: 'Guest2026#',
+      });
+
+      if (error) {
+        console.error('[Login] Guest login error:', error);
+        throw error;
+      }
+
+      console.log('[Login] Guest login successful');
+      setMessage('Logged in as guest! Redirecting...');
+
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      navigateTo('/apiary-selection');
+    } catch (err: any) {
+      console.error('[Login] Guest login error:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Show loading state while checking for existing session
   if (authLoading) {
     return (
@@ -177,6 +208,32 @@ export default function LoginPage() {
             {isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up'}
           </button>
         </form>
+
+        {/* Guest Login Section */}
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white/90 text-gray-500">Or</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGuestLogin}
+            disabled={loading}
+            className="mt-4 w-full bg-gradient-to-r from-[#E67E22] to-[#D35400] text-white py-3 rounded-lg font-semibold hover:from-[#D35400] hover:to-[#C0392B] transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            <span className="text-xl">👤</span>
+            <span>Continue as Guest</span>
+          </button>
+
+          <p className="text-center text-xs text-gray-500 mt-2">
+            Try the app without creating an account
+          </p>
+        </div>
       </div>
 
 
