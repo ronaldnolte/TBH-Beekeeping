@@ -14,6 +14,8 @@ import { Modal } from './Modal';
 import { Hive, HiveSnapshot, BarState, Inspection, Intervention, Apiary, Task } from '@tbh-beekeeper/shared';
 import { supabase } from '../lib/supabase';
 import { navigateTo } from '../lib/navigation';
+import { Tour } from './Tour';
+import { hiveDetailTour } from '../lib/tourDefinitions';
 
 // Bar status colors from prototype
 const BAR_COLORS = {
@@ -205,15 +207,17 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
             </div>
 
             <div className="max-w-7xl mx-auto p-2 space-y-3">
-                <BarVisualizer
-                    hive={hive}
-                    snapshot={displayedSnapshot}
-                    hiveId={hive.id}
-                    onSnapshotCreate={() => { fetchData(); setSelectedSnapshotId(null); }}
-                    readOnly={!!selectedSnapshotId}
-                />
+                <div id="hive-snapshots">
+                    <BarVisualizer
+                        hive={hive}
+                        snapshot={displayedSnapshot}
+                        hiveId={hive.id}
+                        onSnapshotCreate={() => { fetchData(); setSelectedSnapshotId(null); }}
+                        readOnly={!!selectedSnapshotId}
+                    />
+                </div>
 
-                <div className="bg-white rounded-lg shadow-sm px-2 pt-2 pb-0 border border-gray-100 overflow-hidden">
+                <div id="inspection-history" className="bg-white rounded-lg shadow-sm px-2 pt-2 pb-0 border border-gray-100 overflow-hidden">
                     <div className="flex justify-between items-center mb-1 px-1">
                         <h3 className="text-sm font-bold text-[#4A3C28] uppercase tracking-wide">History</h3>
                         <button
@@ -245,13 +249,14 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                 </div>
 
                 <div className="flex border-b border-gray-200 mb-4">
-                    {['Inspections', 'Interventions', 'Tasks'].map(tab => (
+                    {[{ id: 'Inspections', tabId: 'new-inspection-button' }, { id: 'Interventions', tabId: 'interventions-tab' }, { id: 'Tasks', tabId: 'tasks-tab' }].map((tab) => (
                         <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab as any)}
-                            className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === tab ? 'border-[#E67E22] text-[#E67E22]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                            key={tab.id}
+                            id={tab.id === activeTab ? tab.tabId : undefined}
+                            onClick={() => setActiveTab(tab.id as any)}
+                            className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === tab.id ? 'border-[#E67E22] text-[#E67E22]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
                         >
-                            {tab}
+                            {tab.id}
                         </button>
                     ))}
                 </div>
@@ -351,6 +356,13 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                     </div>
                 </div>
             </Modal>
+
+            {/* Guided Tour */}
+            <Tour
+                tourId="hive-detail"
+                steps={hiveDetailTour}
+                autoStart={true}
+            />
         </div>
     );
 }

@@ -8,6 +8,8 @@ import { Modal } from '../../../components/Modal';
 import { HiveForm } from '../../../components/HiveForm';
 import { MoveHiveModal } from '../../../components/MoveHiveModal';
 import { supabase } from '../../../lib/supabase';
+import { Tour } from '../../../components/Tour';
+import { apiaryDetailTour } from '../../../lib/tourDefinitions';
 
 const HiveCard = ({ hive, apiaryName, onEditInfo, onDelete, onMove, isEditing }: {
     hive: Hive,
@@ -99,8 +101,9 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
             <div className="bg-[#E67E22] text-white p-6 shadow-md relative">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex justify-between items-start mb-2">
-                        <button onClick={() => navigateTo('/apiary-selection')} className="bg-white/20 text-white px-4 py-2 rounded-lg text-sm">← Back to Apiaries</button>
+                        <button id="back-button" onClick={() => navigateTo('/apiary-selection')} className="bg-white/20 text-white px-4 py-2 rounded-lg text-sm">← Back to Apiaries</button>
                         <button
+                            id="weather-widget"
                             onClick={() => navigateTo(`/apiary-selection/forecast?apiaryId=${apiaryId}`)}
                             className="bg-white text-[#E67E22] px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-gray-100"
                         >
@@ -116,13 +119,13 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
                 <div className="mb-6 flex justify-between items-center">
                     <h2 className="text-2xl font-semibold text-[#4A3C28]">Your Hives</h2>
                     <div className="flex gap-2">
-                        <button onClick={() => setIsCreatingHive(true)} className="border-2 border-[#8B4513] bg-white text-[#8B4513] font-semibold py-2 px-4 rounded-lg hover:bg-[#FFF8F0] text-sm">+ Add Hive</button>
+                        <button id="add-hive-button" onClick={() => setIsCreatingHive(true)} className="border-2 border-[#8B4513] bg-white text-[#8B4513] font-semibold py-2 px-4 rounded-lg hover:bg-[#FFF8F0] text-sm">+ Add Hive</button>
                         <button onClick={() => setEditMode(!editMode)} className={`px-4 py-2 rounded-lg font-semibold text-sm ${editMode ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700'}`}>{editMode ? '✓ Done' : '✏️ Edit'}</button>
                     </div>
                 </div>
 
                 {hives.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                    <div id="hive-list" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                         {hives.map(hive => (
                             <HiveCard
                                 key={hive.id}
@@ -168,6 +171,13 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
                     onCancel={() => setEditingHive(null)}
                 />
             </Modal>
+
+            {/* Guided Tour */}
+            <Tour
+                tourId="apiary-detail"
+                steps={apiaryDetailTour}
+                autoStart={true}
+            />
         </div>
     );
 };
