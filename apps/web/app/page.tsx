@@ -236,6 +236,16 @@ export default function LoginPage() {
         </div>
       </div>
 
+      {/* Footer with Help Link */}
+      <div className="absolute bottom-4 left-0 right-0 text-center">
+        <a
+          href="/help"
+          className="text-[#8B4513] hover:text-[#E67E22] text-sm hover:underline font-medium inline-flex items-center gap-1"
+        >
+          <span>📚</span>
+          <span>Need help? View Tutorial</span>
+        </a>
+      </div>
 
     </div>
   );

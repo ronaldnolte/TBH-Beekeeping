@@ -203,6 +203,8 @@ const ApiarySelectionPage = () => {
                         <div className="flex items-center gap-2 text-xs text-[#8B4513] opacity-80">
                             <span>Welcome back, {user?.email}</span>
                             <span className="text-[#E6DCC3]">|</span>
+                            <a href="/help" className="hover:text-[#E67E22] hover:underline font-medium">📚 Help</a>
+                            <span className="text-[#E6DCC3]">|</span>
                             <button onClick={handleLogout} className="hover:text-[#E67E22] hover:underline font-medium">Log Out</button>
                         </div>
                     </div>
