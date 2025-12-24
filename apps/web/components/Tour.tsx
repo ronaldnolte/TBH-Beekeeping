@@ -163,10 +163,10 @@ export function Tour({ tourId, steps, onComplete, autoStart = false }: TourProps
             {/* Tooltip */}
             <div
                 style={tooltipStyle}
-                className="bg-white rounded-xl shadow-2xl p-6 border-2 border-[#E67E22]"
+                className="bg-white rounded-xl shadow-2xl border-2 border-[#E67E22] flex flex-col"
             >
-                {/* Progress indicator */}
-                <div className="flex justify-between items-center mb-3">
+                {/* Fixed Header - Progress indicator */}
+                <div className="flex justify-between items-center px-6 pt-6 pb-3 border-b border-gray-100">
                     <div className="text-xs font-bold text-[#8B4513] uppercase">
                         Step {currentStep + 1} of {steps.length}
                     </div>
@@ -179,19 +179,23 @@ export function Tour({ tourId, steps, onComplete, autoStart = false }: TourProps
                 </div>
 
                 {/* Progress bar */}
-                <div className="w-full bg-gray-200 rounded-full h-1.5 mb-4">
-                    <div
-                        className="bg-[#E67E22] h-1.5 rounded-full transition-all duration-300"
-                        style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
-                    />
+                <div className="px-6 pt-2 pb-3 border-b border-gray-100">
+                    <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div
+                            className="bg-[#E67E22] h-1.5 rounded-full transition-all duration-300"
+                            style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+                        />
+                    </div>
                 </div>
 
-                {/* Content */}
-                <h3 className="text-lg font-bold text-[#4A3C28] mb-2">{step.title}</h3>
-                <p className="text-gray-700 text-sm mb-4">{step.content}</p>
+                {/* Scrollable Content Area */}
+                <div className="px-6 py-4 overflow-y-auto" style={{ maxHeight: 'calc(80vh - 200px)' }}>
+                    <h3 className="text-lg font-bold text-[#4A3C28] mb-2">{step.title}</h3>
+                    <p className="text-gray-700 text-sm">{step.content}</p>
+                </div>
 
-                {/* Navigation buttons */}
-                <div className="flex justify-between gap-2">
+                {/* Fixed Footer - Navigation buttons */}
+                <div className="flex justify-between gap-2 px-6 pb-6 pt-3 border-t border-gray-100">
                     <button
                         onClick={handlePrevious}
                         disabled={currentStep === 0}
