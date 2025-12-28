@@ -56,26 +56,18 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
         const statuses: BarStatus[] = ['inactive', 'active', 'empty', 'brood', 'resource', 'follower_board'];
         const currentStatus = currentBar.status as BarStatus;
 
-        // Smart cycling: Start with the bar to the left's value (if it exists)
-        // This reflects natural bee behavior - sections stay together
+        // Smart cycling based on left neighbor
         const leftBar = bars.find((b) => b.position === position - 1);
         const leftBarStatus = leftBar?.status as BarStatus | undefined;
 
-        // Determine next status
         let nextStatus: BarStatus;
 
-        if (leftBarStatus) {
-            // Rotate the cycle to start with left bar's status
-            // This makes the first click go to the left bar's value,
-            // then continues through all remaining options in order
-            const rotatedStatuses = [
-                leftBarStatus,
-                ...statuses.filter(s => s !== leftBarStatus)
-            ];
-            const currentIndex = rotatedStatuses.indexOf(currentStatus);
-            nextStatus = rotatedStatuses[(currentIndex + 1) % rotatedStatuses.length];
+        if (leftBarStatus && currentStatus !== leftBarStatus) {
+            // First click: Jump to match the left bar's value
+            // Makes it easy to expand sections (honey near honey, brood near brood)
+            nextStatus = leftBarStatus;
         } else {
-            // Standard cycling for leftmost bar (no left neighbor)
+            // All other clicks: Just increment through the standard array
             const currentIndex = statuses.indexOf(currentStatus);
             nextStatus = statuses[(currentIndex + 1) % statuses.length];
         }
