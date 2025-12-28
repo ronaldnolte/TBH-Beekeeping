@@ -61,31 +61,23 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
         const leftBar = bars.find((b) => b.position === position - 1);
         const leftBarStatus = leftBar?.status as BarStatus | undefined;
 
-        console.log('🐝 Bar Toggle:', {
-            position,
-            current: currentStatus,
-            left: leftBarStatus,
-            bars: bars.map(b => `${b.position}:${b.status}`)
-        });
-
-        // Determine next status in cycle
+        // Determine next status
         let nextStatus: BarStatus;
 
         if (leftBarStatus) {
-            // If there's a left bar, use smart cycling that starts with left bar's status
-            // This makes it easy to expand sections (honey near honey, brood near brood)
-            const reorderedStatuses = [
+            // Rotate the cycle to start with left bar's status
+            // This makes the first click go to the left bar's value,
+            // then continues through all remaining options in order
+            const rotatedStatuses = [
                 leftBarStatus,
                 ...statuses.filter(s => s !== leftBarStatus)
             ];
-            const currentIndex = reorderedStatuses.indexOf(currentStatus);
-            nextStatus = reorderedStatuses[(currentIndex + 1) % reorderedStatuses.length];
-            console.log('📋 Smart cycle:', reorderedStatuses, 'index:', currentIndex, '→', nextStatus);
+            const currentIndex = rotatedStatuses.indexOf(currentStatus);
+            nextStatus = rotatedStatuses[(currentIndex + 1) % rotatedStatuses.length];
         } else {
             // Standard cycling for leftmost bar (no left neighbor)
             const currentIndex = statuses.indexOf(currentStatus);
             nextStatus = statuses[(currentIndex + 1) % statuses.length];
-            console.log('📋 Standard cycle, index:', currentIndex, '→', nextStatus);
         }
 
         const newBars = [...bars];
