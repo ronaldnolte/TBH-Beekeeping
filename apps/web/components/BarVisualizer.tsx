@@ -55,7 +55,25 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
         const currentBar = bars[index];
         const statuses: BarStatus[] = ['inactive', 'active', 'empty', 'brood', 'resource', 'follower_board'];
         const currentStatus = currentBar.status as BarStatus;
-        const nextStatus = statuses[(statuses.indexOf(currentStatus) + 1) % statuses.length];
+
+        // Smart cycling: Start with the bar to the left's value (if it exists)
+        // This reflects natural bee behavior - sections stay together
+        const leftBar = bars.find((b) => b.position === position - 1);
+        const leftBarStatus = leftBar?.status as BarStatus | undefined;
+
+        // Build cycle order: start with left bar's status (if different from current),
+        // then continue through remaining statuses
+        let cycleOrder: BarStatus[] = [...statuses];
+        if (leftBarStatus && leftBarStatus !== currentStatus) {
+            // Move left bar's status to the front of the cycle
+            cycleOrder = [
+                leftBarStatus,
+                ...statuses.filter(s => s !== leftBarStatus)
+            ];
+        }
+
+        const currentIndex = cycleOrder.indexOf(currentStatus);
+        const nextStatus = cycleOrder[(currentIndex + 1) % cycleOrder.length];
 
         const newBars = [...bars];
         newBars[index] = { ...currentBar, status: nextStatus };
