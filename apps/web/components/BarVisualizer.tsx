@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { HiveSnapshot, BarState, Hive } from '@tbh-beekeeper/shared';
@@ -55,22 +55,7 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
         const currentBar = bars[index];
         const statuses: BarStatus[] = ['inactive', 'active', 'empty', 'brood', 'resource', 'follower_board'];
         const currentStatus = currentBar.status as BarStatus;
-
-        // Smart cycling based on left neighbor
-        const leftBar = bars.find((b) => b.position === position - 1);
-        const leftBarStatus = leftBar?.status as BarStatus | undefined;
-
-        let nextStatus: BarStatus;
-
-        if (leftBarStatus && currentStatus !== leftBarStatus) {
-            // First click: Jump to match the left bar's value
-            // Makes it easy to expand sections (honey near honey, brood near brood)
-            nextStatus = leftBarStatus;
-        } else {
-            // All other clicks: Just increment through the standard array
-            const currentIndex = statuses.indexOf(currentStatus);
-            nextStatus = statuses[(currentIndex + 1) % statuses.length];
-        }
+        const nextStatus = statuses[(statuses.indexOf(currentStatus) + 1) % statuses.length];
 
         const newBars = [...bars];
         newBars[index] = { ...currentBar, status: nextStatus };
@@ -134,7 +119,7 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
                         disabled={isCapturing}
                         className={`text-white text-xs font-semibold px-3 py-1.5 rounded flex items-center gap-1 active:scale-95 transition-transform ${isCapturing ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#F5A623] hover:bg-[#E09612]'}`}
                     >
-                        {isCapturing ? 'Saving...' : '📸 Capture'}
+                        {isCapturing ? 'Saving...' : '≡ƒô╕ Capture'}
                     </button>
                 )}
             </div>
