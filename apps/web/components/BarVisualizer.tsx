@@ -61,19 +61,32 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
         const leftBar = bars.find((b) => b.position === position - 1);
         const leftBarStatus = leftBar?.status as BarStatus | undefined;
 
-        // Build cycle order: start with left bar's status (if different from current),
-        // then continue through remaining statuses
-        let cycleOrder: BarStatus[] = [...statuses];
-        if (leftBarStatus && leftBarStatus !== currentStatus) {
-            // Move left bar's status to the front of the cycle
-            cycleOrder = [
+        console.log('🐝 Bar Toggle:', {
+            position,
+            current: currentStatus,
+            left: leftBarStatus,
+            bars: bars.map(b => `${b.position}:${b.status}`)
+        });
+
+        // Determine next status in cycle
+        let nextStatus: BarStatus;
+
+        if (leftBarStatus) {
+            // If there's a left bar, use smart cycling that starts with left bar's status
+            // This makes it easy to expand sections (honey near honey, brood near brood)
+            const reorderedStatuses = [
                 leftBarStatus,
                 ...statuses.filter(s => s !== leftBarStatus)
             ];
+            const currentIndex = reorderedStatuses.indexOf(currentStatus);
+            nextStatus = reorderedStatuses[(currentIndex + 1) % reorderedStatuses.length];
+            console.log('📋 Smart cycle:', reorderedStatuses, 'index:', currentIndex, '→', nextStatus);
+        } else {
+            // Standard cycling for leftmost bar (no left neighbor)
+            const currentIndex = statuses.indexOf(currentStatus);
+            nextStatus = statuses[(currentIndex + 1) % statuses.length];
+            console.log('📋 Standard cycle, index:', currentIndex, '→', nextStatus);
         }
-
-        const currentIndex = cycleOrder.indexOf(currentStatus);
-        const nextStatus = cycleOrder[(currentIndex + 1) % cycleOrder.length];
 
         const newBars = [...bars];
         newBars[index] = { ...currentBar, status: nextStatus };
