@@ -144,7 +144,7 @@ export default function LoginPage() {
       <div className="min-h-screen honeycomb-bg flex items-center justify-center">
         <div className="text-center">
           <div className="animate-pulse text-6xl mb-4">🐝</div>
-          <p className="text-[#8B4513] text-lg">Checking authentication...</p>
+          <p className="text-[#8B4513] text-lg">Logging you in...</p>
         </div>
       </div>
     );
