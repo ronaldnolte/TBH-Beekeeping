@@ -138,8 +138,8 @@ export default function LoginPage() {
     }
   };
 
-  // Show loading state while checking for existing session
-  if (authLoading) {
+  // Show loading state while checking for existing session OR if already logged in
+  if (authLoading || session) {
     return (
       <div className="min-h-screen honeycomb-bg flex items-center justify-center">
         <div className="text-center">
