@@ -8,14 +8,12 @@ import { Hive } from '@tbh-beekeeper/shared';
 const generateDefaultBars = (count: number) => {
     return Array.from({ length: count }, (_, i) => {
         const position = i + 1;
-        // Default configuration for a typical 30-bar TBH
-        if (position <= 2) return { position, status: 'inactive' };
-        if (position === 3) return { position, status: 'active' }; // Entrance area
-        // Suggest a small starter colony setup
-        if (position >= 4 && position <= 8) return { position, status: 'brood' };
-        if (position >= 9 && position <= 12) return { position, status: 'resource' };
-        if (position >= 13 && position <= 15) return { position, status: 'empty' };
-        if (position === 16) return { position, status: 'follower_board' };
+        // Updated configuration per user request
+        if (position <= 2) return { position, status: 'empty' };
+        if (position >= 3 && position <= 5) return { position, status: 'brood' };
+        if (position >= 6 && position <= 7) return { position, status: 'resource' };
+        if (position >= 8 && position <= 9) return { position, status: 'empty' };
+        if (position === 10) return { position, status: 'follower_board' };
 
         return { position, status: 'inactive' };
     });
@@ -67,11 +65,11 @@ export function HiveForm({
                     hive_id: newHive.id,
                     timestamp: new Date().toISOString(),
                     bars: initialBars,
-                    active_bar_count: 1,
-                    brood_bar_count: 5,
-                    resource_bar_count: 4,
-                    empty_bar_count: 3,
-                    inactive_bar_count: barCount - 1 - 5 - 4 - 3
+                    active_bar_count: 0,
+                    brood_bar_count: 3,
+                    resource_bar_count: 2,
+                    empty_bar_count: 4,
+                    inactive_bar_count: barCount - 10
                 });
 
                 if (snapshotError) throw snapshotError;

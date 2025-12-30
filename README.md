@@ -2,6 +2,8 @@
 
 An offline-first beekeeping management application for top-bar hives, built with React Native (Android) and Next.js (web).
 
+> 📋 **For detailed project requirements and architecture decisions, see [PROJECT_REQUIREMENTS.md](./PROJECT_REQUIREMENTS.md)**
+
 ## Project Structure
 
 ```
