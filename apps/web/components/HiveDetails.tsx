@@ -325,6 +325,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                         <Modal isOpen={isAddingTask} onClose={() => setIsAddingTask(false)} title={editingTask ? 'Edit Task' : 'New Task'}>
                             <TaskForm
                                 hiveId={hive.id}
+                                apiaryId={hive.apiary_id}
                                 initialData={editingTask}
                                 onSuccess={() => { setIsAddingTask(false); setEditingTask(undefined); setTaskRefreshKey(p => p + 1); }}
                                 onCancel={() => { setIsAddingTask(false); setEditingTask(undefined); }}

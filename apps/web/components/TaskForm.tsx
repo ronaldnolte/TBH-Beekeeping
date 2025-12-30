@@ -13,12 +13,14 @@ const PRIORITIES: { value: TaskPriority; label: string; color: string }[] = [
 
 export function TaskForm({
     hiveId,
+    apiaryId,
     scope = 'hive',
     initialData,
     onSuccess,
     onCancel
 }: {
     hiveId?: string,
+    apiaryId?: string,
     scope?: 'hive' | 'apiary' | 'user',
     initialData?: Task,
     onSuccess: () => void,
@@ -56,6 +58,7 @@ export function TaskForm({
                 due_date: dueDate ? new Date(dueDate + 'T12:00:00').toISOString() : null,
                 scope,
                 hive_id: hiveId || null,
+                apiary_id: apiaryId || null,
                 status: initialData?.status || 'pending',
                 assigned_user_id: userId
             };
