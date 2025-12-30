@@ -56,9 +56,12 @@ const HistoryItem = ({ snapshot, onSelect, onDelete }: { snapshot: HiveSnapshot,
     }
 
     return (
-        <div onClick={onSelect} className="w-full flex flex-col px-2 py-1 hover:bg-gray-50 border-b border-gray-100 transition-colors cursor-pointer group bg-white">
-            <div className="flex justify-between items-center">
-                <div className="flex items-baseline gap-2">
+        <div className="w-full flex flex-col px-2 py-1 hover:bg-gray-50 border-b border-gray-100 transition-colors group bg-white">
+            <div className="flex items-center gap-2">
+                <div className="flex gap-1 justify-center items-center">
+                    <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="text-gray-400 p-2 text-lg">×</button>
+                </div>
+                <div className="flex items-baseline gap-2 cursor-pointer flex-1" onClick={onSelect}>
                     <span className="text-[11px] sm:text-sm font-bold text-gray-800">
                         {dateStr}
                     </span>
@@ -66,16 +69,9 @@ const HistoryItem = ({ snapshot, onSelect, onDelete }: { snapshot: HiveSnapshot,
                         {timeStr}
                     </span>
                 </div>
-                <button
-                    onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                    className="text-gray-300 hover:text-red-500 hover:bg-red-50 rounded px-1 transition-colors"
-                    title="Delete Snapshot"
-                >
-                    ×
-                </button>
             </div>
 
-            <div className="flex gap-[1px] h-4 sm:h-10 items-end overflow-hidden mt-0.5">
+            <div className="flex gap-[1px] h-4 sm:h-10 items-end overflow-hidden mt-0.5 ml-10 cursor-pointer" onClick={onSelect}>
                 {bars.slice(0, 30).map((bar) => (
                     <div
                         key={bar.position}
@@ -143,9 +139,16 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
         fetchData();
     }, [hiveId]);
 
-    const handleSnapshotDelete = async (snapshot: HiveSnapshot) => {
-        if (confirm('Delete this snapshot?')) {
-            await supabase.from('hive_snapshots').delete().eq('id', snapshot.id);
+    const [snapshotToDelete, setSnapshotToDelete] = useState<HiveSnapshot | null>(null);
+
+    const confirmSnapshotDelete = async () => {
+        if (!snapshotToDelete) return;
+        const { error } = await supabase.from('hive_snapshots').delete().eq('id', snapshotToDelete.id);
+        if (error) {
+            console.error('Failed to delete snapshot:', error);
+            alert('Failed to delete snapshot: ' + error.message);
+        } else {
+            setSnapshotToDelete(null);
             fetchData();
         }
     };
@@ -234,7 +237,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                                 key={snapshot.id}
                                 snapshot={snapshot}
                                 onSelect={() => setSelectedSnapshotId(snapshot.id)}
-                                onDelete={() => handleSnapshotDelete(snapshot)}
+                                onDelete={() => setSnapshotToDelete(snapshot)}
                             />
                         ))}
                     </div>
@@ -353,6 +356,16 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                     <div className="flex justify-end gap-3 pt-2">
                         <button onClick={() => setIsEditingSettings(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancel</button>
                         <button onClick={handleSaveSettings} className="px-4 py-2 bg-[#E67E22] text-white rounded font-bold hover:bg-[#D35400]">Save Changes</button>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal isOpen={!!snapshotToDelete} onClose={() => setSnapshotToDelete(null)} title="Confirm Delete">
+                <div className="space-y-4">
+                    <p className="text-sm text-gray-600">Are you sure you want to delete this snapshot?</p>
+                    <div className="flex gap-2 justify-end">
+                        <button onClick={() => setSnapshotToDelete(null)} className="px-3 py-1.5 text-xs border rounded">Cancel</button>
+                        <button onClick={confirmSnapshotDelete} className="px-3 py-1.5 text-xs bg-red-600 text-white rounded">Delete</button>
                     </div>
                 </div>
             </Modal>

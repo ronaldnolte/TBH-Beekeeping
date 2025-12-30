@@ -100,6 +100,9 @@ export default function App() {
           domStorageEnabled={true}
           javaScriptEnabled={true}
           sharedCookiesEnabled={true}
+          cacheEnabled={true}
+          incognito={false}
+          thirdPartyCookiesEnabled={true}
 
           // Inject session restoration script
           injectedJavaScriptBeforeContentLoaded={initialScript}
