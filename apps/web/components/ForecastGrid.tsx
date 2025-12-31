@@ -213,26 +213,77 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                             <div className="text-white font-medium">Overall Score</div>
                         </div>
 
-                        {/* Stats */}
+                        {/* Stats Grid */}
                         <div className="grid grid-cols-2 gap-3 mb-4">
-                            <StatCard label="Temperature" value={`${Math.round(selectedWindow.tempF)}°F`} />
-                            <StatCard label="Wind" value={`${Math.round(selectedWindow.windMph)}mph`} />
-                            <StatCard label="Cloud Cover" value={`${Math.round(selectedWindow.cloudCover)}%`} />
-                            <StatCard label="Precip Prob" value={`${Math.round(selectedWindow.precipProb)}%`} />
-                            <StatCard label="Humidity" value={`${Math.round(selectedWindow.humidity)}%`} />
+                            <StatCard
+                                label="Temperature"
+                                value={`${Math.round(selectedWindow.tempF)}°F`}
+                                score={selectedWindow.scoreBreakdown['Temperature']}
+                                maxScore={40}
+                            />
+                            <StatCard
+                                label="Cloud"
+                                value={`${Math.round(selectedWindow.cloudCover)}%`}
+                                score={selectedWindow.scoreBreakdown['Cloud Cover']}
+                                maxScore={20}
+                            />
+                            <StatCard
+                                label="Wind"
+                                value={`${Math.round(selectedWindow.windMph)}mph`}
+                                score={selectedWindow.scoreBreakdown['Wind Speed']}
+                                maxScore={20}
+                            />
+                            <StatCard
+                                label="Precip"
+                                value={`${Math.round(selectedWindow.precipProb)}%`}
+                                score={selectedWindow.scoreBreakdown['Precipitation']}
+                                maxScore={15}
+                            />
+                            <StatCard
+                                label="Humidity"
+                                value={`${Math.round(selectedWindow.humidity)}%`}
+                                score={selectedWindow.scoreBreakdown['Humidity']}
+                                maxScore={5}
+                            />
                         </div>
 
-                        {/* Issues */}
-                        {selectedWindow.issues.length > 0 && (
-                            <div className="mb-4">
-                                <h4 className="font-bold text-red-600 mb-2">Issues:</h4>
-                                <ul className="text-sm text-gray-700 space-y-1">
-                                    {selectedWindow.issues.map((issue, i) => (
-                                        <li key={i}>• {issue}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
+                        <div className="space-y-4">
+                            {/* Issues */}
+                            {selectedWindow.issues.length > 0 && (
+                                <div>
+                                    <h4 className="font-bold text-red-600 mb-2">Issues:</h4>
+                                    <ul className="text-sm text-gray-700 space-y-1">
+                                        {selectedWindow.issues.map((issue, i) => (
+                                            <li key={i}>• {issue}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {/* Good Conditions */}
+                            {(() => {
+                                const good = [];
+                                if (selectedWindow.windMph <= 10) good.push(`Light winds (${Math.round(selectedWindow.windMph)}mph)`);
+                                if (selectedWindow.cloudCover <= 20) good.push(`Sunny (${Math.round(selectedWindow.cloudCover)}% clouds)`);
+                                if (selectedWindow.precipProb === 0) good.push("No rain expected");
+                                if (selectedWindow.tempF >= 60 && selectedWindow.tempF <= 90) good.push(`Good temperature (${Math.round(selectedWindow.tempF)}°F)`);
+                                if (selectedWindow.humidity >= 30 && selectedWindow.humidity <= 70) good.push("Ideal humidity");
+
+                                if (good.length > 0) {
+                                    return (
+                                        <div>
+                                            <h4 className="font-bold text-green-600 mb-2">Good Conditions:</h4>
+                                            <ul className="text-sm text-gray-700 space-y-1">
+                                                {good.map((item, i) => (
+                                                    <li key={i}>• {item}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    );
+                                }
+                                return null;
+                            })()}
+                        </div>
                     </div>
                 </div>
             )}
@@ -249,11 +300,20 @@ function LegendItem({ label, color }: { label: string; color: string }) {
     );
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({ label, value, score, maxScore }: { label: string; value: string; score?: number; maxScore?: number }) {
+    // Determine status (Red border if score is low, e.g., < 50%)
+    const isLow = (score !== undefined && maxScore !== undefined) && (score <= (maxScore / 2));
+
     return (
-        <div className="bg-gray-50 rounded p-3">
-            <div className="text-xs text-gray-500 font-medium">{label}</div>
-            <div className="text-lg font-bold text-gray-900">{value}</div>
+        <div className={`bg-gray-50 rounded p-3 ${isLow ? 'border-2 border-red-500' : ''}`}>
+            <div className="text-xs text-gray-500 font-medium mb-1">{label}</div>
+            <div className="text-sm text-gray-700 mb-2">{value}</div>
+
+            {(score !== undefined && maxScore !== undefined) && (
+                <div className="text-xl font-bold text-black">
+                    {score}/{maxScore}
+                </div>
+            )}
         </div>
     );
 }
