@@ -12,6 +12,32 @@ export default function UpdatePasswordPage() {
     const [error, setError] = useState('');
     const router = useRouter();
 
+    useEffect(() => {
+        // Check if we have a session (handled automatically by Supabase client from URL hash)
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                // Give it a moment, sometimes the hash processing takes a tick
+                setTimeout(async () => {
+                    const { data: { session: retrySession } } = await supabase.auth.getSession();
+                    if (!retrySession) {
+                        setError('Auth session missing! The link may be invalid or expired. Try requesting a new one.');
+                    }
+                }, 1000);
+            }
+        };
+        checkSession();
+
+        // Also listen for the recovery event to be sure
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'PASSWORD_RECOVERY') {
+                setError(''); // Clear error if we just recovered
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -29,6 +55,12 @@ export default function UpdatePasswordPage() {
         setLoading(true);
 
         try {
+            // Ensure we really have a session before calling update
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                throw new Error('Auth session missing! Please click the link in your email again.');
+            }
+
             const { error } = await supabase.auth.updateUser({ password: password });
 
             if (error) {
