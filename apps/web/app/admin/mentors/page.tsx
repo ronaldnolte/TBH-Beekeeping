@@ -138,102 +138,118 @@ export default function AdminMentorPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
-            <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-8">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">Admin: Manage Mentors</h1>
-
-                {/* Search */}
-                <form onSubmit={handleSearch} className="mb-8 p-4 bg-gray-50 rounded border border-gray-200">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Find User by Email</label>
-                    <div className="flex gap-2">
-                        <input
-                            type="email"
-                            required
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            placeholder="user@example.com"
-                            className="flex-1 px-3 py-2 border rounded shadow-sm focus:ring-amber-500 focus:border-amber-500"
-                        />
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 disabled:opacity-50"
-                        >
-                            {loading ? '...' : 'Find'}
-                        </button>
+        <div className="min-h-screen bg-[#FFFBF0] flex flex-col">
+            {/* Header */}
+            <header className="bg-[#FFFBF0] px-8 py-4 flex justify-between items-center border-b border-[#E6DCC3]">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full overflow-hidden">
+                        <img src="/icon-192.png" alt="Logo" className="w-full h-full object-cover" />
                     </div>
-                    {message && <p className="mt-2 text-sm text-amber-600 font-medium">{message}</p>}
-                </form>
+                    <div>
+                        <h1 className="text-xl font-serif font-bold text-[#4A3C28]">Admin Panel</h1>
+                        <div className="flex items-center gap-2 text-xs text-[#8B4513] opacity-80">
+                            <button onClick={() => router.push('/apiary-selection')} className="hover:text-[#E67E22] hover:underline font-medium">← Back to Dashboard</button>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
-                {/* Edit Form */}
-                {searchResult && (
-                    <div className="space-y-4 border-t pt-6">
-                        <div className="flex items-center gap-2 mb-4">
+            <div className="flex-1 p-8">
+                <div className="max-w-2xl mx-auto bg-white rounded-lg shadow border border-[#E6DCC3] p-8">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">Manage Mentors</h2>
+
+                    {/* Search */}
+                    <form onSubmit={handleSearch} className="mb-8 p-4 bg-gray-50 rounded border border-gray-200">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Find User by Email</label>
+                        <div className="flex gap-2">
                             <input
-                                type="checkbox"
-                                id="isMentor"
-                                checked={isMentor}
-                                onChange={e => setIsMentor(e.target.checked)}
-                                className="w-5 h-5 text-amber-500 rounded focus:ring-amber-500"
+                                type="email"
+                                required
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
+                                placeholder="user@example.com"
+                                className="flex-1 px-3 py-2 border rounded shadow-sm focus:ring-amber-500 focus:border-amber-500"
                             />
-                            <label htmlFor="isMentor" className="font-bold text-gray-800 select-none">Enable Mentor Profile</label>
-                        </div>
-
-                        {isMentor && (
-                            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Display Name (Public)</label>
-                                    <input
-                                        type="text"
-                                        value={displayName}
-                                        onChange={e => setDisplayName(e.target.value)}
-                                        className="mt-1 w-full px-3 py-2 border rounded shadow-sm"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Location (e.g. "Austin, TX")</label>
-                                    <input
-                                        type="text"
-                                        value={location}
-                                        onChange={e => setLocation(e.target.value)}
-                                        className="mt-1 w-full px-3 py-2 border rounded shadow-sm"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Bio / Credentials</label>
-                                    <textarea
-                                        rows={3}
-                                        value={bio}
-                                        onChange={e => setBio(e.target.value)}
-                                        className="mt-1 w-full px-3 py-2 border rounded shadow-sm"
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="pt-4 flex justify-between">
                             <button
-                                onClick={() => {
-                                    setSearchResult(null);
-                                    setDisplayName(''); setLocation(''); setBio(''); setIsMentor(false); setMessage(''); setEmail('');
-                                }}
-                                className="px-4 py-2 border border-gray-300 text-gray-600 rounded hover:bg-gray-100"
-                            >
-                                ← Search Again
-                            </button>
-                            <button
-                                onClick={handleSave}
+                                type="submit"
                                 disabled={loading}
-                                className="px-6 py-2 bg-amber-500 text-white font-bold rounded hover:bg-amber-600 shadow-md transition-colors"
+                                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 disabled:opacity-50"
                             >
-                                {loading ? 'Saving...' : 'Save Changes'}
+                                {loading ? '...' : 'Find'}
                             </button>
                         </div>
-                    </div>
-                )}
+                        {message && <p className="mt-2 text-sm text-amber-600 font-medium">{message}</p>}
+                    </form>
+
+                    {/* Edit Form */}
+                    {searchResult && (
+                        <div className="space-y-4 border-t pt-6">
+                            <div className="flex items-center gap-2 mb-4">
+                                <input
+                                    type="checkbox"
+                                    id="isMentor"
+                                    checked={isMentor}
+                                    onChange={e => setIsMentor(e.target.checked)}
+                                    className="w-5 h-5 text-amber-500 rounded focus:ring-amber-500"
+                                />
+                                <label htmlFor="isMentor" className="font-bold text-gray-800 select-none">Enable Mentor Profile</label>
+                            </div>
+
+                            {isMentor && (
+                                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Display Name (Public)</label>
+                                        <input
+                                            type="text"
+                                            value={displayName}
+                                            onChange={e => setDisplayName(e.target.value)}
+                                            className="mt-1 w-full px-3 py-2 border rounded shadow-sm"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Location (e.g. "Austin, TX")</label>
+                                        <input
+                                            type="text"
+                                            value={location}
+                                            onChange={e => setLocation(e.target.value)}
+                                            className="mt-1 w-full px-3 py-2 border rounded shadow-sm"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Bio / Credentials</label>
+                                        <textarea
+                                            rows={3}
+                                            value={bio}
+                                            onChange={e => setBio(e.target.value)}
+                                            className="mt-1 w-full px-3 py-2 border rounded shadow-sm"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="pt-4 flex justify-between">
+                                <button
+                                    onClick={() => {
+                                        setSearchResult(null);
+                                        setDisplayName(''); setLocation(''); setBio(''); setIsMentor(false); setMessage(''); setEmail('');
+                                    }}
+                                    className="px-4 py-2 border border-gray-300 text-gray-600 rounded hover:bg-gray-100"
+                                >
+                                    ← Search Again
+                                </button>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={loading}
+                                    className="px-6 py-2 bg-amber-500 text-white font-bold rounded hover:bg-amber-600 shadow-md transition-colors"
+                                >
+                                    {loading ? 'Saving...' : 'Save Changes'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
-    );
+            );
 }
