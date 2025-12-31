@@ -5,34 +5,37 @@
 ## Status: "Mentor" Feature Implementation (Mid-Stream)
 We are in the middle of building the "Mentor Delegation" feature.
 
-### 1. What is DONE ✅
-*   **Database**: Tables `mentor_profiles`, `apiary_shares`, `user_roles` are created in Production (`beta.beektools.com`).
-*   **Security**: RLS Policies are applied.
-    *   *Note*: We fixed a generic recursion bug in `check_infinite_recursion_v2.sql`. **Do not touch the policies unless you understand why `SECURITY DEFINER` was used.**
-*   **Admin UI**: We have a working Admin Dashboard at `/admin/mentors`.
-    *   *Credential*: `ron.nolte+admin@gmail.com` is the Master Admin.
-    *   *Result*: The **User** (Ron's main account) has been successfully promoted to "Mentor" status.
+## Current Status
+- **Date**: December 31, 2025
+- **Environment**: `beta.beektools.com` (Develop branch)
+- **Database**: Dev DB (Supabase)
 
-### 2. What is YOUR JOB 🛠️
-You are now the **Frontend Developer**.
-Your task is to allow a Standard User (Mentee) to share their Apiary with a Mentor.
+## Completed Features
+- [x] **Mentor Backend**: Tables `mentor_profiles`, `apiary_shares` created. RLS policies implemented.
+- [x] **Admin UI**: `/admin/mentors` is fully functional with "Search Again", search logic, and integrated header.
+- [x] **Auth**: Password Reset flow (Forgot -> Email -> Update) is robustly implemented with session verification.
+- [x] **Sharing UI**: Users can search for mentors and share apiaries via `ShareApiaryModal`.
+- [x] **Mentor View (List)**: Mentors can see shared apiaries in their dashboard dropdown (via "Show Shared" toggle).
+- [x] **Intervention Types**: Added "Honey Harvest" and fixed build issues.
 
-#### Task A: Build "Share Apiary" UI
-1.  **Modify**: `apps/web/app/apiary-selection/page.tsx` (Use the "Manage Apiaries" view).
-2.  **Add**: A "Share" button next to "Edit/Delete".
-3.  **Create**: `components/ShareApiaryModal.tsx`.
-    *   **Logic**:
-        *   List mentors (Query `mentor_profiles`).
-        *   User selects one.
-        *   Click "Grant Access".
-        *   Insert row into `apiary_shares` (`apiary_id`, `viewer_id`=mentor, `owner_id`=me).
+## Immediate Next Steps (Priority)
 
-#### Task B: Update Apiary List
-1.  **Modify**: `apps/web/app/apiary-selection/page.tsx`.
-2.  **Fetch**: Change the main query to fetch "My Apiaries" OR "Shared Apiaries".
-    *   *Hint*: Secure RPC `check_hive_access` handles the permission, but listing them requires a joined query or a separate "Shared with Me" query.
-    *   *Recommendation*: Do a separate query for clean UI separation.
-    *   `supabase.from('apiary_shares').select('*, apiary:apiaries(*)')`
+### 1. Implement Read-Only Mode for Shared Apiaries
+**Critical Task**: Currently, mentors can access shared apiaries, but the UI might still show "Edit", "Delete", or "Add Task" buttons.
+- **Goal**: Update `HiveDetails`, `ApiarySelectionPage`, and `TaskList` to check ownership.
+- **Logic**:
+  - Check if `apiary.user_id === current_user.id`.
+  - If FALSE (it's shared), hide/disable:
+    - Edit Apiary / Delete Apiary buttons.
+    - Add Hive / Edit Hive buttons.
+    - Add Log / Edit Log buttons (unless we decide mentors can add logs?).
+    - Add Task (Mentors *should* probably be able to add tasks for students, but check requirements).
+
+### 2. Verify Mobile Wrapper
+- Ensure the new pages (Admin, Password Reset) work correctly inside the WebView wrapper if they are accessible there.
+
+### 3. Polish & Testing
+- create a test plan for Mentor-Mentee interaction.
 
 ### 3. "Gotchas" / Warnings ⚠️
 *   **The "Chicken-and-Egg" Bug**: If you touch user roles, remember that users must be able to read their own role. Don't revert the fix in `fix_roles_policy.sql`.

@@ -23,7 +23,25 @@ export default function UpdatePasswordPage() {
                 return;
             }
 
-            // 2. If no session, wait for auto-recovery (Implicit/PKCE exchange)
+            // 2. Check for PKCE Code in URL
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+
+            if (code) {
+                console.log('PKCE code detected, attempting exchange...');
+                try {
+                    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+                    if (data.session) {
+                        setVerifying(false); // Success!
+                        return;
+                    }
+                    if (error) console.error('Exchange error:', error);
+                } catch (e) {
+                    console.error('Exchange exception:', e);
+                }
+            }
+
+            // 3. If still no session, wait for auto-recovery events
             // Listen for the SIGNED_IN or PASSWORD_RECOVERY event
             const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
                 console.log('Auth Event:', event);
@@ -33,7 +51,7 @@ export default function UpdatePasswordPage() {
                 }
             });
 
-            // 3. Set a fallback timeout (4 seconds)
+            // 4. Set fallback timeout (4 seconds)
             setTimeout(async () => {
                 const { data: { session: finalSession } } = await supabase.auth.getSession();
                 if (!finalSession) {
