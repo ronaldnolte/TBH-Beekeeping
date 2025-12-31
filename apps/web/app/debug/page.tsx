@@ -1,101 +1,76 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 
 export default function DebugPage() {
+    const [status, setStatus] = useState<any>({});
     const [logs, setLogs] = useState<string[]>([]);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
 
-    const addLog = (msg: string) => {
-        const timestamp = new Date().toLocaleTimeString();
-        setLogs(prev => [...prev, `${timestamp}: ${msg}`]);
-        console.log(msg);
-    };
+    const log = (msg: string) => setLogs(prev => [...prev, msg + ' (' + new Date().toISOString().split('T')[1] + ')']);
 
     useEffect(() => {
-        addLog('✅ Page loaded');
-        addLog(`User Agent: ${navigator.userAgent}`);
-        addLog(`localStorage available: ${typeof localStorage !== 'undefined'}`);
-        addLog(`URL: ${window.location.href}`);
+        const runDebug = async () => {
+            log('Starting Debug...');
 
-        // Test localStorage
-        try {
-            localStorage.setItem('test', 'value');
-            const val = localStorage.getItem('test');
-            addLog(`✅ localStorage test: ${val === 'value' ? 'WORKS' : 'FAILED'}`);
-            localStorage.removeItem('test');
-        } catch (e: any) {
-            addLog(`❌ localStorage error: ${e.message}`);
-        }
-    }, []);
+            // 1. Check Session
+            const { data: { session } } = await supabase.auth.getSession();
+            log(`Session: ${session ? 'Active' : 'None'}`);
 
-    const testLogin = async () => {
-        addLog('🔵 Starting login test...');
-
-        try {
-            addLog('📡 Calling Supabase signIn...');
-            const { error, data } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
-
-            if (error) {
-                addLog(`❌ Supabase error: ${error.message}`);
+            if (!session?.user) {
+                setStatus({ error: 'Not Logged In' });
                 return;
             }
 
-            addLog(`✅ Login successful!`);
-            addLog(`Session: ${data.session ? 'Created' : 'None'}`);
-            addLog(`User ID: ${data.user?.id || 'None'}`);
+            const userId = session.user.id;
+            const userEmail = session.user.email;
+            log(`User: ${userEmail} (${userId})`);
 
-            // Check if session was stored
-            addLog('🔍 Checking session storage...');
-            const { data: sessionCheck } = await supabase.auth.getSession();
-            addLog(`Session in storage: ${sessionCheck.session ? 'YES ✅' : 'NO ❌'}`);
+            // 2. Direct Query to user_roles
+            log('Querying user_roles table...');
+            const { data: roles, error: roleError } = await supabase
+                .from('user_roles')
+                .select('*')
+                .eq('user_id', userId);
 
-        } catch (err: any) {
-            addLog(`💥 CRASH: ${err.message}`);
-            addLog(`Stack: ${err.stack}`);
-        }
-    };
+            if (roleError) {
+                log(`ERROR Querying Roles: ${roleError.message}`);
+            } else {
+                log(`Roles Found: ${roles?.length || 0}`);
+                if (roles && roles.length > 0) {
+                    log(`Role Data: ${JSON.stringify(roles)}`);
+                }
+            }
+
+            // 3. Check Policy / Table Existence
+            // Try to insert a dummy record to see if table exists? No, too risky.
+            // Just displaying the result is enough.
+
+            setStatus({
+                user: session.user,
+                roles: roles,
+                roleError: roleError
+            });
+        };
+
+        runDebug();
+    }, []);
 
     return (
-        <div style={{ padding: '20px', fontFamily: 'monospace', fontSize: '12px' }}>
-            <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>🐝 WebView Debug Page</h1>
+        <div className="p-8 font-mono text-sm">
+            <h1 className="text-xl font-bold mb-4">Auth Debugger</h1>
 
-            <div style={{ marginBottom: '20px', padding: '10px', border: '2px solid #333', backgroundColor: '#f0f0f0' }}>
-                <h2 style={{ fontSize: '18px', marginBottom: '10px' }}>Login Test</h2>
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email"
-                    style={{ display: 'block', marginBottom: '10px', padding: '5px', width: '300px' }}
-                />
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password"
-                    style={{ display: 'block', marginBottom: '10px', padding: '5px', width: '300px' }}
-                />
-                <button
-                    onClick={testLogin}
-                    style={{ padding: '10px 20px', fontSize: '14px', cursor: 'pointer' }}
-                >
-                    Test Login
-                </button>
+            <div className="bg-gray-100 p-4 rounded mb-4">
+                <h2 className="font-bold">Logs:</h2>
+                {logs.map((l, i) => <div key={i}>{l}</div>)}
             </div>
 
-            <div style={{ padding: '10px', border: '2px solid #333', backgroundColor: '#000', color: '#0f0', maxHeight: '500px', overflowY: 'auto' }}>
-                <h2 style={{ fontSize: '18px', marginBottom: '10px', color: '#0f0' }}>Debug Log</h2>
-                {logs.map((log, i) => (
-                    <div key={i} style={{ marginBottom: '5px', fontFamily: 'monospace' }}>
-                        {log}
-                    </div>
-                ))}
+            <pre className="bg-black text-green-400 p-4 rounded overflow-auto">
+                {JSON.stringify(status, null, 2)}
+            </pre>
+
+            <div className="mt-4">
+                <a href="/apiary-selection" className="text-blue-600 underline">Back to App</a>
             </div>
         </div>
     );
