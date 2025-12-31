@@ -10,33 +10,55 @@ export default function UpdatePasswordPage() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+    const [verifying, setVerifying] = useState(true); // New state to hold off showing the form/error
     const router = useRouter();
 
     useEffect(() => {
-        // Check if we have a session (handled automatically by Supabase client from URL hash)
         const checkSession = async () => {
+            // 1. Check immediate session
             const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                // Give it a moment, sometimes the hash processing takes a tick
-                setTimeout(async () => {
-                    const { data: { session: retrySession } } = await supabase.auth.getSession();
-                    if (!retrySession) {
-                        setError('Auth session missing! The link may be invalid or expired. Try requesting a new one.');
-                    }
-                }, 1000);
+
+            if (session) {
+                setVerifying(false);
+                return;
             }
+
+            // 2. If no session, wait for auto-recovery (Implicit/PKCE exchange)
+            // Listen for the SIGNED_IN or PASSWORD_RECOVERY event
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+                console.log('Auth Event:', event);
+                if (event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY') {
+                    setVerifying(false);
+                    setError('');
+                }
+            });
+
+            // 3. Set a fallback timeout (4 seconds)
+            setTimeout(async () => {
+                const { data: { session: finalSession } } = await supabase.auth.getSession();
+                if (!finalSession) {
+                    setVerifying(false);
+                    setError('Unable to verify session. The link may have expired or was already used. Try requesting a new link.');
+                }
+            }, 4000);
+
+            return () => subscription.unsubscribe();
         };
+
         checkSession();
-
-        // Also listen for the recovery event to be sure
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'PASSWORD_RECOVERY') {
-                setError(''); // Clear error if we just recovered
-            }
-        });
-
-        return () => subscription.unsubscribe();
     }, []);
+
+    // While verifying, show a loading spinner, NOT the form
+    if (verifying) {
+        return (
+            <div className="min-h-screen honeycomb-bg flex items-center justify-center p-4">
+                <div className="bg-white p-8 rounded-xl shadow-lg text-center">
+                    <div className="animate-pulse text-4xl mb-4">🔑</div>
+                    <p className="text-gray-600">Verifying security link...</p>
+                </div>
+            </div>
+        );
+    }
 
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
