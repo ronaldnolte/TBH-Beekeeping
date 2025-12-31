@@ -213,7 +213,16 @@ export default function AdminMentorPage() {
                             </div>
                         )}
 
-                        <div className="pt-4 flex justify-end">
+                        <div className="pt-4 flex justify-between">
+                            <button
+                                onClick={() => {
+                                    setSearchResult(null);
+                                    setDisplayName(''); setLocation(''); setBio(''); setIsMentor(false); setMessage(''); setEmail('');
+                                }}
+                                className="px-4 py-2 border border-gray-300 text-gray-600 rounded hover:bg-gray-100"
+                            >
+                                ← Search Again
+                            </button>
                             <button
                                 onClick={handleSave}
                                 disabled={loading}

@@ -209,6 +209,14 @@ export default function LoginPage() {
             {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Login')}
           </button>
 
+          {!isSignUp && (
+            <div className="text-right">
+              <a href="/auth/forgot-password" className="text-xs text-gray-500 hover:text-[#E67E22] hover:underline">
+                Forgot Password?
+              </a>
+            </div>
+          )}
+
           <button
             type="button"
             onClick={() => setIsSignUp(!isSignUp)}

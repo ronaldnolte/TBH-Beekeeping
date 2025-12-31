@@ -64,17 +64,17 @@ We will update the central database function `check_hive_access()` to handle thi
 
 ## 5. User Interface & Workflow
 
-### Phase 1: The Setup (Admin/Profile)
+### Phase 1: The Setup (Admin/Profile) [COMPLETE]
 1.  **Mentor Settings**: A user (or Admin) toggles `is_mentor = true` and fills in `Location/Bio`.
 
-### Phase 2: The Delegation (Mentee)
+### Phase 2: The Delegation (Mentee) [NEXT STEP]
 1.  **"Share Apiary" Button**: Located on the Apiary Setup/Settings screen.
 2.  **"Find a Mentor" Modal**:
     *   Displays a list of users where `is_mentor = true`.
     *   Shows: Name, Location, Bio. (No Email).
 3.  **Action**: Mentee selects a Mentor → System inserts row into `apiary_shares`.
 
-### Phase 3: The Mentor View
+### Phase 3: The Mentor View [PENDING]
 1.  **Apiary Selection Screen**:
     *   Section 1: **"My Apiaries"** (Standard View)
     *   Section 2: **"Mentored Apiaries"** (New Section)
@@ -89,10 +89,10 @@ We will update the central database function `check_hive_access()` to handle thi
 
 This workload splits cleanly into two distinct phases that can be executed sequentially:
 
-1.  **The Backend Specialist (Agent Mode 1)**
-    *   Execute SQL Schema changes.
-    *   **CRITICAL**: Write and Verify the complex RLS Security Policies.
-    *   *Deliverable*: A secure database where if you manually insert a share record, the access works instantly.
+1.  **The Backend Specialist (Agent Mode 1)** [STATUS: COMPLETE]
+    *   [x] Execute SQL Schema changes.
+    *   [x] **CRITICAL**: Write and Verify the complex RLS Security Policies.
+    *   [x] *Deliverable*: A secure database where if you manually insert a share record, the access works instantly.
 
 2.  **The Frontend Developer (Agent Mode 2)**
     *   Build the "Share" UI.

@@ -14,7 +14,9 @@ const InterventionItem = ({ intervention, onDelete, onEdit, onView }: { interven
             case 'treatment': return 'bg-red-100 text-red-700';
             case 'manipulation': return 'bg-blue-100 text-blue-700';
             case 'cross_comb_fix': return 'bg-orange-100 text-orange-700';
-            default: return 'bg-gray-100 text-gray-600';
+            case 'requeen': return 'bg-purple-100 text-purple-700';
+            case 'honey_harvest': return 'bg-amber-100 text-amber-800 border-amber-200';
+            default: return 'bg-gray-100 text-gray-700';
         }
     };
 

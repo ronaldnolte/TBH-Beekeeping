@@ -54,8 +54,9 @@ export type InterventionType =
     | 'feeding'
     | 'treatment'
     | 'manipulation'
-    | 'cross_comb_fix'
-    | 'other';
+    | 'pest_management'
+    | 'other'
+    | 'honey_harvest';
 
 // Task Types
 export type TaskScope = 'hive' | 'apiary';

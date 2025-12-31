@@ -6,6 +6,7 @@ import { Apiary } from '@tbh-beekeeper/shared';
 import { navigateTo } from '../../lib/navigation';
 import { Modal } from '../../components/Modal';
 import { ApiaryForm } from '../../components/ApiaryForm';
+import { ShareApiaryModal } from '../../components/ShareApiaryModal';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 import { UserTaskList } from '../../components/TaskList';
 import { TaskForm } from '../../components/TaskForm';
@@ -124,20 +125,42 @@ const ApiarySelectionPage = () => {
     const [taskRefreshKey, setTaskRefreshKey] = useState(0);
     const [showCompletedTasks, setShowCompletedTasks] = useState(false);
 
+    // Sharing State
+    const [isSharing, setIsSharing] = useState(false);
+    const [sharingApiary, setSharingApiary] = useState<Apiary | undefined>(undefined);
+    const [sharedApiaries, setSharedApiaries] = useState<any[]>([]); // simplified type
+    const [showShared, setShowShared] = useState(false);
+
     const fetchApiaries = async () => {
         if (!userId) return;
         setIsLoading(true);
-        const { data, error } = await supabase
-            .from('apiaries')
-            .select('*')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching apiaries:', error);
-        } else {
-            setApiaries(data || []);
-            // Auto-select logic removed to force user interaction
+        try {
+            // 1. Fetch My Apiaries
+            const { data: myData, error: myError } = await supabase
+                .from('apiaries')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (myError) throw myError;
+            setApiaries(myData || []);
+
+            // 2. Fetch Shared Apiaries
+            const { data: sharedData, error: sharedError } = await supabase
+                .from('apiary_shares')
+                .select('*, apiary:apiaries(*), owner:users!owner_id(display_name)')
+                .eq('viewer_id', userId);
+
+            if (sharedError) {
+                console.warn('Error fetching shares (might be empty/RLS):', sharedError);
+                setSharedApiaries([]);
+            } else {
+                setSharedApiaries(sharedData || []);
+            }
+
+        } catch (err) {
+            console.error('Error loading apiaries:', err);
         }
         setIsLoading(false);
     };
@@ -237,7 +260,7 @@ const ApiarySelectionPage = () => {
                 </div>
                 <WeatherWidget
                     apiaryId={selectedApiaryId}
-                    apiaries={apiaries}
+                    apiaries={[...apiaries, ...sharedApiaries.map(s => s.apiary)]}
                     onUpdateApiary={(updated) => {
                         setApiaries(prev => prev.map(a => a.id === updated.id ? updated : a));
                     }}
@@ -260,9 +283,20 @@ const ApiarySelectionPage = () => {
                             className="flex-1 border border-[#D1C4A9] rounded px-3 py-2 text-sm min-w-[150px] max-w-[300px]"
                         >
                             <option value="">Select an apiary...</option>
-                            {apiaries.map(a => (
-                                <option key={a.id} value={a.id}>{a.name}</option>
-                            ))}
+                            <optgroup label="My Apiaries">
+                                {apiaries.map(a => (
+                                    <option key={a.id} value={a.id}>{a.name}</option>
+                                ))}
+                            </optgroup>
+                            {showShared && sharedApiaries.length > 0 && (
+                                <optgroup label="Shared with Me">
+                                    {sharedApiaries.map(share => (
+                                        <option key={share.apiary_id} value={share.apiary_id}>
+                                            {share.apiary.name} (from {share.owner?.display_name || 'Unknown'})
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            )}
                         </select>
                         <button
                             id="manage-apiaries-button"
@@ -271,6 +305,16 @@ const ApiarySelectionPage = () => {
                         >
                             {isManaging ? 'Done' : '⚙️ Manage Apiaries'}
                         </button>
+
+                        <label className="flex items-center gap-1.5 text-xs text-gray-600 border border-gray-200 rounded px-2 py-1.5 bg-white cursor-pointer select-none whitespace-nowrap">
+                            <input
+                                type="checkbox"
+                                checked={showShared}
+                                onChange={e => setShowShared(e.target.checked)}
+                                className="rounded text-amber-600 focus:ring-amber-500"
+                            />
+                            <span>Show Shared</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -328,8 +372,9 @@ const ApiarySelectionPage = () => {
                                         <div className="text-xs text-gray-500 font-mono">ID: {apiary.id} | Zip: {apiary.zip_code}</div>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button onClick={() => { setEditingApiary(apiary); setIsEditing(true); }} className="text-blue-600 font-bold text-sm">Edit</button>
-                                        <button onClick={() => handleDelete(apiary)} className="text-red-600 font-bold text-sm">Delete</button>
+                                        <button onClick={() => { setSharingApiary(apiary); setIsSharing(true); }} className="text-green-600 font-bold text-sm bg-green-50 px-2 py-1 rounded border border-green-200">Share</button>
+                                        <button onClick={() => { setEditingApiary(apiary); setIsEditing(true); }} className="text-blue-600 font-bold text-sm px-2 py-1">Edit</button>
+                                        <button onClick={() => handleDelete(apiary)} className="text-red-600 font-bold text-sm px-2 py-1">Delete</button>
                                     </div>
                                 </div>
                             ))}
@@ -357,6 +402,18 @@ const ApiarySelectionPage = () => {
                     onCancel={() => { setIsAddingTask(false); setEditingTask(undefined); }}
                     scope="user"
                 />
+            </Modal>
+
+            {/* Share Modal */}
+            <Modal isOpen={isSharing} onClose={() => setIsSharing(false)} title="Share Apiary">
+                {sharingApiary && (
+                    <ShareApiaryModal
+                        apiaryId={sharingApiary.id}
+                        apiaryName={sharingApiary.name}
+                        onClose={() => setIsSharing(false)}
+                        onSuccess={() => { setIsSharing(false); alert('Apiary shared successfully!'); }}
+                    />
+                )}
             </Modal>
 
             {/* Guided Tour */}

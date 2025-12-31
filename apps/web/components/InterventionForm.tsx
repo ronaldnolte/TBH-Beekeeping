@@ -10,6 +10,7 @@ const INTERVENTION_TYPES: { value: InterventionType; label: string }[] = [
     { value: 'manipulation', label: 'Manipulation' },
     { value: 'cross_comb_fix', label: 'Cross Comb Fix' },
     { value: 'other', label: 'Other' },
+    { value: 'honey_harvest', label: 'Honey Harvest' },
 ];
 
 export function InterventionForm({ hiveId, initialData, onSuccess, onCancel }: { hiveId: string, initialData?: Intervention, onSuccess: () => void, onCancel: () => void }) {
