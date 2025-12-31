@@ -55,6 +55,8 @@ export type InterventionType =
     | 'treatment'
     | 'manipulation'
     | 'pest_management'
+    | 'cross_comb_fix'
+    | 'requeen'
     | 'other'
     | 'honey_harvest';
 
