@@ -10,6 +10,7 @@ interface AuthContextType {
     userId: string | undefined;
     loading: boolean;
     isAuthenticated: boolean;
+    isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -18,39 +19,54 @@ const AuthContext = createContext<AuthContextType>({
     userId: undefined,
     loading: true,
     isAuthenticated: false,
+    isAdmin: false,
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [session, setSession] = useState<Session | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         console.log('[AuthProvider] Initializing...');
 
-        // Get initial session from storage
+        const checkAdminStatus = async (userId: string) => {
+            const { data } = await supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', userId)
+                .eq('role', 'admin')
+                .single();
+            setIsAdmin(!!data);
+        };
+
+        // Get initial session
         supabase.auth.getSession().then(({ data: { session }, error }) => {
             if (error) {
                 console.error('[AuthProvider] Error getting initial session:', error);
-            } else {
-                console.log('[AuthProvider] Initial session:', session ? 'Found (User: ' + session.user.email + ')' : 'None');
+            }
+            if (session?.user) {
+                checkAdminStatus(session.user.id);
             }
             setSession(session);
             setLoading(false);
         });
 
-        // Listen for auth state changes (ONLY ONCE for the entire app)
+        // Listen for auth changes
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((event, session) => {
-            console.log('[AuthProvider] Auth state changed:', event, session ? 'Session active' : 'No session');
+            console.log('[AuthProvider] Auth state changed:', event);
             setSession(session);
+            if (session?.user) {
+                checkAdminStatus(session.user.id);
+            } else {
+                setIsAdmin(false);
+            }
             setLoading(false);
         });
 
-        return () => {
-            console.log('[AuthProvider] Cleaning up subscription');
-            subscription.unsubscribe();
-        };
+        return () => subscription.unsubscribe();
     }, []);
 
     const value: AuthContextType = {
@@ -59,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         userId: session?.user?.id,
         loading,
         isAuthenticated: !!session,
+        isAdmin,
     };
 
     return (

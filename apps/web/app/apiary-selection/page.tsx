@@ -112,7 +112,7 @@ const WeatherWidget = ({ apiaryId, apiaries, onUpdateApiary }: { apiaryId: strin
 const ApiarySelectionPage = () => {
     const [apiaries, setApiaries] = useState<Apiary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const { userId, user, loading: authLoading } = useCurrentUser();
+    const { userId, user, loading: authLoading, isAdmin } = useCurrentUser();
     const router = useRouter();
 
     const [selectedApiaryId, setSelectedApiaryId] = useState<string>('');
@@ -222,6 +222,15 @@ const ApiarySelectionPage = () => {
                             <span className="text-[#E6DCC3]">|</span>
                             <a href="/help" id="help-link" className="hover:text-[#E67E22] hover:underline font-medium">📚 Help</a>
                             <span className="text-[#E6DCC3]">|</span>
+                            {/* Admin Link (Only for admins) */}
+                            {isAdmin && (
+                                <>
+                                    <a href="/admin/mentors" className="text-red-700 hover:text-red-900 font-bold uppercase tracking-wider text-[10px] bg-red-100 px-2 py-0.5 rounded border border-red-200">
+                                        Admin Panel
+                                    </a>
+                                    <span className="text-[#E6DCC3]">|</span>
+                                </>
+                            )}
                             <button onClick={handleLogout} className="hover:text-[#E67E22] hover:underline font-medium">Log Out</button>
                         </div>
                     </div>
