@@ -44,37 +44,41 @@ export default function AdminMentorPage() {
         setSearchResult(null);
 
         try {
-            // 1. Find the User ID (Using a secure RPC wrapper would be best, but for Admin we can try direct query if policy allows, 
-            // OR use the edge function. Since we don't have an edge function, we rely on finding them via the 'users' table which is public-ish for display names? 
-            // Wait, we can't query users by email safely. 
-            // PROVISIONAL: We will use a dedicated RPC function to specificially resolve email->id for admins.
-            // But since I didn't write that RPC yet, let's try to query the public profiles via a new helper or assume we have to add logic.
-            // Actually, for this specific admin tool, let's assume we need to resolve the email.
+            console.log('Searching for:', email);
 
-            // ERROR: We can't query auth.users from client. 
-            // WORKAROUND: We will assume the Admin knows the target user has already created a public profile (users table).
-            // But 'users' table doesn't have email readable by default policy?
-            // Let's create a quick Postgres Function to resolve email safely just for admins.
+            // 1. Call Helper RPC
+            const { data: userIdData, error: rpcError } = await supabase.rpc('get_user_by_email_for_admin', { email_input: email });
 
-            // For now, let's assume the admin inputs the exact email and we call a Supabase function.
-            // I'll call a custom function 'get_user_by_email_for_admin'.
+            if (rpcError) {
+                console.error('RPC Error:', rpcError);
+                setMessage(`Database Error: ${rpcError.message} (Hint: Did you run add_admin_email_lookup.sql?)`);
+                setLoading(false);
+                return;
+            }
 
-            const { data: userIdData, error: userError } = await supabase.rpc('get_user_by_email_for_admin', { email_input: email });
-
-            if (userError || !userIdData) {
-                setMessage('User not found (or you are not an admin). Ensure they have signed up.');
+            if (!userIdData) {
+                console.warn('User not found');
+                setMessage(`User with email "${email}" not found. Check spelling or ensure they have signed up.`);
                 setLoading(false);
                 return;
             }
 
             const userId = userIdData;
+            console.log('User Found ID:', userId);
 
             // 2. Fetch existing mentor profile
-            const { data: profile } = await supabase
+            const { data: profile, error: profileError } = await supabase
                 .from('mentor_profiles')
                 .select('*')
                 .eq('user_id', userId)
-                .single();
+                .maybeSingle(); // Use maybeSingle to avoid 406 error if row missing
+
+            if (profileError) {
+                console.error('Profile Fetch Error:', profileError);
+                setMessage(`Profile Query Failed: ${profileError.message}`);
+                setLoading(false);
+                return;
+            }
 
             setSearchResult({ id: userId });
 
@@ -82,20 +86,21 @@ export default function AdminMentorPage() {
                 setDisplayName(profile.display_name || '');
                 setLocation(profile.location || '');
                 setBio(profile.bio || '');
-                setIsMentor(true); // Existing profile implies they are a mentor (or were)
-                setMessage('Existing Mentor Profile Loaded.');
+                setIsMentor(true);
+                setMessage('✅ User Found: Existing Mentor Profile Loaded.');
             } else {
-                // Fetch basic display name from public users table if possible
+                // Fetch display name from public users table
                 const { data: userData } = await supabase.from('users').select('display_name').eq('id', userId).single();
                 setDisplayName(userData?.display_name || '');
                 setLocation('');
                 setBio('');
                 setIsMentor(false);
-                setMessage('User found. No mentor profile yet.');
+                setMessage('✅ User Found. This user is not yet a mentor.');
             }
 
         } catch (err: any) {
-            setMessage('Error: ' + err.message);
+            console.error('Unexpected Error:', err);
+            setMessage('CRITICAL ERROR: ' + (err.message || JSON.stringify(err)));
         } finally {
             setLoading(false);
         }
