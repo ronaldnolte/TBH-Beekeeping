@@ -189,16 +189,35 @@ const sortTasks = (tasks: Task[]) => {
 // --- Hive-Specific List ---
 export const TaskList = ({ hive, refreshKey, onRefresh, onEdit, showCompleted = false }: { hive: Hive, refreshKey?: number, onRefresh?: () => void, onEdit: (task: Task) => void, showCompleted?: boolean }) => {
     const [tasks, setTasks] = useState<Task[]>([]);
+    const [taskLocations, setTaskLocations] = useState<Record<string, { apiaryName?: string, hiveName?: string }>>({});
 
     useEffect(() => {
         const fetchTasks = async () => {
             const { data } = await supabase.from('tasks').select('*').eq('hive_id', hive.id);
-            setTasks(sortTasks(data || []));
+            const loadedTasks = sortTasks(data || []);
+            setTasks(loadedTasks);
+
+            // Fetch apiary name to correctly display location in the list
+            let apiaryName = '';
+            if (hive.apiary_id) {
+                const { data: apiary } = await supabase.from('apiaries').select('name').eq('id', hive.apiary_id).single();
+                if (apiary) apiaryName = apiary.name;
+            }
+
+            // Build location map for all tasks (they all belong to this hive)
+            const locations: Record<string, { apiaryName?: string, hiveName?: string }> = {};
+            loadedTasks.forEach(task => {
+                locations[task.id] = {
+                    apiaryName: apiaryName,
+                    hiveName: hive.name
+                };
+            });
+            setTaskLocations(locations);
         };
         fetchTasks();
-    }, [hive.id, refreshKey]);
+    }, [hive.id, hive.name, hive.apiary_id, refreshKey]);
 
-    return <TaskGrid tasks={tasks} onEdit={onEdit} onRefresh={onRefresh} showCompleted={showCompleted} />;
+    return <TaskGrid tasks={tasks} onEdit={onEdit} onRefresh={onRefresh} showCompleted={showCompleted} taskLocations={taskLocations} />;
 };
 
 // --- User-Specific List (Dashboard) ---
