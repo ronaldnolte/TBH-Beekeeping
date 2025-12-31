@@ -71,7 +71,7 @@ export default function AdminMentorPage() {
                 .from('mentor_profiles')
                 .select('*')
                 .eq('user_id', userId)
-                .maybeSingle(); // Use maybeSingle to avoid 406 error if row missing
+                .maybeSingle();
 
             if (profileError) {
                 console.error('Profile Fetch Error:', profileError);
@@ -112,14 +112,11 @@ export default function AdminMentorPage() {
 
         try {
             if (!isMentor) {
-                // If checking "OFF", we delete the profile? Or just update it?
-                // For "Sidecar", deleting the row usually removes them from search.
                 const { error } = await supabase.from('mentor_profiles').delete().eq('user_id', searchResult.id);
                 if (error) throw error;
                 setMessage('Mentor profile removed.');
                 setDisplayName(''); setLocation(''); setBio(''); setIsMentor(false); setSearchResult(null);
             } else {
-                // Upsert
                 const { error } = await supabase.from('mentor_profiles').upsert({
                     user_id: searchResult.id,
                     display_name: displayName,
@@ -156,7 +153,7 @@ export default function AdminMentorPage() {
 
             <div className="flex-1 p-8">
                 <div className="max-w-2xl mx-auto bg-white rounded-lg shadow border border-[#E6DCC3] p-8">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">Manage Mentors</h2>
+                    <h2 className="text-2xl font-bold text-[#4A3C28] mb-6 border-b pb-4">Manage Mentors</h2>
 
                     {/* Search */}
                     <form onSubmit={handleSearch} className="mb-8 p-4 bg-gray-50 rounded border border-gray-200">
@@ -251,5 +248,6 @@ export default function AdminMentorPage() {
                     )}
                 </div>
             </div>
-            );
+        </div>
+    );
 }
