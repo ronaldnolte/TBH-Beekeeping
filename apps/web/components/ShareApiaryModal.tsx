@@ -36,14 +36,15 @@ export function ShareApiaryModal({ apiaryId, apiaryName, onClose, onSuccess }: S
             setLoading(true);
             try {
                 // Fetch all mentors who are accepting students
-                // Join with 'users' to get email for search (requires RLS policy update)
+                // Use LEFT join (users without !inner) so we still get the profile if RLS blocks the user/email table
                 const { data, error } = await supabase
                     .from('mentor_profiles')
-                    .select('*, users!inner(email)')
+                    .select('*, users(email)')
                     .eq('is_accepting_students', true)
                     .neq('user_id', userId); // Don't show myself
 
                 if (error) throw error;
+                // If users is null (due to RLS), mapping handles it safely
                 setMentors(data || []);
             } catch (err: any) {
                 setError('Failed to load mentors: ' + err.message);
