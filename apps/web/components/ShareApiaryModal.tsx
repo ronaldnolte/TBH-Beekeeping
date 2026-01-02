@@ -124,11 +124,19 @@ export function ShareApiaryModal({ apiaryId, apiaryName, onClose, onSuccess }: S
                                     <div
                                         key={mentor.user_id}
                                         onClick={() => { setSelectedMentor(mentor); setStep('confirm'); }}
-                                        className="p-3 hover:bg-white cursor-pointer transition-colors"
+                                        className="p-3 hover:bg-white cursor-pointer transition-colors flex items-center justify-between group"
                                     >
-                                        <div className="font-bold text-gray-800">{mentor.display_name}</div>
-                                        <div className="text-xs text-gray-500">{mentor.location}</div>
-                                        {mentor.bio && <div className="text-xs text-gray-600 mt-1 italic line-clamp-2">{mentor.bio}</div>}
+                                        <div className="flex items-center gap-2 overflow-hidden">
+                                            <div className="font-bold text-gray-800 whitespace-nowrap">{mentor.display_name}</div>
+                                            {mentor.location && (
+                                                <div className="text-sm text-gray-500 truncate">
+                                                    • {mentor.location}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="text-xs text-blue-600 opacity-0 group-hover:opacity-100 font-medium transition-opacity">
+                                            Select →
+                                        </div>
                                     </div>
                                 ))}
                             </div>
