@@ -20,26 +20,32 @@ We are in the middle of building the "Mentor Delegation" feature.
 
 ## Immediate Next Steps (Priority)
 
-### 1. Implement Read-Only Mode for Shared Apiaries
-**Critical Task**: Currently, mentors can access shared apiaries, but the UI might still show "Edit", "Delete", or "Add Task" buttons.
-- **Goal**: Update `HiveDetails`, `ApiarySelectionPage`, and `TaskList` to check ownership.
-- **Logic**:
-  - Check if `apiary.user_id === current_user.id`.
-  - If FALSE (it's shared), hide/disable:
-    - Edit Apiary / Delete Apiary buttons.
-    - Add Hive / Edit Hive buttons.
-    - Add Log / Edit Log buttons (unless we decide mentors can add logs?).
-    - Add Task (Mentors *should* probably be able to add tasks for students, but check requirements).
+### 1. Enforce Read-Only Mode (Critical)
+**Current State**: Mentors have `FOR ALL` access (Read/Write) to shared apiaries via the new RLS scripts.
+- **Goal**: Restrict Mentors to **SELECT ONLY** (Read-Only) and update UI to hide edit buttons.
+- **Backend**: Split RLS policies into `FOR SELECT` (Viewers+Owners) and `FOR INSERT/UPDATE/DELETE` (Owners Only). DONE (Script provided).
+- **Frontend**: Update `HiveDetails`, `ApiarySelectionPage`, `TaskList` to check ownership.
+    - **User Preference**: Do NOT hide the buttons. The Mentor should see the interface as normal.
+    - **Logic**: In `handleSave`, `delete`, or `add` functions, check `if (apiary.user_id !== user.id)`.
+    - **Action**: If not owner, show an `alert("Only the apiary owner can make changes.")` and abort independent of the DB check.
+    - result: Mentor sees full UI but is blocked with a clear message when trying to write.
 
-### 2. Verify Mobile Wrapper
-- Ensure the new pages (Admin, Password Reset) work correctly inside the WebView wrapper if they are accessible there.
+### 2. Implement Mentor Comments
+- **Feature**: Allow Mentors to leave comments/notes for Mentees without editing the actual records.
+- **Plan**: Create a `mentor_comments` table linked to `hive_snapshots` or `inspections`.
+- **UI**: Add a comment thread component in the details modal.
 
-### 3. Polish & Testing
-- create a test plan for Mentor-Mentee interaction.
+### 3. Verify Mobile Wrapper
+- Ensure the new pages (Admin, Password Reset) work correctly inside the WebView wrapper.
+
+### 4. Polish & Testing
+- Search by email in Sharing Modal now works (requires SQL script).
+- Verify "Inspection Conditions" modal design (Red borders, detailed stats).
 
 ### 3. "Gotchas" / Warnings ⚠️
 *   **The "Chicken-and-Egg" Bug**: If you touch user roles, remember that users must be able to read their own role. Don't revert the fix in `fix_roles_policy.sql`.
 *   **Mock Data**: Do not use mock data. The backend is live and working. Use real Supabase queries.
 *   **Admin Email Lookup**: This relies on a protected RPC function `get_user_by_email_for_admin`. Don't try to query `auth.users` directly from the client.
+*   **SQL Scripts**: The user has locally applied `fix_hives_rls_simple.sql`, `fix_tasks_rls_for_sharing.sql`, `allow_mentor_view_student.sql`. These are **NOT** in the main migration history yet. Consider consolidating them.
 
 **Go get 'em.** 🐝

@@ -16,12 +16,13 @@ const BAR_COLORS = {
 
 type BarStatus = keyof typeof BAR_COLORS;
 
-export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOnly = false }: {
+export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOnly = false, isOwner = true }: {
     snapshot?: HiveSnapshot;
     hive?: Hive;
     hiveId: string;
     onSnapshotCreate?: () => void;
     readOnly?: boolean;
+    isOwner?: boolean;
 }) {
     const parseBars = (source: any) => {
         try {
@@ -48,6 +49,10 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
     const toggleBarStatus = async (position: number) => {
         if (readOnly) return;
         if (!hive) return;
+        if (!isOwner) {
+            alert('Only the apiary owner can make changes.');
+            return;
+        }
 
         const index = bars.findIndex((b) => b.position === position);
         if (index === -1) return;
@@ -74,6 +79,10 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
 
     const handleCapture = async () => {
         if (isCapturing) return;
+        if (!isOwner) {
+            alert('Only the apiary owner can make changes.');
+            return;
+        }
         setIsCapturing(true);
 
         const inactiveCount = bars.filter(b => b.status === 'inactive').length;

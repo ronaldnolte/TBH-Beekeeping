@@ -16,6 +16,7 @@ import { supabase } from '../lib/supabase';
 import { navigateTo } from '../lib/navigation';
 import { Tour } from './Tour';
 import { hiveDetailTour } from '../lib/tourDefinitions';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 
 // Bar status colors from prototype
 const BAR_COLORS = {
@@ -91,7 +92,9 @@ const HistoryItem = ({ snapshot, onSelect, onDelete }: { snapshot: HiveSnapshot,
 
 export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
     const router = useRouter();
+    const { userId } = useCurrentUser();
     const [hive, setHive] = useState<Hive | null>(null);
+    const [apiary, setApiary] = useState<Apiary | null>(null);
     const [snapshots, setSnapshots] = useState<HiveSnapshot[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -117,6 +120,15 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
     const [editName, setEditName] = useState('');
     const [editApiaryId, setEditApiaryId] = useState('');
 
+    // Ownership Check: Returns true if allowed, false if blocked
+    const checkOwnership = (): boolean => {
+        if (apiary && userId && apiary.user_id !== userId) {
+            alert('Only the apiary owner can make changes.');
+            return false;
+        }
+        return true;
+    };
+
     const fetchData = async () => {
         setLoading(true);
         const { data: hiveData } = await supabase.from('hives').select('*').eq('id', hiveId).single();
@@ -124,6 +136,10 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
             setHive(hiveData);
             setEditName(hiveData.name);
             setEditApiaryId(hiveData.apiary_id);
+
+            // Fetch the apiary to determine ownership
+            const { data: apiaryData } = await supabase.from('apiaries').select('*').eq('id', hiveData.apiary_id).single();
+            if (apiaryData) setApiary(apiaryData);
 
             const { data: snapshotData } = await supabase
                 .from('hive_snapshots')
@@ -143,6 +159,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
 
     const confirmSnapshotDelete = async () => {
         if (!snapshotToDelete) return;
+        if (!checkOwnership()) return;
         const { error } = await supabase.from('hive_snapshots').delete().eq('id', snapshotToDelete.id);
         if (error) {
             console.error('Failed to delete snapshot:', error);
@@ -154,6 +171,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
     };
 
     const handleOpenSettings = async () => {
+        if (!checkOwnership()) return;
         const { data } = await supabase.from('apiaries').select('*');
         setApiaryList(data || []);
         setIsEditingSettings(true);
@@ -161,6 +179,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
 
     const handleSaveSettings = async () => {
         if (!editName.trim()) return;
+        if (!checkOwnership()) return;
         const { error } = await supabase
             .from('hives')
             .update({ name: editName, apiary_id: editApiaryId })
@@ -217,6 +236,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                         hiveId={hive.id}
                         onSnapshotCreate={() => { fetchData(); setSelectedSnapshotId(null); }}
                         readOnly={!!selectedSnapshotId}
+                        isOwner={!apiary || apiary.user_id === userId}
                     />
                 </div>
 
@@ -268,7 +288,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                     <div className="space-y-3">
                         <div className="flex items-center gap-6 mb-2">
                             <h3 className="text-xs font-bold text-[#4A3C28] uppercase tracking-wide opacity-80">Recent Inspections</h3>
-                            <button onClick={() => setIsAddingInspection(true)} className="text-xs bg-white border border-[#E67E22] text-[#E67E22] px-3 py-1 rounded hover:bg-[#E67E22] hover:text-white font-semibold">+ Add</button>
+                            <button onClick={() => { if (checkOwnership()) setIsAddingInspection(true); }} className="text-xs bg-white border border-[#E67E22] text-[#E67E22] px-3 py-1 rounded hover:bg-[#E67E22] hover:text-white font-semibold">+ Add</button>
                         </div>
                         <Modal isOpen={isAddingInspection} onClose={() => setIsAddingInspection(false)} title="New Inspection">
                             <InspectionForm
@@ -282,7 +302,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                             hive={hive}
                             refreshKey={inspectionRefreshKey}
                             onRefresh={() => setInspectionRefreshKey(p => p + 1)}
-                            onEdit={(item) => { setEditingInspection(item); setIsAddingInspection(true); }}
+                            onEdit={(item) => { if (checkOwnership()) { setEditingInspection(item); setIsAddingInspection(true); } }}
                         />
                     </div>
                 )}
@@ -291,7 +311,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                     <div className="space-y-3">
                         <div className="flex items-center gap-6 mb-2">
                             <h3 className="text-xs font-bold text-[#4A3C28] uppercase tracking-wide opacity-80">Recent Interventions</h3>
-                            <button onClick={() => setIsAddingIntervention(true)} className="text-xs bg-white border border-[#E67E22] text-[#E67E22] px-3 py-1 rounded hover:bg-[#E67E22] hover:text-white font-semibold">+ Add</button>
+                            <button onClick={() => { if (checkOwnership()) setIsAddingIntervention(true); }} className="text-xs bg-white border border-[#E67E22] text-[#E67E22] px-3 py-1 rounded hover:bg-[#E67E22] hover:text-white font-semibold">+ Add</button>
                         </div>
                         <Modal isOpen={isAddingIntervention} onClose={() => setIsAddingIntervention(false)} title="Add Intervention">
                             <InterventionForm
@@ -305,7 +325,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                             hive={hive}
                             refreshKey={interventionRefreshKey}
                             onRefresh={() => setInterventionRefreshKey(p => p + 1)}
-                            onEdit={(item) => { setEditingIntervention(item); setIsAddingIntervention(true); }}
+                            onEdit={(item) => { if (checkOwnership()) { setEditingIntervention(item); setIsAddingIntervention(true); } }}
                         />
                     </div>
                 )}
@@ -315,7 +335,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-4">
                                 <h3 className="text-xs font-bold text-[#4A3C28] uppercase tracking-wide opacity-80">Pending Tasks</h3>
-                                <button onClick={() => setIsAddingTask(true)} className="text-xs bg-white border border-[#E67E22] text-[#E67E22] px-3 py-1 rounded hover:bg-[#E67E22] hover:text-white font-semibold">+ Add</button>
+                                <button onClick={() => { if (checkOwnership()) setIsAddingTask(true); }} className="text-xs bg-white border border-[#E67E22] text-[#E67E22] px-3 py-1 rounded hover:bg-[#E67E22] hover:text-white font-semibold">+ Add</button>
                             </div>
                             <label className="flex items-center text-[10px] text-gray-500 cursor-pointer select-none space-x-1.5 hover:text-gray-700 bg-white px-2 py-1 rounded border border-gray-100">
                                 <input type="checkbox" checked={showCompletedTasks} onChange={(e) => setShowCompletedTasks(e.target.checked)} className="w-3 h-3 text-gray-500 border-gray-300 rounded focus:ring-0" />
@@ -335,7 +355,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                             hive={hive}
                             refreshKey={taskRefreshKey}
                             onRefresh={() => setTaskRefreshKey(p => p + 1)}
-                            onEdit={(item) => { setEditingTask(item); setIsAddingTask(true); }}
+                            onEdit={(item) => { if (checkOwnership()) { setEditingTask(item); setIsAddingTask(true); } }}
                             showCompleted={showCompletedTasks}
                         />
                     </div>
