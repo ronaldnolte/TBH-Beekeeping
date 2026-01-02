@@ -9,6 +9,9 @@ interface MentorProfile {
     display_name: string;
     location: string;
     bio: string;
+    users?: {
+        email: string;
+    };
 }
 
 interface ShareApiaryModalProps {
@@ -33,10 +36,10 @@ export function ShareApiaryModal({ apiaryId, apiaryName, onClose, onSuccess }: S
             setLoading(true);
             try {
                 // Fetch all mentors who are accepting students
-                // Note: RLS protects this table, so we only see public mentors
+                // Join with 'users' to get email for search (requires RLS policy update)
                 const { data, error } = await supabase
                     .from('mentor_profiles')
-                    .select('*')
+                    .select('*, users!inner(email)')
                     .eq('is_accepting_students', true)
                     .neq('user_id', userId); // Don't show myself
 
@@ -82,7 +85,8 @@ export function ShareApiaryModal({ apiaryId, apiaryName, onClose, onSuccess }: S
     // Filter Logic
     const filteredMentors = mentors.filter(m =>
         (m.display_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (m.location?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+        (m.location?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (m.users?.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -93,13 +97,18 @@ export function ShareApiaryModal({ apiaryId, apiaryName, onClose, onSuccess }: S
                         Sharing <strong>{apiaryName}</strong> allows a mentor to view your hive logs (read-only). They cannot edit or delete your data.
                     </div>
 
-                    <input
-                        type="text"
-                        placeholder="Search by name or location..."
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                        className="w-full px-3 py-2 border rounded"
-                    />
+                    <div className="space-y-1">
+                        <input
+                            type="text"
+                            placeholder="Search by name, location, or email..."
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                            className="w-full px-3 py-2 border rounded"
+                        />
+                        <div className="text-xs text-gray-500 text-right">
+                            * Requires Mentor Email Lookup Policy
+                        </div>
+                    </div>
 
                     <div className="max-h-60 overflow-y-auto border rounded border-gray-200 bg-gray-50">
                         {loading ? (
