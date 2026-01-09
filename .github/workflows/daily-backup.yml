@@ -1,0 +1,61 @@
+name: Daily Production Backup
+
+on:
+  schedule:
+    # Run at 03:00 UTC everyday
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: Backup Supabase
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to push the backup file to the repo
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Create Backup
+        env:
+          # You must add this secret in GitHub Repo Settings
+          DATABASE_URL: ${{ secrets.PRODUCTION_DB_URL }}
+        run: |
+          # 1. Install postgres client
+          sudo apt-get update && sudo apt-get install -y postgresql-client
+
+          # 2. Prepare backup directory
+          mkdir -p backups
+          
+          # 3. Generate filename
+          TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
+          FILENAME="backups/prod_backup_${TIMESTAMP}.sql"
+          
+          # 4. Run Dump
+          # The connection string contains everything needed
+          pg_dump "$DATABASE_URL" \
+            --clean \
+            --if-exists \
+            --quote-all-identifiers \
+            --no-owner \
+            --no-privileges \
+            --file="$FILENAME"
+
+      - name: Retention Policy (Delete backups older than 30 days)
+        run: |
+          find backups -name "*.sql" -type f -mtime +30 -delete
+
+      - name: Commit and Push Backup
+        run: |
+            git config --global user.name "Backup Bot"
+            git config --global user.email "backup@tbh-beekeeper.com"
+            
+            # Check if there are changes to commit
+            if [ -n "$(git status --porcelain)" ]; then
+              git add backups/
+              git commit -m "chore: automated database backup [skip ci]"
+              git push
+            else
+              echo "No changes to commit"
+            fi
