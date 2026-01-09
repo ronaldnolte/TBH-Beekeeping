@@ -2,9 +2,41 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-// CONSTANTS (Hardcoded for convenience based on your environment)
-const PROD_URL = "postgres://postgres.ayeqrbcvihztxbrxmrth:tbhSupa5723@aws-1-us-east-2.pooler.supabase.com:6543/postgres";
-const DEV_URL = "postgres://postgres.wrdnwzgztwzoigkoebeq:tbhSupa5723@aws-0-us-west-2.pooler.supabase.com:6543/postgres";
+const fs = require('fs');
+const path = require('path');
+
+// Load .env manually to avoid dependency issues
+function loadEnv() {
+    try {
+        const envPath = path.resolve(__dirname, '..', '.env');
+        if (fs.existsSync(envPath)) {
+            const envConfig = fs.readFileSync(envPath, 'utf8');
+            envConfig.split(/\r?\n/).forEach(line => {
+                const match = line.match(/^([^=]+)=(.*)$/);
+                if (match) {
+                    const key = match[1].trim();
+                    const value = match[2].trim().replace(/^["']|["']$/g, ''); // strip quotes
+                    if (!process.env[key]) {
+                        process.env[key] = value;
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.warn("⚠️  Could not load .env file");
+    }
+}
+
+loadEnv();
+
+const PROD_URL = process.env.PROD_DB_URL;
+const DEV_URL = process.env.DEV_DB_URL;
+
+if (!PROD_URL || !DEV_URL) {
+    console.error("❌ Error: Missing PROD_DB_URL or DEV_DB_URL environment variables.");
+    console.error("   Please ensure .env file exists in the root directory.");
+    process.exit(1);
+}
 
 const NODE = 'node';
 
