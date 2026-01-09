@@ -21,12 +21,15 @@ const client = new Client({
 // Order matters! Parent tables must be restored before children.
 const RESTORE_ORDER = [
     'users',
+    'mentor_profiles',
+    'user_roles',
     'apiaries',
     'hives',
     'hive_snapshots',
     'inspections',
     'interventions',
     'tasks',
+    'apiary_shares',
     'weather_forecasts'
 ];
 
@@ -71,10 +74,15 @@ async function restore() {
                     const values = columns.map(c => row[c]);
                     const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
 
+                    const pkMap = {
+                        'mentor_profiles': 'user_id'
+                    };
+                    const pk = pkMap[table] || 'id';
+
                     const query = `
                         INSERT INTO "${table}" (${quotedColumns}) 
                         VALUES (${placeholders})
-                        ON CONFLICT (id) DO NOTHING; -- Skip if exists (or DO UPDATE based on needs)
+                        ON CONFLICT ("${pk}") DO NOTHING;
                     `;
 
                     try {
