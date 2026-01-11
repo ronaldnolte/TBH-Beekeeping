@@ -20,6 +20,9 @@ export default function AdminMentorPage() {
     const [bio, setBio] = useState('');
     const [isMentor, setIsMentor] = useState(false);
 
+    // Ban State
+    const [isBanned, setIsBanned] = useState(false);
+
     if (authLoading) return <div className="p-8 text-center text-gray-500">Verifying access...</div>;
 
     if (!isAdmin) {
@@ -73,6 +76,14 @@ export default function AdminMentorPage() {
                 .eq('user_id', userId)
                 .maybeSingle();
 
+            // 3. Fetch Banned Status (Check user_roles)
+            const { data: bannedRole } = await supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', userId)
+                .eq('role', 'banned')
+                .maybeSingle();
+
             if (profileError) {
                 console.error('Profile Fetch Error:', profileError);
                 setMessage(`Profile Query Failed: ${profileError.message}`);
@@ -81,21 +92,22 @@ export default function AdminMentorPage() {
             }
 
             setSearchResult({ id: userId });
+            setIsBanned(!!bannedRole); // Set banned state
 
             if (profile) {
                 setDisplayName(profile.display_name || '');
                 setLocation(profile.location || '');
                 setBio(profile.bio || '');
                 setIsMentor(true);
-                setMessage('✅ User Found: Existing Mentor Profile Loaded.');
+                setMessage('✅ User Found: Loaded existing profile.');
             } else {
-                // Fetch display name from public users table
-                const { data: userData } = await supabase.from('users').select('display_name').eq('id', userId).single();
+                // Fetch display name from public users table (if available) - purely for UI helpfulness
+                const { data: userData } = await supabase.from('users').select('display_name').eq('id', userId).maybeSingle();
                 setDisplayName(userData?.display_name || '');
                 setLocation('');
                 setBio('');
                 setIsMentor(false);
-                setMessage('✅ User Found. This user is not yet a mentor.');
+                setMessage('✅ User Found.');
             }
 
         } catch (err: any) {
@@ -111,11 +123,10 @@ export default function AdminMentorPage() {
         setLoading(true);
 
         try {
+            // 1. Handle Mentor Profile
             if (!isMentor) {
                 const { error } = await supabase.from('mentor_profiles').delete().eq('user_id', searchResult.id);
                 if (error) throw error;
-                setMessage('Mentor profile removed.');
-                setDisplayName(''); setLocation(''); setBio(''); setIsMentor(false); setSearchResult(null);
             } else {
                 const { error } = await supabase.from('mentor_profiles').upsert({
                     user_id: searchResult.id,
@@ -125,8 +136,22 @@ export default function AdminMentorPage() {
                     is_accepting_students: true
                 });
                 if (error) throw error;
-                setMessage('Success! Mentor profile updated.');
             }
+
+            // 2. Handle Banned Role
+            if (isBanned) {
+                // Add 'banned' role
+                const { error } = await supabase.from('user_roles').upsert({ user_id: searchResult.id, role: 'banned' }, { onConflict: 'user_id, role' });
+                if (error) throw error;
+            } else {
+                // Remove 'banned' role
+                const { error } = await supabase.from('user_roles').delete().eq('user_id', searchResult.id).eq('role', 'banned');
+                if (error) throw error;
+            }
+
+            // 3. Reset UI but keep search result for feedback
+            setMessage('Success! User settings updated.');
+
         } catch (err: any) {
             setMessage('Save Error: ' + err.message);
         } finally {
@@ -153,7 +178,7 @@ export default function AdminMentorPage() {
 
             <div className="flex-1 p-8">
                 <div className="max-w-2xl mx-auto bg-white rounded-lg shadow border border-[#E6DCC3] p-8">
-                    <h2 className="text-2xl font-bold text-[#4A3C28] mb-6 border-b pb-4">Manage Mentors</h2>
+                    <h2 className="text-2xl font-bold text-[#4A3C28] mb-6 border-b pb-4">Manage Users</h2>
 
                     {/* Search */}
                     <form onSubmit={handleSearch} className="mb-8 p-4 bg-gray-50 rounded border border-gray-200">
@@ -180,57 +205,84 @@ export default function AdminMentorPage() {
 
                     {/* Edit Form */}
                     {searchResult && (
-                        <div className="space-y-4 border-t pt-6">
-                            <div className="flex items-center gap-2 mb-4">
-                                <input
-                                    type="checkbox"
-                                    id="isMentor"
-                                    checked={isMentor}
-                                    onChange={e => setIsMentor(e.target.checked)}
-                                    className="w-5 h-5 text-amber-500 rounded focus:ring-amber-500"
-                                />
-                                <label htmlFor="isMentor" className="font-bold text-gray-800 select-none">Enable Mentor Profile</label>
-                            </div>
+                        <div className="space-y-6 border-t pt-6">
 
-                            {isMentor && (
-                                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                            {/* Ban Controls */}
+                            <div className="p-4 bg-red-50 border border-red-200 rounded">
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="checkbox"
+                                        id="isBanned"
+                                        checked={isBanned}
+                                        onChange={e => setIsBanned(e.target.checked)}
+                                        className="w-5 h-5 text-red-600 rounded focus:ring-red-500 border-gray-300"
+                                    />
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Display Name (Public)</label>
-                                        <input
-                                            type="text"
-                                            value={displayName}
-                                            onChange={e => setDisplayName(e.target.value)}
-                                            className="mt-1 w-full px-3 py-2 border rounded shadow-sm"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Location (e.g. "Austin, TX")</label>
-                                        <input
-                                            type="text"
-                                            value={location}
-                                            onChange={e => setLocation(e.target.value)}
-                                            className="mt-1 w-full px-3 py-2 border rounded shadow-sm"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Bio / Credentials</label>
-                                        <textarea
-                                            rows={3}
-                                            value={bio}
-                                            onChange={e => setBio(e.target.value)}
-                                            className="mt-1 w-full px-3 py-2 border rounded shadow-sm"
-                                        />
+                                        <label htmlFor="isBanned" className="font-bold text-red-800 select-none block">
+                                            SUSPEND ACCOUNT (Soft Ban)
+                                        </label>
+                                        <p className="text-xs text-red-600">
+                                            User will be effectively locked out. They can log in, but cannot see or edit any data.
+                                        </p>
                                     </div>
                                 </div>
-                            )}
+                            </div>
+
+                            {/* Mentor Controls */}
+                            <div className="p-4 bg-amber-50 border border-amber-200 rounded">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <input
+                                        type="checkbox"
+                                        id="isMentor"
+                                        checked={isMentor}
+                                        onChange={e => setIsMentor(e.target.checked)}
+                                        className="w-5 h-5 text-amber-500 rounded focus:ring-amber-500"
+                                    />
+                                    <label htmlFor="isMentor" className="font-bold text-gray-800 select-none">Enable Mentor Profile</label>
+                                </div>
+
+                                {isMentor && (
+                                    <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 pl-7">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Display Name (Public)</label>
+                                            <input
+                                                type="text"
+                                                value={displayName}
+                                                onChange={e => setDisplayName(e.target.value)}
+                                                className="mt-1 w-full px-3 py-2 border rounded shadow-sm"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Location (e.g. "Austin, TX")</label>
+                                            <input
+                                                type="text"
+                                                value={location}
+                                                onChange={e => setLocation(e.target.value)}
+                                                className="mt-1 w-full px-3 py-2 border rounded shadow-sm"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Bio / Credentials</label>
+                                            <textarea
+                                                rows={3}
+                                                value={bio}
+                                                onChange={e => setBio(e.target.value)}
+                                                className="mt-1 w-full px-3 py-2 border rounded shadow-sm"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
 
                             <div className="pt-4 flex justify-between">
                                 <button
                                     onClick={() => {
                                         setSearchResult(null);
-                                        setDisplayName(''); setLocation(''); setBio(''); setIsMentor(false); setMessage(''); setEmail('');
+                                        setDisplayName(''); setLocation(''); setBio('');
+                                        setIsMentor(false); setIsBanned(false);
+                                        setMessage(''); setEmail('');
                                     }}
                                     className="px-4 py-2 border border-gray-300 text-gray-600 rounded hover:bg-gray-100"
                                 >
