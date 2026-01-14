@@ -1,7 +1,10 @@
 const fs = require('fs');
 
-const devSchema = JSON.parse(fs.readFileSync('dev_schema.json', 'utf8'));
-const prodSchema = JSON.parse(fs.readFileSync('prod_schema.json', 'utf8'));
+const devFile = process.argv[2] || 'dev_schema.json';
+const prodFile = process.argv[3] || 'prod_schema.json';
+
+const devSchema = JSON.parse(fs.readFileSync(devFile, 'utf8'));
+const prodSchema = JSON.parse(fs.readFileSync(prodFile, 'utf8'));
 
 console.log("📊 SCHEMA COMPARISON REPORT\n");
 
