@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@next/third-parties": "^16.1.1",
     "@supabase/supabase-js": "^2.88.0",
     "@tbh-beekeeper/shared": "workspace:*",
     "cross-fetch": "^4.1.0",
