@@ -8,6 +8,7 @@ Before responding to any request, you MUST read these files:
 2. **[.agent/DEVELOPMENT_STANDARDS.md](./.agent/DEVELOPMENT_STANDARDS.md)** - Development process and standards
 3. **[.agent/TBH_PROJECT_BLUEPRINT.md](./.agent/TBH_PROJECT_BLUEPRINT.md)** - Permanent Project Blueprint & Role Definition
 4. **[DATABASE_OPERATIONS.md](./DATABASE_OPERATIONS.md)** - **CRITICAL**: Protocols for Syncing Environments & Releasing Code.
+5. **[ANALYTICS_SETUP.md](./ANALYTICS_SETUP.md)** - Google Analytics configuration and environment variable setup.
 
 These files define:
 - Your role as senior TypeScript/React architect
