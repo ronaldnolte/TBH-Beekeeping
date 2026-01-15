@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { WeatherService, InspectionWindow } from '@tbh-beekeeper/shared';
+import { ScoringHelpModal } from './ScoringHelpModal';
 
 interface ForecastGridProps {
     apiaryId: string;
@@ -15,6 +16,7 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedWindow, setSelectedWindow] = useState<InspectionWindow | null>(null);
+    const [showHelpModal, setShowHelpModal] = useState(false);
 
     useEffect(() => {
         const fetchForecast = async () => {
@@ -135,8 +137,16 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                 </div>
 
                 {/* Help Link */}
-                <div className="text-center text-xs text-gray-500 italic">
-                    Tap a score for details
+                <div className="flex flex-col items-center gap-2">
+                    <div className="text-center text-xs text-gray-500 italic">
+                        Tap a score for details
+                    </div>
+                    <button
+                        onClick={() => setShowHelpModal(true)}
+                        className="text-xs text-amber-600 hover:text-amber-700 font-bold underline decoration-dotted underline-offset-4 transition-colors"
+                    >
+                        How are these scores calculated?
+                    </button>
                 </div>
             </div>
 
@@ -171,7 +181,8 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                                             return <td key={dateStr} className="border border-gray-300 bg-gray-100 h-12 w-16"></td>;
                                         }
 
-                                        const textColor = window.score < 40 ? 'text-black' : window.issues.length > 0 ? 'text-red-600' : 'text-white';
+                                        const isFail = window.score < 40 || window.issues.length > 0;
+                                        const textColor = isFail ? 'text-black' : 'text-white';
 
                                         return (
                                             <td
@@ -208,10 +219,16 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                         </div>
 
                         {/* Score Banner */}
-                        <div className={`${getScoreColor(selectedWindow.score)} rounded-lg p-6 text-center mb-4`}>
+                        <div className={`${getScoreColor(selectedWindow.score)} rounded-lg p-6 text-center mb-3`}>
                             <div className="text-5xl font-bold text-white">{Math.round(selectedWindow.score)}</div>
                             <div className="text-white font-medium">Overall Score</div>
                         </div>
+                        <button
+                            onClick={() => { setSelectedWindow(null); setShowHelpModal(true); }}
+                            className="w-full text-center text-xs text-amber-600 hover:text-amber-700 font-medium underline decoration-dotted underline-offset-4 mb-4"
+                        >
+                            How are these scores calculated?
+                        </button>
 
                         {/* Stats Grid */}
                         <div className="grid grid-cols-2 gap-3 mb-4">
@@ -287,6 +304,9 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                     </div>
                 </div>
             )}
+
+            {/* Scoring Help Modal */}
+            <ScoringHelpModal isOpen={showHelpModal} onClose={() => setShowHelpModal(false)} />
         </div>
     );
 }
