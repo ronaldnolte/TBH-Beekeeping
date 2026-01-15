@@ -34,9 +34,8 @@ jobs:
           TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
           FILENAME="backups/prod_backup_${TIMESTAMP}.sql"
           
-          # 4. Run Dump
-          # The connection string contains everything needed
-          pg_dump "$DATABASE_URL" \
+          # 4. Run Dump (use full path for pg17)
+          /usr/lib/postgresql/17/bin/pg_dump "$DATABASE_URL" \
             --clean \
             --if-exists \
             --quote-all-identifiers \
