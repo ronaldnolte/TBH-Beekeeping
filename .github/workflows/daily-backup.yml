@@ -22,8 +22,10 @@ jobs:
           # You must add this secret in GitHub Repo Settings
           DATABASE_URL: ${{ secrets.PRODUCTION_DB_URL }}
         run: |
-          # 1. Install postgres client
-          sudo apt-get update && sudo apt-get install -y postgresql-client
+          # 1. Install postgres 17 client (must match Supabase server version)
+          sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo apt-get update && sudo apt-get install -y postgresql-client-17
 
           # 2. Prepare backup directory
           mkdir -p backups
