@@ -133,6 +133,9 @@ export class WeatherService {
                     if (maxPrecipRate > 0.02) issues.push("Raining");
                     if (hasStorm) issues.push("Stormy Weather");
 
+                    // TBH-specific: High heat issue (always enabled for TBH app)
+                    if (avgTemp > 92) issues.push("Temperature > 92°F (comb slump risk)");
+
                     let totalScore = 0;
                     const breakdown: Record<string, number> = {};
 
@@ -144,6 +147,15 @@ export class WeatherService {
                     else if (avgTemp >= 60) tempScore = 27;
                     else if (avgTemp >= 57) tempScore = 18;
                     else if (avgTemp >= 55) tempScore = 8;
+
+                    // TBH-specific: High heat penalty (-10 pts per 5°F above 80°F)
+                    // Always enabled for TBH app
+                    if (avgTemp > 80) {
+                        const degreesAbove80 = avgTemp - 80;
+                        const penalty = Math.floor(degreesAbove80 / 5) * 10;
+                        tempScore = Math.max(0, tempScore - penalty);
+                    }
+
                     breakdown['Temperature'] = tempScore;
                     totalScore += tempScore;
 
