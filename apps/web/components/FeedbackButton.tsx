@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function FeedbackButton() {
     const [isHovered, setIsHovered] = useState(false);
@@ -8,6 +8,22 @@ export default function FeedbackButton() {
     const [message, setMessage] = useState('');
     const [replyTo, setReplyTo] = useState('');
     const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+    const [showPulse, setShowPulse] = useState(false);
+
+    useEffect(() => {
+        const hasSeenFeedback = localStorage.getItem('hasSeenFeedbackFeature');
+        if (!hasSeenFeedback) {
+            setShowPulse(true);
+        }
+    }, []);
+
+    const handleOpen = () => {
+        setIsOpen(true);
+        if (showPulse) {
+            setShowPulse(false);
+            localStorage.setItem('hasSeenFeedbackFeature', 'true');
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -36,9 +52,21 @@ export default function FeedbackButton() {
 
     return (
         <>
+            <style>{`
+                @keyframes custom-pulse {
+                    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+                    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+                    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+                }
+                .notification-pulse {
+                    animation: custom-pulse 2s infinite;
+                    border-radius: 50%;
+                }
+            `}</style>
+
             {/* Floating Button */}
             <button
-                onClick={() => setIsOpen(true)}
+                onClick={handleOpen}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 style={{
@@ -75,6 +103,24 @@ export default function FeedbackButton() {
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                     <polyline points="22,6 12,13 2,6" />
                 </svg>
+
+                {/* Pulse Notification Dot */}
+                {showPulse && (
+                    <div
+                        className="notification-pulse"
+                        style={{
+                            position: 'absolute',
+                            top: '2px',
+                            right: '2px',
+                            width: '12px',
+                            height: '12px',
+                            backgroundColor: '#ef4444',
+                            borderRadius: '50%',
+                            border: '2px solid white',
+                            zIndex: 1,
+                        }}
+                    />
+                )}
             </button>
 
             {/* Modal Overlay */}
