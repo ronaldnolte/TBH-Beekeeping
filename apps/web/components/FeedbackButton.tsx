@@ -21,7 +21,7 @@ export default function FeedbackButton() {
             style={{
                 position: 'fixed',
                 bottom: '20px',
-                right: '20px',
+                left: '20px',
                 width: '56px',
                 height: '56px',
                 borderRadius: '50%',
