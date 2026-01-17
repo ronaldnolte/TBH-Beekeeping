@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
+import FeedbackButton from "../components/FeedbackButton";
 
 
 
@@ -46,6 +47,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
+        <FeedbackButton />
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} />
       </body>
     </html>
