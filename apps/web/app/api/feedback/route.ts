@@ -20,9 +20,13 @@ export async function POST(request: Request) {
         console.log('Attempting to send feedback using user:', user ? `${user.substring(0, 3)}...` : 'undefined');
 
         if (!user || !pass) {
-            console.error('Missing Gmail credentials in .env.local');
+            const missing = !user && !pass ? 'GMAIL_USER and GMAIL_APP_PASSWORD' : !user ? 'GMAIL_USER' : 'GMAIL_APP_PASSWORD';
+            console.error(`Missing Gmail credentials in .env.local: ${missing}`);
             return NextResponse.json(
-                { error: 'Server configuration error' },
+                {
+                    error: 'Server configuration error',
+                    details: `Missing environment variable(s): ${missing}. Please ensure these are set in the Vercel project settings.`
+                },
                 { status: 500 }
             );
         }

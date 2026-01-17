@@ -8,6 +8,7 @@ export default function FeedbackButton() {
     const [message, setMessage] = useState('');
     const [replyTo, setReplyTo] = useState('');
     const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+    const [errorDetails, setErrorDetails] = useState<string | null>(null);
     const [showPulse, setShowPulse] = useState(false);
 
     useEffect(() => {
@@ -36,13 +37,20 @@ export default function FeedbackButton() {
                 body: JSON.stringify({ message, replyTo }),
             });
 
-            if (!res.ok) throw new Error('Failed to send');
+            const data = await res.json();
+
+            if (!res.ok) {
+                setErrorDetails(data.details || data.error || 'Failed to send');
+                throw new Error(data.error || 'Failed to send');
+            }
 
             setStatus('success');
             setTimeout(() => {
                 setIsOpen(false);
                 setMessage('');
+                setReplyTo('');
                 setStatus('idle');
+                setErrorDetails(null);
             }, 2000);
         } catch (error) {
             console.error(error);
@@ -179,8 +187,10 @@ export default function FeedbackButton() {
                                     </div>
 
                                     {status === 'error' && (
-                                        <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
-                                            Failed to send. Please try again or email feedback@beektools.com
+                                        <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg flex flex-col gap-1">
+                                            <div className="font-bold">Failed to send.</div>
+                                            {errorDetails && <div className="text-xs opacity-80">{errorDetails}</div>}
+                                            <div className="text-xs mt-1 italic">You can also email feedback@beektools.com</div>
                                         </div>
                                     )}
 
