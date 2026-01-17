@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
+// Force rebuild: 2026-01-17T14:32:00
 export async function POST(request: Request) {
     try {
         const { message, replyTo } = await request.json();
