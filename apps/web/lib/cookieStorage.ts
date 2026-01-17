@@ -55,8 +55,27 @@ export const cookieStorage = {
 
     setItem: (key: string, value: string): void => {
         console.log('[CookieStorage] Setting item:', key);
-        setCookie(key, value);
-        console.log('[CookieStorage] Saved to cookie');
+
+        let options = { ...COOKIE_OPTIONS };
+
+        // Check if this is a guest session
+        try {
+            // Supabase sessions are JSON strings containing a 'user' object
+            const session = JSON.parse(value);
+            if (session?.user?.email === 'guest@beektools.com') {
+                console.log('[CookieStorage] Guest session detected - using non-persistent session cookie');
+                // By omitting max-age, the cookie becomes a "session cookie"
+                // which expires when the browser/WebView is closed.
+                const { maxAge, ...sessionOptions } = options;
+                options = sessionOptions as any;
+            }
+        } catch (e) {
+            // If parsing fails, just use default persistent options
+            console.warn('[CookieStorage] Failed to parse session value during setItem:', e);
+        }
+
+        setCookie(key, value, options);
+        console.log('[CookieStorage] Saved to cookie', options.maxAge ? '(Persistent)' : '(Session only)');
     },
 
     removeItem: (key: string): void => {
