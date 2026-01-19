@@ -165,13 +165,13 @@ export const InspectionForm = ({ hiveId, initialData, onSuccess, onCancel }: { h
             </div>
 
             <div className="space-y-1">
-                <label className="block text-xs font-medium text-gray-700">Observations</label>
+                <label className="block text-xs font-medium text-gray-700">Notes</label>
                 <textarea
                     value={observations}
                     onChange={e => setObservations(e.target.value)}
                     rows={3}
                     className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:ring-amber-500 focus:border-amber-500"
-                    placeholder="Notes..."
+                    placeholder="Inspection notes..."
                 />
             </div>
 

@@ -89,7 +89,7 @@ export function InterventionForm({ hiveId, initialData, onSuccess, onCancel }: {
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
                 <textarea
                     rows={3}
                     value={description}

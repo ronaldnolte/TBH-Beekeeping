@@ -32,6 +32,7 @@ export function HiveForm({
 }) {
     const [name, setName] = useState(initialData?.name || '');
     const [barCount, setBarCount] = useState(initialData?.bar_count || 30);
+    const [notes, setNotes] = useState(initialData?.notes || '');
     const [isSaving, setIsSaving] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -42,7 +43,8 @@ export function HiveForm({
             if (initialData) {
                 const { error } = await supabase.from('hives').update({
                     name,
-                    bar_count: barCount
+                    bar_count: barCount,
+                    notes: notes
                     // TODO: Handle bar resizing logic if count changes (complex)
                 }).eq('id', initialData.id);
                 if (error) throw error;
@@ -54,6 +56,7 @@ export function HiveForm({
                     apiary_id: apiaryId,
                     name,
                     bar_count: barCount,
+                    notes: notes,
                     is_active: true,
                     bars: initialBars
                 }).select().single();
@@ -94,6 +97,17 @@ export function HiveForm({
                     onChange={e => setName(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none transition-all"
                     placeholder="e.g. Hive Alpha"
+                />
+            </div>
+
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <textarea
+                    value={notes}
+                    onChange={e => setNotes(e.target.value)}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none transition-all"
+                    placeholder="Optional notes about this hive..."
                 />
             </div>
 

@@ -230,6 +230,13 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
 
             <div className="max-w-7xl mx-auto p-2 space-y-3">
                 <div id="hive-snapshots">
+                    {/* Notes Display */}
+                    {hive.notes && (
+                        <div className="bg-white rounded-lg shadow-sm p-3 border border-gray-100 mb-3 text-sm text-gray-700">
+                            <strong>Notes:</strong> {hive.notes}
+                        </div>
+                    )}
+
                     <BarVisualizer
                         hive={hive}
                         snapshot={displayedSnapshot}
@@ -374,9 +381,36 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                             {apiaryList.map(apiary => <option key={apiary.id} value={apiary.id}>{apiary.name} {apiary.zip_code === '00000' ? '(Unassigned)' : ''}</option>)}
                         </select>
                     </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                        <textarea
+                            value={hive?.notes || ''}
+                            onChange={e => setHive(prev => prev ? { ...prev, notes: e.target.value } : null)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#E67E22] outline-none"
+                            placeholder="Optional notes..."
+                        />
+                    </div>
                     <div className="flex justify-end gap-3 pt-2">
                         <button onClick={() => setIsEditingSettings(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancel</button>
-                        <button onClick={handleSaveSettings} className="px-4 py-2 bg-[#E67E22] text-white rounded font-bold hover:bg-[#D35400]">Save Changes</button>
+                        <button onClick={async () => {
+                            if (!editName.trim()) return;
+                            if (!checkOwnership()) return;
+                            const { error } = await supabase
+                                .from('hives')
+                                .update({
+                                    name: editName,
+                                    apiary_id: editApiaryId,
+                                    notes: hive?.notes
+                                })
+                                .eq('id', hiveId);
+
+                            if (error) {
+                                alert('Failed to update hive');
+                            } else {
+                                setIsEditingSettings(false);
+                                fetchData();
+                            }
+                        }} className="px-4 py-2 bg-[#E67E22] text-white rounded font-bold hover:bg-[#D35400]">Save Changes</button>
                     </div>
                 </div>
             </Modal>
