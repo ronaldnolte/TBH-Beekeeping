@@ -8,4 +8,5 @@ export { default as Inspection } from './models/Inspection';
 export { default as Intervention } from './models/Intervention';
 export { default as Task } from './models/Task';
 export { default as WeatherForecast } from './models/WeatherForecast';
+export * from './models/FeatureRequest';
 export * from './services/WeatherService';

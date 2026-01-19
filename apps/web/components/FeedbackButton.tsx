@@ -161,63 +161,86 @@ export default function FeedbackButton() {
                                     <p className="text-gray-600">Thanks for your feedback.</p>
                                 </div>
                             ) : (
-                                <form onSubmit={handleSubmit} className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Your Message</label>
-                                        <textarea
-                                            required
-                                            value={message}
-                                            onChange={(e) => setMessage(e.target.value)}
-                                            placeholder="What's on your mind? Suggestions, bugs, or questions..."
-                                            className="w-full min-h-[120px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F5A623] focus:border-[#F5A623] outline-none resize-none"
-                                        />
+                                <div className="space-y-6">
+                                    {/* New Roadmap Link */}
+                                    <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                                        <h4 className="font-bold text-amber-900 mb-1">Have a Feature Idea? 💡</h4>
+                                        <p className="text-sm text-amber-800/80 mb-3">Vote on existing requests or submit your own ideas to our public roadmap.</p>
+                                        <a
+                                            href="/feedback"
+                                            className="block w-full text-center bg-white border border-amber-300 text-amber-700 py-2 rounded-lg font-bold hover:bg-amber-100 transition-colors"
+                                        >
+                                            View Roadmap & Vote →
+                                        </a>
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Your Email <span className="text-gray-400 font-normal">(Optional)</span>
-                                        </label>
-                                        <input
-                                            type="email"
-                                            value={replyTo}
-                                            onChange={(e) => setReplyTo(e.target.value)}
-                                            placeholder="If you'd like a reply..."
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F5A623] focus:border-[#F5A623] outline-none"
-                                        />
-                                    </div>
-
-                                    {status === 'error' && (
-                                        <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg flex flex-col gap-1">
-                                            <div className="font-bold">Failed to send.</div>
-                                            {errorDetails && <div className="text-xs opacity-80">{errorDetails}</div>}
-                                            <div className="text-xs mt-1 italic">You can also email feedback@beektools.com</div>
+                                    <div className="relative">
+                                        <div className="absolute inset-0 flex items-center">
+                                            <div className="w-full border-t border-gray-200"></div>
                                         </div>
-                                    )}
-
-                                    <div className="flex justify-end gap-3 pt-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => setIsOpen(false)}
-                                            className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="submit"
-                                            disabled={status === 'sending' || !message.trim()}
-                                            className="bg-[#8B4513] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#723910] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                                        >
-                                            {status === 'sending' ? (
-                                                <>
-                                                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                                                    Sending...
-                                                </>
-                                            ) : (
-                                                <>Send Feedback 🚀</>
-                                            )}
-                                        </button>
+                                        <div className="relative flex justify-center text-sm">
+                                            <span className="px-2 bg-white text-gray-500">Or send a private message</span>
+                                        </div>
                                     </div>
-                                </form>
+
+                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Your Message</label>
+                                            <textarea
+                                                required
+                                                value={message}
+                                                onChange={(e) => setMessage(e.target.value)}
+                                                placeholder="What's on your mind? Suggestions, bugs, or questions..."
+                                                className="w-full min-h-[100px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F5A623] focus:border-[#F5A623] outline-none resize-none"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Your Email <span className="text-gray-400 font-normal">(Optional)</span>
+                                            </label>
+                                            <input
+                                                type="email"
+                                                value={replyTo}
+                                                onChange={(e) => setReplyTo(e.target.value)}
+                                                placeholder="If you'd like a reply..."
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#F5A623] focus:border-[#F5A623] outline-none"
+                                            />
+                                        </div>
+
+                                        {status === 'error' && (
+                                            <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg flex flex-col gap-1">
+                                                <div className="font-bold">Failed to send.</div>
+                                                {errorDetails && <div className="text-xs opacity-80">{errorDetails}</div>}
+                                                <div className="text-xs mt-1 italic">You can also email feedback@beektools.com</div>
+                                            </div>
+                                        )}
+
+                                        <div className="flex justify-end gap-3 pt-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsOpen(false)}
+                                                className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                disabled={status === 'sending' || !message.trim()}
+                                                className="bg-[#8B4513] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#723910] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                            >
+                                                {status === 'sending' ? (
+                                                    <>
+                                                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                                                        Sending...
+                                                    </>
+                                                ) : (
+                                                    <>Send Feedback 🚀</>
+                                                )}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             )}
                         </div>
                     </div>
