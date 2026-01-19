@@ -245,6 +245,8 @@ const ApiarySelectionPage = () => {
                             <span className="text-[#E6DCC3]">|</span>
                             <a href="/help" id="help-link" className="hover:text-[#E67E22] hover:underline font-medium">📚 Help</a>
                             <span className="text-[#E6DCC3]">|</span>
+                            <a href="/feedback" className="hover:text-[#E67E22] hover:underline font-medium">💡 Ideas</a>
+                            <span className="text-[#E6DCC3]">|</span>
                             {/* Admin Link (Only for admins) */}
                             {isAdmin && (
                                 <>

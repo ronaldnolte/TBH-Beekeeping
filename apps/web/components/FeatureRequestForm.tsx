@@ -5,13 +5,20 @@ import { supabase } from '../lib/supabase';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 
 export function FeatureRequestForm({ onSuccess }: { onSuccess: () => void }) {
-    const { userId } = useCurrentUser();
+    const { user, userId } = useCurrentUser();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Block Guest Users
+        if (user?.email === 'guest@beektools.com') {
+            alert('Guest users cannot submit feature requests. Please sign up for a full account!');
+            return;
+        }
+
         if (!userId) return alert('Please log in to submit a request.');
 
         setIsSubmitting(true);
@@ -30,13 +37,25 @@ export function FeatureRequestForm({ onSuccess }: { onSuccess: () => void }) {
             setTitle('');
             setDescription('');
             onSuccess();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to submit feature request:', error);
-            alert('Failed to submit request.');
+            alert(`Failed to submit request: ${error.message || JSON.stringify(error)}`);
         } finally {
             setIsSubmitting(false);
         }
     };
+
+    // Guest Restriction UI
+    if (user?.email === 'guest@beektools.com') {
+        return (
+            <div className="bg-gray-50 p-6 rounded-lg text-center border-2 border-dashed border-gray-200">
+                <div className="text-2xl mb-2">🔒</div>
+                <h3 className="font-bold text-gray-700">Login Required</h3>
+                <p className="text-sm text-gray-500 mt-1">Guest users cannot submit feature requests.</p>
+                <p className="text-sm text-gray-500">Please sign up to contribute!</p>
+            </div>
+        );
+    }
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4 bg-white p-4 rounded-lg shadow-sm border border-gray-100">

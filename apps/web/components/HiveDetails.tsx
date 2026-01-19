@@ -230,13 +230,6 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
 
             <div className="max-w-7xl mx-auto p-2 space-y-3">
                 <div id="hive-snapshots">
-                    {/* Notes Display */}
-                    {hive.notes && (
-                        <div className="bg-white rounded-lg shadow-sm p-3 border border-gray-100 mb-3 text-sm text-gray-700">
-                            <strong>Notes:</strong> {hive.notes}
-                        </div>
-                    )}
-
                     <BarVisualizer
                         hive={hive}
                         snapshot={displayedSnapshot}
@@ -247,35 +240,60 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                     />
                 </div>
 
-                <div id="inspection-history" className="bg-white rounded-lg shadow-sm px-2 pt-2 pb-0 border border-gray-100 overflow-hidden">
-                    <div className="flex justify-between items-center mb-1 px-1">
-                        <h3 className="text-sm font-bold text-[#4A3C28] uppercase tracking-wide">History</h3>
-                        <button
-                            className="text-xs text-[#E67E22] font-medium"
-                            onClick={() => setSelectedSnapshotId(null)}
-                        >
-                            {selectedSnapshotId ? 'Back to Latest' : ''}
-                        </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div id="inspection-history" className="bg-white rounded-lg shadow-sm px-2 pt-2 pb-0 border border-gray-100 overflow-hidden h-full flex flex-col">
+                        <div className="flex justify-between items-center mb-1 px-1 shrink-0">
+                            <h3 className="text-sm font-bold text-[#4A3C28] uppercase tracking-wide">History</h3>
+                            <button
+                                className="text-xs text-[#E67E22] font-medium"
+                                onClick={() => setSelectedSnapshotId(null)}
+                            >
+                                {selectedSnapshotId ? 'Back to Latest' : ''}
+                            </button>
+                        </div>
+                        <div className="flex flex-col space-y-0 grow">
+                            {snapshots.length === 0 && <div className="text-xs text-center text-gray-400 py-2 w-full">No history loaded</div>}
+                            {snapshots.slice(0, showAllHistory ? undefined : 3).map((snapshot) => (
+                                <HistoryItem
+                                    key={snapshot.id}
+                                    snapshot={snapshot}
+                                    onSelect={() => setSelectedSnapshotId(snapshot.id)}
+                                    onDelete={() => setSnapshotToDelete(snapshot)}
+                                />
+                            ))}
+                        </div>
+                        {snapshots.length > 3 && (
+                            <button
+                                onClick={() => setShowAllHistory(!showAllHistory)}
+                                className="w-full text-center text-xs text-[#E67E22] font-medium py-2 hover:bg-[#FFF8F0] border-t border-gray-100 shrink-0"
+                            >
+                                {showAllHistory ? 'Show Less' : `View All (${snapshots.length})`}
+                            </button>
+                        )}
                     </div>
-                    <div className="flex flex-col space-y-0">
-                        {snapshots.length === 0 && <div className="text-xs text-center text-gray-400 py-2 w-full">No history loaded</div>}
-                        {snapshots.slice(0, showAllHistory ? undefined : 3).map((snapshot) => (
-                            <HistoryItem
-                                key={snapshot.id}
-                                snapshot={snapshot}
-                                onSelect={() => setSelectedSnapshotId(snapshot.id)}
-                                onDelete={() => setSnapshotToDelete(snapshot)}
-                            />
-                        ))}
+
+                    <div id="hive-notes" className="bg-white rounded-lg shadow-sm p-3 border border-gray-100 h-full">
+                        <div className="flex justify-between items-center mb-2">
+                            <h3 className="text-sm font-bold text-[#4A3C28] uppercase tracking-wide">Notes</h3>
+                            <button
+                                onClick={handleOpenSettings}
+                                className="text-xs text-[#E67E22] font-medium hover:text-[#D35400] flex items-center gap-1"
+                            >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                Edit
+                            </button>
+                        </div>
+                        <div className="text-sm text-gray-700 whitespace-pre-wrap min-h-[60px]">
+                            {hive.notes ? (
+                                hive.notes
+                            ) : (
+                                <span className="text-gray-400 italic">No notes added yet. Click edit to add details about this hive.</span>
+                            )}
+                        </div>
                     </div>
-                    {snapshots.length > 3 && (
-                        <button
-                            onClick={() => setShowAllHistory(!showAllHistory)}
-                            className="w-full text-center text-xs text-[#E67E22] font-medium py-2 hover:bg-[#FFF8F0] border-t border-gray-100"
-                        >
-                            {showAllHistory ? 'Show Less' : `View All (${snapshots.length})`}
-                        </button>
-                    )}
                 </div>
 
                 <div className="flex border-b border-gray-200 mb-4">
