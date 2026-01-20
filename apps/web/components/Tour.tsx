@@ -107,7 +107,7 @@ export function Tour({ tourId, steps, onComplete, autoStart = false }: TourProps
         return (
             <button
                 onClick={restartTour}
-                className="fixed bottom-4 right-4 w-12 h-12 bg-[#E67E22] text-white rounded-full shadow-lg hover:bg-[#D35400] transition-all z-50 flex items-center justify-center text-xl font-bold hover:scale-110"
+                className="fixed bottom-20 right-4 w-10 h-10 bg-[#E67E22] text-white rounded-full shadow-lg hover:bg-[#D35400] transition-all z-50 flex items-center justify-center text-lg font-bold hover:scale-110"
                 title="Show help tour"
             >
                 ?

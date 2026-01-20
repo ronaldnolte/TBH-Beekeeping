@@ -255,7 +255,7 @@ export default function LoginPage() {
       </div>
 
       {/* Footer with Help Link */}
-      <div id="help-tutorial-link" className="absolute bottom-20 left-0 right-0 text-center">
+      <div id="help-tutorial-link" className="mt-4 text-center">
         <button
           onClick={() => navigateTo('/help')}
           className="text-[#8B4513] hover:text-[#E67E22] text-sm hover:underline font-medium inline-flex items-center gap-1 bg-transparent border-none cursor-pointer"
