@@ -152,13 +152,13 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen honeycomb-bg flex flex-col items-center justify-center p-4 relative">
-      <div className="w-full max-w-md bg-white/90 backdrop-blur-sm p-8 rounded-xl shadow-2xl border border-[#E67E22]/20">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-6">
-            <img src="/icon-512.png" alt="TBH Beekeeper Logo" className="w-32 h-32 object-contain drop-shadow-lg" />
+      <div className="w-full max-w-md bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-2xl border border-[#E67E22]/20">
+        <div className="text-center mb-4">
+          <div className="flex justify-center mb-4">
+            <img src="/icon-512.png" alt="TBH Beekeeper Logo" className="w-24 h-24 object-contain drop-shadow-lg" />
           </div>
-          <h1 className="text-3xl font-bold text-[#4A3C28]">TBH Beekeeper</h1>
-          <p className="text-gray-600 text-sm mt-2">{isSignUp ? 'Create your account' : 'Welcome back'}</p>
+          <h1 className="text-2xl font-bold text-[#4A3C28]">TBH Beekeeper</h1>
+          <p className="text-gray-600 text-xs mt-1">{isSignUp ? 'Create your account' : 'Welcome back'}</p>
         </div>
 
         {error && (
@@ -173,7 +173,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleAuth} className="space-y-4" autoComplete="off">
+        <form onSubmit={handleAuth} className="space-y-3" autoComplete="off">
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Email</label>
             <input
@@ -182,7 +182,7 @@ export default function LoginPage() {
               autoComplete="off"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#E67E22]"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#E67E22]"
               required
             />
           </div>
@@ -195,7 +195,7 @@ export default function LoginPage() {
               autoComplete="off"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#E67E22]"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#E67E22]"
               required
               minLength={6}
             />
@@ -227,7 +227,7 @@ export default function LoginPage() {
         </form>
 
         {/* Guest Login Section */}
-        <div className="mt-6">
+        <div className="mt-4">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
@@ -242,7 +242,7 @@ export default function LoginPage() {
             type="button"
             onClick={handleGuestLogin}
             disabled={loading}
-            className="mt-4 w-full bg-gradient-to-r from-[#E67E22] to-[#D35400] text-white py-3 rounded-lg font-semibold hover:from-[#D35400] hover:to-[#C0392B] transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+            className="mt-3 w-full bg-gradient-to-r from-[#E67E22] to-[#D35400] text-white py-3 rounded-lg font-semibold hover:from-[#D35400] hover:to-[#C0392B] transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
           >
             <span className="text-xl">👤</span>
             <span>Continue as Guest</span>
