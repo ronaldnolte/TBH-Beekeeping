@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function FeedbackButton() {
     const router = useRouter();
+    const pathname = usePathname();
     const [isHovered, setIsHovered] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [message, setMessage] = useState('');
@@ -19,6 +20,11 @@ export default function FeedbackButton() {
             setShowPulse(true);
         }
     }, []);
+
+    // Hide on login page and other auth pages
+    if (pathname === '/' || pathname?.startsWith('/auth/')) {
+        return null;
+    }
 
     const handleOpen = () => {
         setIsOpen(true);

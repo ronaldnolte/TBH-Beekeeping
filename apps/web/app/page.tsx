@@ -151,7 +151,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen honeycomb-bg flex items-center justify-center p-4 relative">
+    <div className="min-h-screen honeycomb-bg flex flex-col items-center justify-center p-4 relative">
       <div className="w-full max-w-md bg-white/90 backdrop-blur-sm p-8 rounded-xl shadow-2xl border border-[#E67E22]/20">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
