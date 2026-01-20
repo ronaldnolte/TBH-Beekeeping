@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { navigateTo } from '../lib/navigation';
 
 export default function FeedbackButton() {
-    const router = useRouter();
     const pathname = usePathname();
     const [isHovered, setIsHovered] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -177,7 +177,7 @@ export default function FeedbackButton() {
                                         <button
                                             onClick={() => {
                                                 setIsOpen(false);
-                                                router.push('/feedback');
+                                                navigateTo('/feedback');
                                             }}
                                             className="block w-full text-center bg-white border border-amber-300 text-amber-700 py-2 rounded-lg font-bold hover:bg-amber-100 transition-colors"
                                         >
