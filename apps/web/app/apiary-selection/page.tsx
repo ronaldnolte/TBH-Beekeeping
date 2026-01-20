@@ -243,16 +243,16 @@ const ApiarySelectionPage = () => {
                         <div className="flex items-center gap-2 text-xs text-[#8B4513] opacity-80">
                             <span>Welcome back, {user?.email}</span>
                             <span className="text-[#E6DCC3]">|</span>
-                            <a href="/help" id="help-link" className="hover:text-[#E67E22] hover:underline font-medium">📚 Help</a>
+                            <button onClick={() => navigateTo('/help')} id="help-link" className="hover:text-[#E67E22] hover:underline font-medium bg-transparent border-none cursor-pointer p-0">📚 Help</button>
                             <span className="text-[#E6DCC3]">|</span>
-                            <a href="/feedback" className="hover:text-[#E67E22] hover:underline font-medium">💡 Ideas</a>
+                            <button onClick={() => navigateTo('/feedback')} className="hover:text-[#E67E22] hover:underline font-medium bg-transparent border-none cursor-pointer p-0">💡 Ideas</button>
                             <span className="text-[#E6DCC3]">|</span>
                             {/* Admin Link (Only for admins) */}
                             {isAdmin && (
                                 <>
-                                    <a href="/admin/mentors" className="text-red-700 hover:text-red-900 font-bold uppercase tracking-wider text-[10px] bg-red-100 px-2 py-0.5 rounded border border-red-200">
+                                    <button onClick={() => navigateTo('/admin/mentors')} className="text-red-700 hover:text-red-900 font-bold uppercase tracking-wider text-[10px] bg-red-100 px-2 py-0.5 rounded border border-red-200 cursor-pointer">
                                         Admin Panel
-                                    </a>
+                                    </button>
                                     <span className="text-[#E6DCC3]">|</span>
                                 </>
                             )}

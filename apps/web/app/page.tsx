@@ -211,9 +211,9 @@ export default function LoginPage() {
 
           {!isSignUp && (
             <div className="text-right">
-              <a href="/auth/forgot-password" className="text-xs text-gray-500 hover:text-[#E67E22] hover:underline">
+              <button onClick={() => navigateTo('/auth/forgot-password')} className="text-xs text-gray-500 hover:text-[#E67E22] hover:underline bg-transparent border-none cursor-pointer p-0">
                 Forgot Password?
-              </a>
+              </button>
             </div>
           )}
 
@@ -255,14 +255,14 @@ export default function LoginPage() {
       </div>
 
       {/* Footer with Help Link */}
-      <div id="help-tutorial-link" className="absolute bottom-4 left-0 right-0 text-center">
-        <a
-          href="/help"
-          className="text-[#8B4513] hover:text-[#E67E22] text-sm hover:underline font-medium inline-flex items-center gap-1"
+      <div id="help-tutorial-link" className="absolute bottom-20 left-0 right-0 text-center">
+        <button
+          onClick={() => navigateTo('/help')}
+          className="text-[#8B4513] hover:text-[#E67E22] text-sm hover:underline font-medium inline-flex items-center gap-1 bg-transparent border-none cursor-pointer"
         >
           <span>📚</span>
           <span>Need help? View Tutorial</span>
-        </a>
+        </button>
       </div>
 
       {/* Guided Tour */}

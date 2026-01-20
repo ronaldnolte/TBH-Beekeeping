@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useRouter } from 'next/navigation';
+import { navigateTo } from '../../../lib/navigation';
 
 export default function UpdatePasswordPage() {
     const [password, setPassword] = useState('');
@@ -166,7 +167,7 @@ export default function UpdatePasswordPage() {
                     </button>
 
                     <div className="text-center mt-4">
-                        <a href="/" className="text-sm text-gray-500 hover:text-[#E67E22] underline">Cancel</a>
+                        <button onClick={() => navigateTo('/')} className="text-sm text-gray-500 hover:text-[#E67E22] underline bg-transparent border-none cursor-pointer p-0">Cancel</button>
                     </div>
                 </form>
             </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import { navigateTo } from '../../lib/navigation';
 
 export default function DebugPage() {
     const [status, setStatus] = useState<any>({});
@@ -70,7 +71,7 @@ export default function DebugPage() {
             </pre>
 
             <div className="mt-4">
-                <a href="/apiary-selection" className="text-blue-600 underline">Back to App</a>
+                <button onClick={() => navigateTo('/apiary-selection')} className="text-blue-600 underline bg-transparent border-none cursor-pointer p-0">Back to App</button>
             </div>
         </div>
     );

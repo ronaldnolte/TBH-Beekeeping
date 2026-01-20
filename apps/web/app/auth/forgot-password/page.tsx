@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { supabase } from '../../../lib/supabase';
+import { navigateTo } from '../../../lib/navigation';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
@@ -70,7 +71,7 @@ export default function ForgotPasswordPage() {
                     </button>
 
                     <div className="text-center mt-4">
-                        <a href="/" className="text-sm text-gray-500 hover:text-[#E67E22] underline">Back to Login</a>
+                        <button onClick={() => navigateTo('/')} className="text-sm text-gray-500 hover:text-[#E67E22] underline bg-transparent border-none cursor-pointer p-0">Back to Login</button>
                     </div>
                 </form>
             </div>

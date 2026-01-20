@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function FeedbackButton() {
+    const router = useRouter();
     const [isHovered, setIsHovered] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [message, setMessage] = useState('');
@@ -79,7 +81,7 @@ export default function FeedbackButton() {
                 onMouseLeave={() => setIsHovered(false)}
                 style={{
                     position: 'fixed',
-                    bottom: '20px',
+                    bottom: '70px',
                     left: '20px',
                     width: '56px',
                     height: '56px',
@@ -166,12 +168,15 @@ export default function FeedbackButton() {
                                     <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
                                         <h4 className="font-bold text-amber-900 mb-1">Have a Feature Idea? 💡</h4>
                                         <p className="text-sm text-amber-800/80 mb-3">Vote on existing requests or submit your own ideas to our public roadmap.</p>
-                                        <a
-                                            href="/feedback"
+                                        <button
+                                            onClick={() => {
+                                                setIsOpen(false);
+                                                router.push('/feedback');
+                                            }}
                                             className="block w-full text-center bg-white border border-amber-300 text-amber-700 py-2 rounded-lg font-bold hover:bg-amber-100 transition-colors"
                                         >
                                             View Roadmap & Vote →
-                                        </a>
+                                        </button>
                                     </div>
 
                                     <div className="relative">
