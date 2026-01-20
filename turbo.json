@@ -3,6 +3,10 @@
     "globalDependencies": [
         "**/.env.*local"
     ],
+    "globalEnv": [
+        "GMAIL_USER",
+        "GMAIL_APP_PASSWORD"
+    ],
     "tasks": {
         "dev": {
             "cache": false,
