@@ -2,7 +2,7 @@
   "expo": {
     "name": "TBH Beekeeper",
     "slug": "tbh-beekeeper",
-    "version": "1.1.4",
+    "version": "1.1.7",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -17,7 +17,7 @@
       "bundleIdentifier": "com.ronaldnolte.tbhbeekeeper"
     },
     "android": {
-      "versionCode": 17,
+      "versionCode": 23,
       "supportsTablet": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
