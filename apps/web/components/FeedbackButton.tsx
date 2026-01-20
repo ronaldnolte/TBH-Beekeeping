@@ -87,7 +87,7 @@ export default function FeedbackButton() {
                 onMouseLeave={() => setIsHovered(false)}
                 style={{
                     position: 'fixed',
-                    bottom: '20px',
+                    bottom: '80px',
                     left: '20px',
                     width: '56px',
                     height: '56px',
