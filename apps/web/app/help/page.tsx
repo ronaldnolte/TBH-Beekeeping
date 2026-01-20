@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { navigateTo } from '../../lib/navigation';
 
 export default function HelpPage() {
     const [activeSection, setActiveSection] = useState('getting-started');
@@ -128,12 +128,12 @@ export default function HelpPage() {
                                 <p className="text-white/80 text-sm">Everything you need to know about TBH Beekeeper</p>
                             </div>
                         </div>
-                        <Link
-                            href="/apiary-selection"
-                            className="bg-white/20 hover:bg-white/30 px-6 py-2 rounded-lg transition-colors backdrop-blur-sm"
+                        <button
+                            onClick={() => navigateTo('/apiary-selection')}
+                            className="bg-white/20 hover:bg-white/30 px-6 py-2 rounded-lg transition-colors backdrop-blur-sm border-none cursor-pointer text-inherit font-inherit"
                         >
                             ← Back to App
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -199,12 +199,12 @@ export default function HelpPage() {
                                         <p className="text-sm text-gray-600 mb-3">
                                             Try the app without signing up using our guest account.
                                         </p>
-                                        <Link
-                                            href="/"
-                                            className="inline-block bg-[#8B4513] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#723910] transition-colors"
+                                        <button
+                                            onClick={() => navigateTo('/')}
+                                            className="inline-block bg-[#8B4513] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#723910] transition-colors border-none cursor-pointer font-inherit"
                                         >
                                             Login Page →
-                                        </Link>
+                                        </button>
                                     </div>
                                 </div>
 
@@ -309,12 +309,12 @@ export default function HelpPage() {
                                             Next →
                                         </button>
                                     ) : (
-                                        <Link
-                                            href="/apiary-selection"
-                                            className="px-6 py-3 rounded-lg font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors"
+                                        <button
+                                            onClick={() => navigateTo('/apiary-selection')}
+                                            className="px-6 py-3 rounded-lg font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors border-none cursor-pointer font-inherit"
                                         >
                                             Start Using App! 🚀
-                                        </Link>
+                                        </button>
                                     )}
                                 </div>
                             </div>
@@ -495,9 +495,12 @@ export default function HelpPage() {
                 <div className="mt-12 text-center text-gray-600 text-sm">
                     <p>Need more help? Have suggestions? Contact support or check our documentation.</p>
                     <div className="mt-4 flex justify-center gap-4">
-                        <Link href="/apiary-selection" className="text-[#E67E22] hover:underline">
+                        <button
+                            onClick={() => navigateTo('/apiary-selection')}
+                            className="text-[#E67E22] hover:underline bg-transparent border-none cursor-pointer p-0 font-inherit"
+                        >
                             Return to App
-                        </Link>
+                        </button>
                         <span>•</span>
                         <button onClick={() => setActiveSection('tutorial')} className="text-[#E67E22] hover:underline">
                             Restart Tutorial

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
+import { navigateTo } from '../../lib/navigation';
 
 export default function SetupPage() {
     return (
@@ -11,9 +11,12 @@ export default function SetupPage() {
                 <div className="max-w-4xl mx-auto">
                     <div className="flex justify-between items-center">
                         <h1 className="text-3xl font-bold">Setup Guide</h1>
-                        <Link href="/" className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors">
+                        <button
+                            onClick={() => navigateTo('/')}
+                            className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors border-none cursor-pointer font-inherit text-white"
+                        >
                             ← Back to App
-                        </Link>
+                        </button>
                     </div>
                     <p className="text-white/90 mt-2">Get started with TBH Beekeeper</p>
                 </div>
@@ -297,9 +300,12 @@ export default function SetupPage() {
                 <div className="text-center py-8">
                     <p className="text-lg font-bold text-[#4A3C28] mb-2">Happy Beekeeping! 🍯🐝</p>
                     <p className="text-gray-600 italic mb-4">TBH Beekeeper - Making Top Bar Hive management simple and organized.</p>
-                    <Link href="/" className="inline-block bg-[#E67E22] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#D35400] transition-colors">
+                    <button
+                        onClick={() => navigateTo('/')}
+                        className="inline-block bg-[#E67E22] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#D35400] transition-colors border-none cursor-pointer font-inherit"
+                    >
                         Start Using TBH Beekeeper →
-                    </Link>
+                    </button>
                 </div>
             </div>
         </div>

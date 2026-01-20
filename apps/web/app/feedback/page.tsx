@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FeatureRequestList } from '../../components/FeatureRequestList';
 import { FeatureRequestForm } from '../../components/FeatureRequestForm';
 import { useRouter } from 'next/navigation';
+import { navigateTo } from '../../lib/navigation';
 
 export default function FeedbackPage() {
     const [refreshKey, setRefreshKey] = useState(0);
@@ -16,9 +17,12 @@ export default function FeedbackPage() {
             <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
                 <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <Link href="/" className="text-gray-500 hover:text-gray-800 transition-colors">
+                        <button
+                            onClick={() => navigateTo('/')}
+                            className="text-gray-500 hover:text-gray-800 transition-colors bg-transparent border-none cursor-pointer p-0 font-inherit"
+                        >
                             ← Back
-                        </Link>
+                        </button>
                         <h1 className="text-xl font-bold text-gray-900">Feedback & Roadmap</h1>
                     </div>
                     {!showForm && (
