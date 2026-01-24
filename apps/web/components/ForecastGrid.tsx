@@ -80,7 +80,14 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
 
     const timeSlots = [6, 8, 10, 12, 14, 16];
 
-    // ... [getScoreColor helper]
+    const getScoreColor = (score: number) => {
+        if (score >= 85) return 'bg-green-700';
+        if (score >= 70) return 'bg-green-500';
+        if (score >= 55) return 'bg-amber-400';
+        if (score >= 40) return 'bg-orange-500';
+        return 'bg-red-500';
+    };
+
 
     const formatTimeSlot = (hour: number) => {
         if (is24h) {
