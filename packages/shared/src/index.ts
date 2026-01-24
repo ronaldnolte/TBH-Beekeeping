@@ -10,3 +10,4 @@ export { default as Task } from './models/Task';
 export { default as WeatherForecast } from './models/WeatherForecast';
 export * from './models/FeatureRequest';
 export * from './services/WeatherService';
+export * from './utils/LocationUtils';

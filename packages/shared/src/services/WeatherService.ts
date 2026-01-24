@@ -10,6 +10,8 @@ export interface InspectionWindow {
     condition: string;
     issues: string[];
     scoreBreakdown: Record<string, number>;
+    displayHour: number;
+    displayDate: string;
 }
 
 export class WeatherService {
@@ -19,8 +21,28 @@ export class WeatherService {
     /**
      * Get logic coordinates from Zip Code
      */
-    static async getCoordinates(zip: string): Promise<{ lat: number; lng: number }> {
-        const response = await fetch(`${this.ZIP_API_URL}${zip}`);
+    /**
+     * Get logic coordinates from Zip Code/Postal Code
+     */
+    static async getCoordinates(zip: string, country: string = 'us'): Promise<{ lat: number; lng: number }> {
+        // Zippopotam requires lowercase country codes
+        const countryCode = country.toLowerCase();
+
+        let searchZip = zip;
+
+        // Normalize postal codes for Zippopotam (it supports outward codes for some countries)
+        if (countryCode === 'gb') {
+            // UK: Use outward code (first part before space) e.g., "SW1A 1AA" -> "SW1A"
+            searchZip = zip.split(' ')[0].trim();
+        } else if (countryCode === 'ca') {
+            // Canada: Use FSA (first 3 chars) e.g., "K1A 0B1" -> "K1A"
+            searchZip = zip.substring(0, 3);
+        } else if (countryCode === 'nl') {
+            // Netherlands: Use numeric part (first 4 chars) e.g., "1012 JS" -> "1012"
+            searchZip = zip.substring(0, 4);
+        }
+
+        const response = await fetch(`https://api.zippopotam.us/${countryCode}/${searchZip}`);
         if (response.ok) {
             const data = await response.json() as any;
             const place = data.places[0];
@@ -29,15 +51,20 @@ export class WeatherService {
                 lng: parseFloat(place.longitude),
             };
         } else {
-            throw new Error('Invalid ZIP code');
+            throw new Error(`Invalid Postal Code for ${country.toUpperCase()}`);
         }
     }
 
     /**
      * Fetch raw weather data
      */
-    static async getWeatherForecast(lat: number, lng: number): Promise<any> {
-        const url = `${this.WEATHER_API_URL}?latitude=${lat}&longitude=${lng}&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,weathercode,cloudcover,windspeed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&forecast_days=14`;
+    static async getWeatherForecast(lat: number, lng: number, elevation?: number): Promise<any> {
+        let url = `${this.WEATHER_API_URL}?latitude=${lat}&longitude=${lng}&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,weathercode,cloudcover,windspeed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&forecast_days=14`;
+
+        if (elevation !== undefined) {
+            url += `&elevation=${elevation}`;
+        }
+
         const response = await fetch(url);
         if (response.ok) {
             return response.json();
@@ -49,7 +76,7 @@ export class WeatherService {
     /**
      * Calculate 2-hour inspection windows for beekeeping
      */
-    static calculateForecast(weatherData: any): InspectionWindow[] {
+    static calculateForecast(weatherData: any, isTBH: boolean = true, isMetric: boolean = false): InspectionWindow[] {
         const windows: InspectionWindow[] = [];
         const hourly = weatherData.hourly;
 
@@ -61,16 +88,13 @@ export class WeatherService {
         const codes = hourly.weathercode as number[];
         const clouds = hourly.cloudcover as number[];
         const winds = hourly.windspeed_10m as number[];
+        const timezone = weatherData.timezone; // Get API timezone
 
         // Group indices by Date (yyyy-MM-dd)
         const dayIndices: Record<string, number[]> = {};
         for (let i = 0; i < times.length; i++) {
-            const t = new Date(times[i]);
-            // Use local date string YYYY-MM-DD
-            const year = t.getFullYear();
-            const month = String(t.getMonth() + 1).padStart(2, '0');
-            const day = String(t.getDate()).padStart(2, '0');
-            const dayKey = `${year}-${month}-${day}`;
+            // times[i] is "YYYY-MM-DDTHH:mm"
+            const dayKey = times[i].slice(0, 10);
 
             if (!dayIndices[dayKey]) dayIndices[dayKey] = [];
             dayIndices[dayKey].push(i);
@@ -86,7 +110,8 @@ export class WeatherService {
                 // Find index for this specific hour
                 let startIndex: number | undefined;
                 for (const idx of indices) {
-                    if (new Date(times[idx]).getHours() === startHour) {
+                    const hour = parseInt(times[idx].slice(11, 13));
+                    if (hour === startHour) {
                         startIndex = idx;
                         break;
                     }
@@ -112,29 +137,33 @@ export class WeatherService {
                     const avgHumidity = segmentHumidities.reduce((a, b) => a + b, 0) / 2;
 
                     // Kill Checks (Min/Max)
-                    const minTemp = Math.min(...segmentTemps);
-                    // const maxWind = Math.max(...segmentWinds);
                     const maxPrecipProb = Math.max(...segmentPrecipProbs);
                     const maxPrecipRate = Math.max(...segmentPrecips);
 
-                    // Bug fix from original Dart: Dart used `maxWind > 24` check on single hour? 
-                    // No, Dart reduced: `double maxWind = segmentWinds.reduce((curr, next) => curr > next ? curr : next);`
-                    // So yes, max of the 2 hours.
                     const maxWind = Math.max(...segmentWinds);
 
                     const hasStorm = segmentCodes.some(c => [95, 96, 99].includes(c));
 
                     const issues: string[] = [];
-                    // User requested change: use average temp for warning to match display
-                    if (avgTemp < 55) issues.push("Too Cold (< 55°F)");
-                    if (maxWind > 24) issues.push("Too Windy (> 24mph)");
+
+                    // Localization Helpers
+                    const tempStr = (t: number) => isMetric ? `${Math.round((t - 32) * 5 / 9)}°C` : `${Math.round(t)}°F`;
+                    // Thresholds are kept in F/mph for internal consistency
+
+                    if (avgTemp < 55) issues.push(`Too Cold (< ${tempStr(55)})`);
+
+                    // Wind Warning
+                    if (maxWind > 24) {
+                        const speedStr = isMetric ? `${Math.round(24 * 1.60934)}km/h` : `24mph`;
+                        issues.push(`Too Windy (> ${speedStr})`);
+                    }
 
                     if (maxPrecipProb > 49) issues.push("Rain Likely (> 49%)");
                     if (maxPrecipRate > 0.02) issues.push("Raining");
                     if (hasStorm) issues.push("Stormy Weather");
 
-                    // TBH-specific: High heat issue (always enabled for TBH app)
-                    if (avgTemp > 92) issues.push("Temperature > 92°F (comb slump risk)");
+                    // TBH-specific: High heat issue
+                    if (isTBH && avgTemp > 92) issues.push(`Temperature > ${tempStr(92)} (comb slump risk)`);
 
                     let totalScore = 0;
                     const breakdown: Record<string, number> = {};
@@ -149,8 +178,7 @@ export class WeatherService {
                     else if (avgTemp >= 55) tempScore = 8;
 
                     // TBH-specific: High heat penalty (-10 pts per 5°F above 80°F)
-                    // Always enabled for TBH app
-                    if (avgTemp > 80) {
+                    if (isTBH && avgTemp > 80) {
                         const degreesAbove80 = avgTemp - 80;
                         const penalty = Math.floor(degreesAbove80 / 5) * 10;
                         tempScore = Math.max(0, tempScore - penalty);
@@ -165,7 +193,7 @@ export class WeatherService {
                     else if (avgCloud <= 40) cloudScore = 17;
                     else if (avgCloud <= 60) cloudScore = 12;
                     else if (avgCloud <= 80) cloudScore = 6;
-                    else cloudScore = 2;
+                    else cloudScore = 6;
                     breakdown['Cloud Cover'] = cloudScore;
                     totalScore += cloudScore;
 
@@ -206,6 +234,8 @@ export class WeatherService {
                         condition: this.getConditionCode(segmentCodes[0]),
                         issues: issues,
                         scoreBreakdown: breakdown,
+                        displayHour: startHour,
+                        displayDate: dayKey,
                     });
                 }
             }

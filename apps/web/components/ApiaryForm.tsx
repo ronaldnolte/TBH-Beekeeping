@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Apiary } from '@tbh-beekeeper/shared';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { supabase } from '../lib/supabase';
+import { LocationInput } from './LocationInput';
 
 export function ApiaryForm({
     initialData,
@@ -16,22 +17,45 @@ export function ApiaryForm({
 }) {
     const [name, setName] = useState(initialData?.name || '');
     const [zipCode, setZipCode] = useState(initialData?.zip_code || '');
+    // Support lat/long if present in model
+    const [latitude, setLatitude] = useState<number | undefined>(initialData?.latitude);
+    const [longitude, setLongitude] = useState<number | undefined>(initialData?.longitude);
+
     const [notes, setNotes] = useState(initialData?.notes || '');
     const [isSaving, setIsSaving] = useState(false);
     const { userId } = useCurrentUser();
+
+    const handleLocationChange = (newZip: string, newLat?: number, newLng?: number) => {
+        setZipCode(newZip);
+        setLatitude(newLat);
+        setLongitude(newLng);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
 
+        // Validation: Need either zip or coords
+        if (!zipCode && (!latitude || !longitude)) {
+            alert('Please provide a location (Postal Code or Coordinates)');
+            setIsSaving(false);
+            return;
+        }
+
         try {
+            const apiaryData = {
+                name,
+                zip_code: zipCode,
+                latitude: latitude || null,
+                longitude: longitude || null,
+                notes,
+            };
+
             if (initialData) {
                 const { error } = await supabase
                     .from('apiaries')
                     .update({
-                        name,
-                        zip_code: zipCode,
-                        notes,
+                        ...apiaryData,
                         updated_at: new Date().toISOString()
                     })
                     .eq('id', initialData.id);
@@ -41,9 +65,7 @@ export function ApiaryForm({
                 const { error } = await supabase
                     .from('apiaries')
                     .insert({
-                        name,
-                        zip_code: zipCode,
-                        notes,
+                        ...apiaryData,
                         user_id: userId
                     });
 
@@ -73,15 +95,12 @@ export function ApiaryForm({
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Zip Code <span className="text-gray-400 text-xs font-normal">(for weather)</span></label>
-                <input
-                    type="text"
-                    required
-                    pattern="[0-9]{5}"
-                    value={zipCode}
-                    onChange={e => setZipCode(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none transition-all"
-                    placeholder="e.g. 90210"
+                <label className="block text-sm font-medium text-gray-700 mb-1">Location <span className="text-gray-400 text-xs font-normal">(for weather)</span></label>
+                <LocationInput
+                    zipCode={zipCode}
+                    latitude={latitude}
+                    longitude={longitude}
+                    onLocationChange={handleLocationChange}
                 />
             </div>
 
@@ -115,3 +134,4 @@ export function ApiaryForm({
         </form>
     );
 }
+

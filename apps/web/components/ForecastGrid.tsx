@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { WeatherService, InspectionWindow } from '@tbh-beekeeper/shared';
+import { WeatherService, InspectionWindow, LocationUtils } from '@tbh-beekeeper/shared';
 import { ScoringHelpModal } from './ScoringHelpModal';
 
 interface ForecastGridProps {
@@ -18,6 +18,12 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
     const [selectedWindow, setSelectedWindow] = useState<InspectionWindow | null>(null);
     const [showHelpModal, setShowHelpModal] = useState(false);
 
+    // Determine Locale
+    const { country } = LocationUtils.parse(zipCode);
+    const isUS = country === 'us';
+    const isMetric = !isUS;
+    const is24h = !isUS;
+
     useEffect(() => {
         const fetchForecast = async () => {
             setLoading(true);
@@ -28,14 +34,15 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
 
                 // Fetch coords if missing
                 if (!lat || !lng) {
-                    const coords = await WeatherService.getCoordinates(zipCode);
+                    const { country, code } = LocationUtils.parse(zipCode);
+                    const coords = await WeatherService.getCoordinates(code, country);
                     lat = coords.lat;
                     lng = coords.lng;
                 }
 
                 // Fetch weather
                 const data = await WeatherService.getWeatherForecast(lat, lng);
-                const forecast = WeatherService.calculateForecast(data);
+                const forecast = WeatherService.calculateForecast(data, true, isMetric);
                 setWindows(forecast);
             } catch (err: any) {
                 console.error('Forecast error:', err);
@@ -46,29 +53,19 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
         };
 
         fetchForecast();
-    }, [apiaryId, zipCode, latitude, longitude]);
+    }, [apiaryId, zipCode, latitude, longitude, isMetric]);
 
     // Group windows by date
     const gridData: Record<string, Record<number, InspectionWindow>> = {};
     const uniqueDates = new Set<string>();
 
-    // Get today's date at start of day (local time)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayValue = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-
     windows.forEach(w => {
-        // Get window date in local timezone
-        const windowDate = new Date(w.startTime);
-        const windowValue = windowDate.getFullYear() * 10000 + (windowDate.getMonth() + 1) * 100 + windowDate.getDate();
+        // Use pre-calculated displayDate (YYYY-MM-DD) which is already in Apiary's local time
+        const dateStr = w.displayDate;
 
-        // Only include windows from today forward
-        if (windowValue >= todayValue) {
-            const windowDateString = `${windowDate.getFullYear()}-${String(windowDate.getMonth() + 1).padStart(2, '0')}-${String(windowDate.getDate()).padStart(2, '0')}`;
-            uniqueDates.add(windowDateString);
-            if (!gridData[windowDateString]) gridData[windowDateString] = {};
-            gridData[windowDateString][w.startTime.getHours()] = w;
-        }
+        uniqueDates.add(dateStr);
+        if (!gridData[dateStr]) gridData[dateStr] = {};
+        gridData[dateStr][w.displayHour] = w;
     });
 
     const sortedDates = Array.from(uniqueDates).sort();
@@ -76,20 +73,19 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
     // Additional safety filter to remove dates before today
     // Compare date strings directly (YYYY-MM-DD format)
     const now = new Date();
+    // Note: This "todayStr" is still browser-local, ensuring we don't show past days relative to USER
+    // But the columns will be Apiary-local days.
     const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const filteredDates = sortedDates.filter(dateStr => dateStr >= todayStr);
 
     const timeSlots = [6, 8, 10, 12, 14, 16];
 
-    const getScoreColor = (score: number) => {
-        if (score >= 85) return 'bg-green-700';
-        if (score >= 70) return 'bg-green-500';
-        if (score >= 55) return 'bg-amber-400';
-        if (score >= 40) return 'bg-orange-500';
-        return 'bg-red-500';
-    };
+    // ... [getScoreColor helper]
 
     const formatTimeSlot = (hour: number) => {
+        if (is24h) {
+            return `${hour}:00`;
+        }
         const slots: Record<number, string> = {
             6: '6-8am',
             8: '8-10am',
@@ -158,12 +154,14 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                             <tr className="bg-gray-100">
                                 <th className="border border-gray-300 px-2 py-1 font-bold sticky left-0 bg-gray-100 z-10">Time</th>
                                 {filteredDates.map(dateStr => {
-                                    // Parse as local date (not UTC) by adding a time component
+                                    // Construct a date safely for formatting only, assuming noon to avoid TZ shifts across midnight
+                                    // We use the dateStr (YYYY-MM-DD) directly to ensure we show the correct day name
+                                    // Use 'UTC' to prevent browser shifting '2023-10-27' to previous day
                                     const date = new Date(dateStr + 'T12:00:00');
                                     return (
                                         <th key={dateStr} className="border border-gray-300 px-2 py-1">
-                                            <div className="font-bold">{date.toLocaleDateString('en-US', { weekday: 'short' })}</div>
-                                            <div className="text-[10px] text-gray-500">{date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}</div>
+                                            <div className="font-bold">{date.toLocaleDateString(isUS ? 'en-US' : 'en-GB', { weekday: 'short' })}</div>
+                                            <div className="text-[10px] text-gray-500">{date.toLocaleDateString(isUS ? 'en-US' : 'en-GB', { month: 'numeric', day: 'numeric' })}</div>
                                         </th>
                                     );
                                 })}
@@ -211,9 +209,10 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                             <div>
                                 <h3 className="text-xl font-bold text-[#8B4513]">Inspection Conditions</h3>
                                 <p className="text-sm text-gray-600">
-                                    {selectedWindow.startTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                                    {/* Use displayDate for safer formatting */}
+                                    {new Date(selectedWindow.displayDate + 'T12:00:00').toLocaleDateString(isUS ? 'en-US' : 'en-GB', { weekday: 'long', month: 'long', day: 'numeric' })}
                                 </p>
-                                <p className="text-sm font-medium">{formatTimeSlot(selectedWindow.startTime.getHours())}</p>
+                                <p className="text-sm font-medium">{formatTimeSlot(selectedWindow.displayHour)}</p>
                             </div>
                             <button onClick={() => setSelectedWindow(null)} className="text-2xl text-gray-400 hover:text-gray-600">&times;</button>
                         </div>
@@ -234,7 +233,9 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                         <div className="grid grid-cols-2 gap-3 mb-4">
                             <StatCard
                                 label="Temperature"
-                                value={`${Math.round(selectedWindow.tempF)}°F`}
+                                value={isMetric
+                                    ? `${Math.round((selectedWindow.tempF - 32) * 5 / 9)}°C`
+                                    : `${Math.round(selectedWindow.tempF)}°F`}
                                 score={selectedWindow.scoreBreakdown['Temperature']}
                                 maxScore={40}
                             />
@@ -246,7 +247,9 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                             />
                             <StatCard
                                 label="Wind"
-                                value={`${Math.round(selectedWindow.windMph)}mph`}
+                                value={isMetric
+                                    ? `${Math.round(selectedWindow.windMph * 1.60934)}km/h`
+                                    : `${Math.round(selectedWindow.windMph)}mph`}
                                 score={selectedWindow.scoreBreakdown['Wind Speed']}
                                 maxScore={20}
                             />
@@ -263,6 +266,7 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                                 maxScore={5}
                             />
                         </div>
+
 
                         <div className="space-y-4">
                             {/* Issues */}
