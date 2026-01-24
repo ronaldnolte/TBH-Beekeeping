@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Apiary } from '@tbh-beekeeper/shared';
+import { Apiary, LocationUtils } from '@tbh-beekeeper/shared';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { supabase } from '../lib/supabase';
 import { LocationInput } from './LocationInput';
@@ -16,7 +16,12 @@ export function ApiaryForm({
     onCancel: () => void
 }) {
     const [name, setName] = useState(initialData?.name || '');
-    const [zipCode, setZipCode] = useState(initialData?.zip_code || '');
+    // Normalize initial zip (e.g. "90210" -> "us:90210") so it correctly saves in new format even if untouched
+    const [zipCode, setZipCode] = useState(() => {
+        if (!initialData?.zip_code) return '';
+        const parsed = LocationUtils.parse(initialData.zip_code);
+        return LocationUtils.format(parsed.country, parsed.code);
+    });
     // Support lat/long if present in model
     const [latitude, setLatitude] = useState<number | undefined>(initialData?.latitude);
     const [longitude, setLongitude] = useState<number | undefined>(initialData?.longitude);
