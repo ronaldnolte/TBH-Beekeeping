@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { LangstrothBox } from './LangstrothBox';
 
-export type BoxType = 'deep' | 'medium' | 'shallow' | 'excluder';
+export type BoxType = 'deep' | 'medium' | 'shallow' | 'excluder' | 'inner_cover' | 'feeder';
 
 export interface HiveBox {
     id: string;
@@ -112,13 +112,31 @@ export function LangstrothBuilder() {
                         Queen Excluder
                     </button>
 
+                    <button
+                        onClick={() => addBox('inner_cover')}
+                        className="w-full py-2 px-4 bg-[#E6DCC3] hover:bg-[#D1C4A9] text-[#4A3C28] font-bold rounded border border-[#C0B293] shadow-sm text-left flex items-center gap-3 transition-colors"
+                    >
+                        <div className="w-4 h-2 bg-[#E6DCC3] border border-black/10 rounded-sm"></div>
+                        Inner Cover
+                    </button>
+
+                    <button
+                        onClick={() => addBox('feeder')}
+                        className="w-full py-2 px-4 bg-blue-50 hover:bg-blue-100 text-blue-900 font-bold rounded border border-blue-200 shadow-sm text-left flex items-center gap-3 transition-colors"
+                    >
+                        <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded-sm"></div>
+                        Top Feeder
+                    </button>
+
                     <div className="mt-6 p-3 bg-blue-50 text-blue-800 text-xs rounded border border-blue-100">
                         <strong>Stats:</strong><br />
                         Total Height: {stack.reduce((acc, b) => {
                             if (b.type === 'deep') return acc + 9.625;
                             if (b.type === 'medium') return acc + 6.625;
                             if (b.type === 'shallow') return acc + 5.75;
-                            return acc + 0.5;
+                            if (b.type === 'feeder') return acc + 4.0; // Approx
+                            if (b.type === 'inner_cover') return acc + 0.75;
+                            return acc + 0.5; // Excluder
                         }, 0).toFixed(2)}"
                     </div>
                 </div>
