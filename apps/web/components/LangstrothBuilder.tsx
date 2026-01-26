@@ -53,7 +53,10 @@ export function LangstrothBuilder() {
                     <span className="font-bold text-[#4A3C28]">Outer Cover</span>
                 </div>
 
-                <div className="w-full max-w-xs flex flex-col gap-1">
+                {/* Scrollable Hive Area */}
+                <div className="w-full max-w-xs flex flex-col gap-1 max-h-[60vh] overflow-y-auto overflow-x-visible px-2 py-4 scrollbar-hide">
+                    {/* Reverse stack for visual display so bottom is bottom */}
+                    {/* Note: Data stack[0] is top, so we map as is */}
                     {stack.map((box, index) => (
                         <LangstrothBox
                             key={box.id}
