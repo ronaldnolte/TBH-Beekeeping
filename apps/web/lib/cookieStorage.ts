@@ -4,7 +4,8 @@
 const COOKIE_OPTIONS = {
     path: '/',
     maxAge: 60 * 60 * 24 * 365, // 1 year
-    sameSite: 'lax' as const,
+    sameSite: 'none' as const,  // Allow cross-site usage (essential for auth redirects)
+    secure: true,               // Required for SameSite=None
 };
 
 function setCookie(name: string, value: string, options = COOKIE_OPTIONS): void {
@@ -21,6 +22,9 @@ function setCookie(name: string, value: string, options = COOKIE_OPTIONS): void 
     }
     if (options.sameSite) {
         parts.push(`samesite=${options.sameSite}`);
+    }
+    if ((options as any).secure) {
+        parts.push('secure');
     }
 
     document.cookie = parts.join('; ');
