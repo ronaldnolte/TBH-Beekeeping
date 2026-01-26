@@ -61,19 +61,23 @@ export function LangstrothBuilder() {
                 </div>
 
                 {/* Scrollable Hive Area */}
-                <div className={`w-full flex flex-col gap-1 max-h-[60vh] overflow-y-auto overflow-x-visible px-2 py-4 scrollbar-hide transition-all duration-300 ${defaultFrames === 8 ? 'max-w-[14rem]' : 'max-w-xs'}`}>
+                <div className="w-full flex flex-col gap-1 max-h-[60vh] overflow-y-auto overflow-x-visible px-2 py-4 scrollbar-hide items-center">
                     {/* Reverse stack for visual display so bottom is bottom */}
                     {/* Note: Data stack[0] is top, so we map as is */}
                     {stack.map((box, index) => (
-                        <LangstrothBox
+                        <div
                             key={box.id}
-                            box={box}
-                            onDelete={() => removeBox(box.id)}
-                            onMoveUp={() => moveUp(index)}
-                            onMoveDown={() => moveDown(index)}
-                            isTop={index === 0}
-                            isBottom={index === stack.length - 1}
-                        />
+                            className={`w-full transition-all duration-300 ${defaultFrames === 8 ? 'max-w-[14rem]' : 'max-w-xs'}`}
+                        >
+                            <LangstrothBox
+                                box={box}
+                                onDelete={() => removeBox(box.id)}
+                                onMoveUp={() => moveUp(index)}
+                                onMoveDown={() => moveDown(index)}
+                                isTop={index === 0}
+                                isBottom={index === stack.length - 1}
+                            />
+                        </div>
                     ))}
                 </div>
 
