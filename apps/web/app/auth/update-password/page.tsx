@@ -12,6 +12,7 @@ export default function UpdatePasswordPage() {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [verifying, setVerifying] = useState(true); // New state to hold off showing the form/error
+    const [verifyingStatus, setVerifyingStatus] = useState('Verifying security link...');
     const router = useRouter();
 
     const exchangeAttempted = useRef(false);
@@ -36,6 +37,7 @@ export default function UpdatePasswordPage() {
 
             if (code) {
                 console.log('PKCE code detected, attempting exchange...');
+                setVerifyingStatus('Exchanging security code...');
                 try {
                     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
                     if (data.session) {
@@ -63,14 +65,14 @@ export default function UpdatePasswordPage() {
                 }
             });
 
-            // 4. Set fallback timeout (4 seconds)
+            // 4. Set fallback timeout (10 seconds)
             setTimeout(async () => {
                 const { data: { session: finalSession } } = await supabase.auth.getSession();
                 if (!finalSession) {
                     setVerifying(false);
-                    setError('Unable to verify session. The link may have expired or was already used. Try requesting a new link.');
+                    setError('Unable to verify session. The link may have expired, or the connection is slow.');
                 }
-            }, 4000);
+            }, 10000);
 
             return () => subscription.unsubscribe();
         };
@@ -78,13 +80,18 @@ export default function UpdatePasswordPage() {
         checkSession();
     }, []);
 
+    const handleRetry = () => {
+        window.location.reload();
+    };
+
     // While verifying, show a loading spinner, NOT the form
     if (verifying) {
         return (
             <div className="min-h-screen honeycomb-bg flex items-center justify-center p-4">
                 <div className="bg-white p-8 rounded-xl shadow-lg text-center">
                     <div className="animate-pulse text-4xl mb-4">🔑</div>
-                    <p className="text-gray-600">Verifying security link...</p>
+                    <p className="text-gray-600 font-medium">{verifyingStatus}</p>
+                    <p className="text-xs text-gray-400 mt-2">Please wait...</p>
                 </div>
             </div>
         );
@@ -166,12 +173,25 @@ export default function UpdatePasswordPage() {
                         />
                     </div>
 
-                    {error && <div className="text-red-600 text-sm font-bold bg-red-50 p-2 rounded">{error}</div>}
+                    {error && (
+                        <div className="bg-red-50 p-3 rounded border border-red-100">
+                            <div className="text-red-600 text-sm font-bold mb-2">{error}</div>
+                            {error.includes('verify session') && (
+                                <button
+                                    type="button"
+                                    onClick={handleRetry}
+                                    className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded border border-red-200 hover:bg-red-200 font-semibold"
+                                >
+                                    ↻ Retry Verification
+                                </button>
+                            )}
+                        </div>
+                    )}
                     {message && <div className="text-green-600 text-sm font-bold bg-green-50 p-2 rounded">{message}</div>}
 
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || !!error} // Disable if error (unless they retry)
                         className="w-full py-3 bg-[#E67E22] hover:bg-[#D35400] text-white font-bold rounded shadow transition-transform active:scale-95 disabled:opacity-50"
                     >
                         {loading ? 'Updating...' : 'Update Password'}
