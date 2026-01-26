@@ -17,11 +17,18 @@ export function LangstrothBuilder() {
         { id: '2', type: 'deep', frames: 10 },
     ]);
 
+    const [defaultFrames, setDefaultFrames] = useState<8 | 10>(10);
+
+    const updateFrameCount = (frames: 8 | 10) => {
+        setDefaultFrames(frames);
+        setStack(stack.map(box => ({ ...box, frames })));
+    };
+
     const addBox = (type: BoxType) => {
         const newBox: HiveBox = {
             id: Math.random().toString(36).substr(2, 9),
             type,
-            frames: 10
+            frames: defaultFrames
         };
         // Add to top of stack (beginning of array logically, but visually top)
         setStack([newBox, ...stack]);
@@ -49,12 +56,12 @@ export function LangstrothBuilder() {
         <div className="flex flex-col md:flex-row gap-8 items-start max-w-4xl mx-auto p-4">
             {/* Visualizer Column */}
             <div className="flex-1 w-full flex flex-col items-center">
-                <div className="bg-[#E6DCC3] rounded-t-lg p-2 w-full max-w-xs text-center border-b border-[#D1C4A9] shadow-sm mb-1">
+                <div className={`bg-[#E6DCC3] rounded-t-lg p-2 w-full text-center border-b border-[#D1C4A9] shadow-sm mb-1 transition-all duration-300 ${defaultFrames === 8 ? 'max-w-[14rem]' : 'max-w-xs'}`}>
                     <span className="font-bold text-[#4A3C28]">Outer Cover</span>
                 </div>
 
                 {/* Scrollable Hive Area */}
-                <div className="w-full max-w-xs flex flex-col gap-1 max-h-[60vh] overflow-y-auto overflow-x-visible px-2 py-4 scrollbar-hide">
+                <div className={`w-full flex flex-col gap-1 max-h-[60vh] overflow-y-auto overflow-x-visible px-2 py-4 scrollbar-hide transition-all duration-300 ${defaultFrames === 8 ? 'max-w-[14rem]' : 'max-w-xs'}`}>
                     {/* Reverse stack for visual display so bottom is bottom */}
                     {/* Note: Data stack[0] is top, so we map as is */}
                     {stack.map((box, index) => (
@@ -70,7 +77,7 @@ export function LangstrothBuilder() {
                     ))}
                 </div>
 
-                <div className="bg-[#4A3C28] text-white rounded-lg p-3 w-full max-w-xs text-center shadow-md mt-1 relative">
+                <div className={`bg-[#4A3C28] text-white rounded-lg p-3 w-full text-center shadow-md mt-1 relative transition-all duration-300 ${defaultFrames === 8 ? 'max-w-[14rem]' : 'max-w-xs'}`}>
                     <div className="absolute top-0 left-0 right-0 h-1 bg-black/20" /> {/* Entrance */}
                     <span className="font-bold text-sm">Bottom Board</span>
                 </div>
@@ -79,6 +86,25 @@ export function LangstrothBuilder() {
             {/* Controls Column */}
             <div className="w-full md:w-64 bg-white p-6 rounded-xl shadow-lg border border-[#E6DCC3]">
                 <h3 className="font-serif font-bold text-xl text-[#4A3C28] mb-4">Build Hive</h3>
+
+                {/* Frame Count Toggle */}
+                <div className="flex items-center justify-between bg-gray-50 p-1.5 rounded border border-gray-200 mb-2">
+                    <span className="text-[10px] uppercase font-bold text-gray-400 pl-1">Width:</span>
+                    <div className="flex gap-1">
+                        <button
+                            onClick={() => updateFrameCount(8)}
+                            className={`px-2 py-0.5 text-xs font-bold rounded ${defaultFrames === 8 ? 'bg-[#4A3C28] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            8-Fr
+                        </button>
+                        <button
+                            onClick={() => updateFrameCount(10)}
+                            className={`px-2 py-0.5 text-xs font-bold rounded ${defaultFrames === 10 ? 'bg-[#4A3C28] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            10-Fr
+                        </button>
+                    </div>
+                </div>
 
                 <div className="space-y-3">
                     <button
