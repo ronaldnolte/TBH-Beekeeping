@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useRouter } from 'next/navigation';
 import { navigateTo } from '../../../lib/navigation';
@@ -14,8 +14,14 @@ export default function UpdatePasswordPage() {
     const [verifying, setVerifying] = useState(true); // New state to hold off showing the form/error
     const router = useRouter();
 
+    const exchangeAttempted = useRef(false);
+
     useEffect(() => {
         const checkSession = async () => {
+            // Prevent double-invocation in Strict Mode
+            if (exchangeAttempted.current) return;
+            exchangeAttempted.current = true;
+
             // 1. Check immediate session
             const { data: { session } } = await supabase.auth.getSession();
 
@@ -33,10 +39,15 @@ export default function UpdatePasswordPage() {
                 try {
                     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
                     if (data.session) {
+                        console.log('Session exchanged successfully');
                         setVerifying(false); // Success!
                         return;
                     }
-                    if (error) console.error('Exchange error:', error);
+                    if (error) {
+                        console.error('Exchange error:', error);
+                        // If code is invalid (e.g. reused), we might still have a session from before? 
+                        // If not, we are stuck.
+                    }
                 } catch (e) {
                     console.error('Exchange exception:', e);
                 }
