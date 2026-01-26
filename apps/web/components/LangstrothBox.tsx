@@ -1,17 +1,34 @@
 'use client';
 
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { HiveBox, BoxType } from './LangstrothBuilder';
 
 interface LangstrothBoxProps {
     box: HiveBox;
+    frames: number; // Global frame count (8 or 10)
     onDelete: () => void;
-    onMoveUp: () => void;
-    onMoveDown: () => void;
     isTop: boolean;
     isBottom: boolean;
 }
 
-export function LangstrothBox({ box, onDelete, onMoveUp, onMoveDown, isTop, isBottom }: LangstrothBoxProps) {
+export function LangstrothBox({ box, frames, onDelete, isTop, isBottom }: LangstrothBoxProps) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging
+    } = useSortable({ id: box.id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        touchAction: 'none', // Important for touch devices
+        zIndex: isDragging ? 50 : 'auto',
+    };
 
     // Visual styles based on type
     const getBoxStyle = (type: BoxType) => {
@@ -19,7 +36,7 @@ export function LangstrothBox({ box, onDelete, onMoveUp, onMoveDown, isTop, isBo
             case 'deep': return 'h-24 bg-[#E67E22] border-[#D35400]';
             case 'medium': return 'h-16 bg-[#F5A623] border-[#E09612]';
             case 'shallow': return 'h-12 bg-[#FCD34D] border-[#F59E0B]';
-            case 'excluder': return 'h-2 bg-gray-400 border-gray-500'; // Removed margin here, handled by wrapper
+            case 'excluder': return 'h-2 bg-gray-400 border-gray-500';
             case 'inner_cover': return 'h-4 bg-[#E6DCC3] border-[#C0B293]';
             case 'feeder': return 'h-12 bg-blue-50 border-blue-200';
             case 'slatted_rack': return 'h-8 bg-[#8D6E63] border-[#795548]'; // Dark wood
@@ -42,10 +59,16 @@ export function LangstrothBox({ box, onDelete, onMoveUp, onMoveDown, isTop, isBo
     const isThin = box.type === 'excluder' || box.type === 'inner_cover';
 
     return (
-        // Wrapper div increases the hit area for thin items without affecting visual height too much (using padding)
-        <div className={`relative group w-full flex items-center justify-center ${isThin ? 'py-2 -my-2 z-10' : 'my-0.5'}`}>
-
-            <div className={`w-full relative flex items-center justify-center ${isBox ? 'border-2 rounded transition-transform hover:scale-[1.01]' : 'shadow-sm'} ${getBoxStyle(box.type)}`}>
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`relative group w-full flex items-center justify-center transition-all duration-300 ${frames === 8 ? 'max-w-[14rem]' : 'max-w-xs'} ${isThin ? 'py-2 -my-2 z-10' : 'my-0.5'}`}
+        >
+            <div
+                {...attributes}
+                {...listeners}
+                className={`w-full relative flex items-center justify-center cursor-grab active:cursor-grabbing ${isBox ? 'border-2 rounded' : 'shadow-sm'} ${getBoxStyle(box.type)}`}
+            >
 
                 {/* Box Content (Handles, Label) */}
                 {isBox ? (
@@ -74,21 +97,20 @@ export function LangstrothBox({ box, onDelete, onMoveUp, onMoveDown, isTop, isBo
                 )}
             </div>
 
-            {/* Hover Controls - Moved further right to avoid covering thin items */}
-            <div className="absolute -right-14 top-1/2 -translate-y-1/2 w-10 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center gap-1 bg-white/50 p-1 rounded backdrop-blur-sm shadow-sm border border-white/50">
-                {!isTop && (
-                    <button onClick={onMoveUp} className="w-8 h-6 bg-white rounded shadow-sm text-gray-600 hover:text-blue-600 flex items-center justify-center text-xs border border-gray-200 active:scale-95" title="Move Up">
-                        ▲
-                    </button>
-                )}
-                <button onClick={onDelete} className="w-8 h-6 bg-white rounded shadow-sm text-gray-600 hover:text-red-600 flex items-center justify-center text-xs border border-gray-200 active:scale-95" title="Remove">
+            {/* Side Controls (Delete) */}
+            <div className="absolute -right-10 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center gap-1">
+                {/* Drag Handle Indicator (Optional visual cue) */}
+                <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 mb-1 flex justify-center w-8">
+                    <svg width="12" height="20" viewBox="0 0 6 10" fill="currentColor"><circle cx="1" cy="1" r="1" /><circle cx="1" cy="5" r="1" /><circle cx="1" cy="9" r="1" /><circle cx="5" cy="1" r="1" /><circle cx="5" cy="5" r="1" /><circle cx="5" cy="9" r="1" /></svg>
+                </div>
+
+                <button
+                    onClick={onDelete}
+                    className="w-8 h-8 bg-white/80 rounded-full shadow-sm text-gray-500 hover:text-red-600 hover:bg-white flex items-center justify-center text-sm border border-gray-200 transition-all active:scale-95"
+                    title="Remove"
+                >
                     ×
                 </button>
-                {!isBottom && (
-                    <button onClick={onMoveDown} className="w-8 h-6 bg-white rounded shadow-sm text-gray-600 hover:text-blue-600 flex items-center justify-center text-xs border border-gray-200 active:scale-95" title="Move Down">
-                        ▼
-                    </button>
-                )}
             </div>
         </div>
     );

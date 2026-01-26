@@ -2,6 +2,21 @@
 
 import { useState } from 'react';
 import { LangstrothBox } from './LangstrothBox';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy
+} from '@dnd-kit/sortable';
 
 export type BoxType = 'deep' | 'medium' | 'shallow' | 'excluder' | 'inner_cover' | 'feeder' | 'slatted_rack';
 
@@ -38,18 +53,23 @@ export function LangstrothBuilder() {
         setStack(stack.filter(b => b.id !== id));
     };
 
-    const moveUp = (index: number) => {
-        if (index === 0) return;
-        const newStack = [...stack];
-        [newStack[index - 1], newStack[index]] = [newStack[index], newStack[index - 1]];
-        setStack(newStack);
-    };
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
-    const moveDown = (index: number) => {
-        if (index === stack.length - 1) return;
-        const newStack = [...stack];
-        [newStack[index + 1], newStack[index]] = [newStack[index], newStack[index + 1]];
-        setStack(newStack);
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (active.id !== over?.id) {
+            setStack((items) => {
+                const oldIndex = items.findIndex((item) => item.id === active.id);
+                const newIndex = items.findIndex((item) => item.id === over?.id);
+                return arrayMove(items, oldIndex, newIndex);
+            });
+        }
     };
 
     return (
@@ -64,21 +84,27 @@ export function LangstrothBuilder() {
                 <div className="w-full flex flex-col gap-1 max-h-[60vh] overflow-y-auto overflow-x-visible px-2 py-4 scrollbar-hide items-center">
                     {/* Reverse stack for visual display so bottom is bottom */}
                     {/* Note: Data stack[0] is top, so we map as is */}
-                    {stack.map((box, index) => (
-                        <div
-                            key={box.id}
-                            className={`w-full transition-all duration-300 ${defaultFrames === 8 ? 'max-w-[14rem]' : 'max-w-xs'}`}
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={stack}
+                            strategy={verticalListSortingStrategy}
                         >
-                            <LangstrothBox
-                                box={box}
-                                onDelete={() => removeBox(box.id)}
-                                onMoveUp={() => moveUp(index)}
-                                onMoveDown={() => moveDown(index)}
-                                isTop={index === 0}
-                                isBottom={index === stack.length - 1}
-                            />
-                        </div>
-                    ))}
+                            {stack.map((box, index) => (
+                                <LangstrothBox
+                                    key={box.id}
+                                    box={box}
+                                    frames={defaultFrames}
+                                    onDelete={() => removeBox(box.id)}
+                                    isTop={index === 0}
+                                    isBottom={index === stack.length - 1}
+                                />
+                            ))}
+                        </SortableContext>
+                    </DndContext>
                 </div>
 
                 <div className={`bg-[#4A3C28] text-white rounded-lg p-3 w-full text-center shadow-md mt-1 relative transition-all duration-300 ${defaultFrames === 8 ? 'max-w-[14rem]' : 'max-w-xs'}`}>
