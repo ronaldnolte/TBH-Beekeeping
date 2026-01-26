@@ -45,7 +45,21 @@ function getCookie(name: string): string | null {
 
 function deleteCookie(name: string): void {
     if (typeof document === 'undefined') return;
-    document.cookie = `${name}=; path=/; max-age=0`;
+
+    // To delete a cookie with SameSite=None and Secure, we must specify those attributes
+    // otherwise the browser treats it as a different cookie and ignores the delete.
+    const parts = [
+        `${name}=`,
+        'path=/',
+        'max-age=0',
+        `samesite=${COOKIE_OPTIONS.sameSite}`
+    ];
+
+    if (COOKIE_OPTIONS.secure) {
+        parts.push('secure');
+    }
+
+    document.cookie = parts.join('; ');
 }
 
 // Supabase-compatible storage interface
