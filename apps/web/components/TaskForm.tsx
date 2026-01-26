@@ -73,7 +73,7 @@ export function TaskForm({
             onSuccess();
         } catch (error) {
             console.error('Failed to save task:', error);
-            alert('Failed to save task');
+            alert(`Failed to save task: ${(error as any).message || 'Unknown error'}`);
         } finally {
             setIsSubmitting(false);
         }
