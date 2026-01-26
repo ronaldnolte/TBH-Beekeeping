@@ -198,6 +198,13 @@ const ApiarySelectionPage = () => {
             // Continue with logout even if reset fails
         }
 
+        // Explicitly clear cookies to handle potential stuck legacy cookies
+        // Try deleting with multiple path/secure configurations to be safe
+        const d = new Date(0).toUTCString();
+        document.cookie = `supabase-auth-token=; path=/; expires=${d};`;
+        document.cookie = `supabase-auth-token=; path=/; expires=${d}; secure; samesite=none`;
+        document.cookie = `supabase-auth-token=; path=/; expires=${d}; samesite=lax`;
+
         await supabase.auth.signOut();
         navigateTo('/');
     };
