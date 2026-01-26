@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { LangstrothBox } from './LangstrothBox';
 
-export type BoxType = 'deep' | 'medium' | 'shallow' | 'excluder' | 'inner_cover' | 'feeder';
+export type BoxType = 'deep' | 'medium' | 'shallow' | 'excluder' | 'inner_cover' | 'feeder' | 'slatted_rack';
 
 export interface HiveBox {
     id: string;
@@ -113,6 +113,14 @@ export function LangstrothBuilder() {
                     </button>
 
                     <button
+                        onClick={() => addBox('slatted_rack')}
+                        className="w-full py-2 px-4 bg-[#D7CCC8] hover:bg-[#BCAAA4] text-[#5D4037] font-bold rounded border border-[#A1887F] shadow-sm text-left flex items-center gap-3 transition-colors"
+                    >
+                        <div className="w-4 h-2 bg-[#8D6E63] border border-white/30 rounded-sm"></div>
+                        Slatted Rack
+                    </button>
+
+                    <button
                         onClick={() => addBox('inner_cover')}
                         className="w-full py-2 px-4 bg-[#E6DCC3] hover:bg-[#D1C4A9] text-[#4A3C28] font-bold rounded border border-[#C0B293] shadow-sm text-left flex items-center gap-3 transition-colors"
                     >
@@ -136,6 +144,7 @@ export function LangstrothBuilder() {
                             if (b.type === 'shallow') return acc + 5.75;
                             if (b.type === 'feeder') return acc + 4.0; // Approx
                             if (b.type === 'inner_cover') return acc + 0.75;
+                            if (b.type === 'slatted_rack') return acc + 2.0;
                             return acc + 0.5; // Excluder
                         }, 0).toFixed(2)}"
                     </div>

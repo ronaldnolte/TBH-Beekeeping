@@ -22,6 +22,7 @@ export function LangstrothBox({ box, onDelete, onMoveUp, onMoveDown, isTop, isBo
             case 'excluder': return 'h-2 bg-gray-400 border-gray-500'; // Removed margin here, handled by wrapper
             case 'inner_cover': return 'h-4 bg-[#E6DCC3] border-[#C0B293]';
             case 'feeder': return 'h-12 bg-blue-50 border-blue-200';
+            case 'slatted_rack': return 'h-8 bg-[#8D6E63] border-[#795548]'; // Dark wood
         }
     };
 
@@ -33,10 +34,11 @@ export function LangstrothBox({ box, onDelete, onMoveUp, onMoveDown, isTop, isBo
             case 'excluder': return 'Queen Excluder';
             case 'inner_cover': return 'Inner Cover';
             case 'feeder': return 'Top Feeder';
+            case 'slatted_rack': return 'Slatted Rack';
         }
     };
 
-    const isBox = box.type === 'deep' || box.type === 'medium' || box.type === 'shallow' || box.type === 'feeder';
+    const isBox = box.type === 'deep' || box.type === 'medium' || box.type === 'shallow' || box.type === 'feeder' || box.type === 'slatted_rack';
     const isThin = box.type === 'excluder' || box.type === 'inner_cover';
 
     return (
