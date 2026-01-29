@@ -44,5 +44,8 @@
       "metro-transform-worker": "0.83.3",
       "@expo/cli": "^54.0.0"
     }
+  },
+  "dependencies": {
+    "pg": "^8.17.2"
   }
 }

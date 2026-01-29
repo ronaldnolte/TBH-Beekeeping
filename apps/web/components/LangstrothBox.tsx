@@ -2,7 +2,7 @@
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { HiveBox, BoxType } from './LangstrothBuilder';
+import { HiveBox, BoxType } from '@tbh-beekeeper/shared';
 
 interface LangstrothBoxProps {
     box: HiveBox;
@@ -62,12 +62,26 @@ export function LangstrothBox({ box, frames, onDelete, isTop, isBottom }: Langst
         <div
             ref={setNodeRef}
             style={style}
-            className={`relative group w-full flex items-center justify-center transition-all duration-300 ${frames === 8 ? 'max-w-[14rem]' : 'max-w-xs'} ${isThin ? 'py-2 -my-2 z-10' : 'my-0.5'}`}
+            className={`relative group flex items-center justify-center transition-all duration-300 ${frames === 8 ? 'w-48 sm:w-56' : 'w-56 sm:w-64'} ${isThin ? 'py-2 -my-2 z-10' : ''}`}
         >
+            {/* 3D Depth Side Panel (Left) */}
+            {isBox && (
+                <div
+                    className={`absolute top-0 bottom-0 right-full w-4 origin-right skew-y-[45deg] brightness-75 border-y border-l ${box.type === 'slatted_rack' ? 'border-[#5D4037]' : 'border-black/20'}`}
+                    style={{
+                        backgroundColor:
+                            box.type === 'deep' ? '#D35400' :
+                                box.type === 'medium' ? '#E67E22' :
+                                    box.type === 'shallow' ? '#F59E0B' :
+                                        box.type === 'feeder' ? '#BFDBFE' :
+                                            box.type === 'slatted_rack' ? '#5D4037' : 'gray'
+                    }}
+                />
+            )}
             <div
                 {...attributes}
                 {...listeners}
-                className={`w-full relative flex items-center justify-center cursor-grab active:cursor-grabbing ${isBox ? 'border-2 rounded' : 'shadow-sm'} ${getBoxStyle(box.type)}`}
+                className={`w-full relative flex items-center justify-center cursor-grab active:cursor-grabbing ${isBox ? 'border-2' : 'shadow-sm'} ${getBoxStyle(box.type)}`}
             >
 
                 {/* Box Content (Handles, Label) */}
@@ -98,13 +112,14 @@ export function LangstrothBox({ box, frames, onDelete, isTop, isBottom }: Langst
             </div>
 
             {/* Side Controls (Delete) */}
-            <div className="absolute -right-10 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center gap-1">
+            <div className="absolute -right-10 top-1/2 -translate-y-1/2 opacity-100 flex flex-col justify-center gap-1">
                 {/* Drag Handle Indicator (Optional visual cue) */}
                 <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 mb-1 flex justify-center w-8">
                     <svg width="12" height="20" viewBox="0 0 6 10" fill="currentColor"><circle cx="1" cy="1" r="1" /><circle cx="1" cy="5" r="1" /><circle cx="1" cy="9" r="1" /><circle cx="5" cy="1" r="1" /><circle cx="5" cy="5" r="1" /><circle cx="5" cy="9" r="1" /></svg>
                 </div>
 
                 <button
+                    type="button"
                     onClick={onDelete}
                     className="w-8 h-8 bg-white/80 rounded-full shadow-sm text-gray-500 hover:text-red-600 hover:bg-white flex items-center justify-center text-sm border border-gray-200 transition-all active:scale-95"
                     title="Remove"

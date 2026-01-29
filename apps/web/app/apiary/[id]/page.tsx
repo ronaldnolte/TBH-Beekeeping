@@ -155,7 +155,7 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
                 />
             )}
 
-            <Modal isOpen={isCreatingHive} onClose={() => setIsCreatingHive(false)} title="Add New Hive">
+            <Modal isOpen={isCreatingHive} onClose={() => setIsCreatingHive(false)} title="Add New Hive" maxWidth="max-w-5xl">
                 <HiveForm
                     apiaryId={apiary.id}
                     onSuccess={() => { setIsCreatingHive(false); fetchData(); }}
@@ -163,7 +163,7 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
                 />
             </Modal>
 
-            <Modal isOpen={!!editingHive} onClose={() => setEditingHive(null)} title="Edit Hive">
+            <Modal isOpen={!!editingHive} onClose={() => setEditingHive(null)} title="Edit Hive" maxWidth="max-w-5xl">
                 <HiveForm
                     apiaryId={apiary.id}
                     initialData={editingHive || undefined}

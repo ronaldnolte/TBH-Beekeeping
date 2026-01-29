@@ -4,14 +4,16 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { BarVisualizer } from './BarVisualizer';
+import { LangstrothBuilder } from './LangstrothBuilder';
 import { InterventionList } from './InterventionList';
 import { InterventionForm } from './InterventionForm';
 import { InspectionList } from './InspectionList';
 import { InspectionForm } from './InspectionForm';
 import { TaskList } from './TaskList';
 import { TaskForm } from './TaskForm';
+import { HiveForm } from './HiveForm';
 import { Modal } from './Modal';
-import { Hive, HiveSnapshot, BarState, Inspection, Intervention, Apiary, Task } from '@tbh-beekeeper/shared';
+import { Hive, HiveSnapshot, BarState, Inspection, Intervention, Apiary, Task, HiveBox } from '@tbh-beekeeper/shared';
 import { supabase } from '../lib/supabase';
 import { navigateTo } from '../lib/navigation';
 import { Tour } from './Tour';
@@ -72,20 +74,46 @@ const HistoryItem = ({ snapshot, onSelect, onDelete }: { snapshot: HiveSnapshot,
                 </div>
             </div>
 
-            <div className="flex gap-[1px] h-4 sm:h-10 items-end overflow-hidden mt-0.5 ml-10 cursor-pointer" onClick={onSelect}>
-                {bars.slice(0, 30).map((bar) => (
-                    <div
-                        key={bar.position}
-                        className="w-1.5 sm:w-4 h-full rounded-[0.5px] border-[0.5px] border-black/50"
-                        style={{
-                            backgroundColor: BAR_COLORS[bar.status as BarStatus] || BAR_COLORS.inactive,
-                            height: '100%'
-                        }}
-                        title={`Bar ${bar.position}: ${bar.status}`}
-                    />
-                ))}
-                {bars.length > 30 && <div className="text-[6px] text-gray-300 self-center">...</div>}
-            </div>
+            {/* Content: Detect if bars (TBH) or Boxes (Langstroth) handled manually here as type guard is loose */}
+            {(bars.length > 0 && 'type' in bars[0]) ? (
+                // Langstroth Summary View
+                <div className="flex items-center gap-2 ml-10 mt-1" onClick={onSelect}>
+                    <div className="flex flex-col gap-0.5">
+                        {/* Tiny Visual Stack */}
+                        {bars.slice(0, 5).map((box: any, i) => (
+                            <div
+                                key={i}
+                                className={`w-6 border border-black/20 rounded-[1px] ${box.type === 'deep' ? 'h-3 bg-[#E67E22]' :
+                                    box.type === 'medium' ? 'h-2 bg-[#F5A623]' : 'h-1.5 bg-[#FCD34D]'
+                                    }`}
+                                title={box.type}
+                            />
+                        ))}
+                    </div>
+                    <div className="text-[10px] text-gray-500 leading-tight">
+                        {/* Text Summary */}
+                        {bars.filter((b: any) => b.type === 'shallow').length > 0 && <div>{bars.filter((b: any) => b.type === 'shallow').length} Shal</div>}
+                        {bars.filter((b: any) => b.type === 'medium').length > 0 && <div>{bars.filter((b: any) => b.type === 'medium').length} Med</div>}
+                        {bars.filter((b: any) => b.type === 'deep').length > 0 && <div>{bars.filter((b: any) => b.type === 'deep').length} Deep</div>}
+                    </div>
+                </div>
+            ) : (
+                // Standard Top Bar Visualization
+                <div className="flex gap-[1px] h-4 sm:h-10 items-end overflow-hidden mt-0.5 ml-10 cursor-pointer" onClick={onSelect}>
+                    {bars.slice(0, 30).map((bar) => (
+                        <div
+                            key={bar.position}
+                            className="w-1.5 sm:w-4 h-full rounded-[0.5px] border-[0.5px] border-black/50"
+                            style={{
+                                backgroundColor: BAR_COLORS[bar.status as BarStatus] || BAR_COLORS.inactive,
+                                height: '100%'
+                            }}
+                            title={`Bar ${bar.position}: ${bar.status}`}
+                        />
+                    ))}
+                    {bars.length > 30 && <div className="text-[6px] text-gray-300 self-center">...</div>}
+                </div>
+            )}
         </div>
     );
 };
@@ -116,9 +144,6 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
     const [showCompletedTasks, setShowCompletedTasks] = useState(false);
 
     const [isEditingSettings, setIsEditingSettings] = useState(false);
-    const [apiaryList, setApiaryList] = useState<Apiary[]>([]);
-    const [editName, setEditName] = useState('');
-    const [editApiaryId, setEditApiaryId] = useState('');
 
     // Ownership Check: Returns true if allowed, false if blocked
     const checkOwnership = (): boolean => {
@@ -134,8 +159,6 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
         const { data: hiveData } = await supabase.from('hives').select('*').eq('id', hiveId).single();
         if (hiveData) {
             setHive(hiveData);
-            setEditName(hiveData.name);
-            setEditApiaryId(hiveData.apiary_id);
 
             // Fetch the apiary to determine ownership
             const { data: apiaryData } = await supabase.from('apiaries').select('*').eq('id', hiveData.apiary_id).single();
@@ -172,25 +195,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
 
     const handleOpenSettings = async () => {
         if (!checkOwnership()) return;
-        const { data } = await supabase.from('apiaries').select('*');
-        setApiaryList(data || []);
         setIsEditingSettings(true);
-    };
-
-    const handleSaveSettings = async () => {
-        if (!editName.trim()) return;
-        if (!checkOwnership()) return;
-        const { error } = await supabase
-            .from('hives')
-            .update({ name: editName, apiary_id: editApiaryId })
-            .eq('id', hiveId);
-
-        if (error) {
-            alert('Failed to update hive');
-        } else {
-            setIsEditingSettings(false);
-            fetchData();
-        }
     };
 
     if (loading && !hive) return <div className="min-h-screen flex items-center justify-center">Loading Hive Data...</div>;
@@ -216,7 +221,10 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                             <Link href="/" className="hover:underline decoration-white/50 underline-offset-4">
                                 <h1 className="text-xl font-bold leading-tight">{hive.name}</h1>
                             </Link>
-                            <span className="text-xs opacity-90">{hive.is_active ? 'Active' : 'Inactive'} • {hive.bar_count} bars</span>
+                            <span className="text-xs opacity-90">
+                                {hive.is_active ? 'Active' : 'Inactive'}
+                                {!hive.type?.includes('langstroth') && ` • ${hive.bar_count} bars`}
+                            </span>
                         </div>
                     </div>
                     <button
@@ -230,14 +238,31 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
 
             <div className="max-w-7xl mx-auto p-2 space-y-3">
                 <div id="hive-snapshots">
-                    <BarVisualizer
-                        hive={hive}
-                        snapshot={displayedSnapshot}
-                        hiveId={hive.id}
-                        onSnapshotCreate={() => { fetchData(); setSelectedSnapshotId(null); }}
-                        readOnly={!!selectedSnapshotId}
-                        isOwner={!apiary || apiary.user_id === userId}
-                    />
+                    {hive.type?.includes('langstroth') ? (
+                        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                            <h3 className="text-sm font-bold text-[#4A3C28] uppercase tracking-wide mb-4 text-center">Current Configuration</h3>
+                            <LangstrothBuilder
+                                readOnly={true}
+                                initialBoxes={((): HiveBox[] => {
+                                    const raw = displayedSnapshot?.bars || hive.bars;
+                                    if (Array.isArray(raw)) return raw as unknown as HiveBox[];
+                                    if (typeof raw === 'string') {
+                                        try { return JSON.parse(raw); } catch (e) { return []; }
+                                    }
+                                    return [];
+                                })()}
+                            />
+                        </div>
+                    ) : (
+                        <BarVisualizer
+                            hive={hive}
+                            snapshot={displayedSnapshot}
+                            hiveId={hive.id}
+                            onSnapshotCreate={() => { fetchData(); setSelectedSnapshotId(null); }}
+                            readOnly={!!selectedSnapshotId}
+                            isOwner={!apiary || apiary.user_id === userId}
+                        />
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -387,50 +412,16 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                 )}
             </div>
 
-            <Modal isOpen={isEditingSettings} onClose={() => setIsEditingSettings(false)} title="Hive Settings">
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Hive Name</label>
-                        <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#E67E22] outline-none" />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Location (Apiary)</label>
-                        <select value={editApiaryId} onChange={e => setEditApiaryId(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#E67E22] outline-none">
-                            {apiaryList.map(apiary => <option key={apiary.id} value={apiary.id}>{apiary.name} {apiary.zip_code === '00000' ? '(Unassigned)' : ''}</option>)}
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                        <textarea
-                            value={hive?.notes || ''}
-                            onChange={e => setHive(prev => prev ? { ...prev, notes: e.target.value } : null)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#E67E22] outline-none"
-                            placeholder="Optional notes..."
-                        />
-                    </div>
-                    <div className="flex justify-end gap-3 pt-2">
-                        <button onClick={() => setIsEditingSettings(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancel</button>
-                        <button onClick={async () => {
-                            if (!editName.trim()) return;
-                            if (!checkOwnership()) return;
-                            const { error } = await supabase
-                                .from('hives')
-                                .update({
-                                    name: editName,
-                                    apiary_id: editApiaryId,
-                                    notes: hive?.notes
-                                })
-                                .eq('id', hiveId);
-
-                            if (error) {
-                                alert('Failed to update hive');
-                            } else {
-                                setIsEditingSettings(false);
-                                fetchData();
-                            }
-                        }} className="px-4 py-2 bg-[#E67E22] text-white rounded font-bold hover:bg-[#D35400]">Save Changes</button>
-                    </div>
-                </div>
+            <Modal isOpen={isEditingSettings} onClose={() => setIsEditingSettings(false)} title="Edit Hive" maxWidth="max-w-5xl">
+                <HiveForm
+                    apiaryId={hive.apiary_id}
+                    initialData={hive}
+                    onSuccess={() => {
+                        setIsEditingSettings(false);
+                        fetchData();
+                    }}
+                    onCancel={() => setIsEditingSettings(false)}
+                />
             </Modal>
 
             <Modal isOpen={!!snapshotToDelete} onClose={() => setSnapshotToDelete(null)} title="Confirm Delete">

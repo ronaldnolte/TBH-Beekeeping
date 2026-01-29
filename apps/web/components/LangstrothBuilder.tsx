@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LangstrothBox } from './LangstrothBox';
 import {
     DndContext,
@@ -17,26 +17,48 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy
 } from '@dnd-kit/sortable';
+import { HiveBox, BoxType } from '@tbh-beekeeper/shared';
 
-export type BoxType = 'deep' | 'medium' | 'shallow' | 'excluder' | 'inner_cover' | 'feeder' | 'slatted_rack';
-
-export interface HiveBox {
-    id: string;
-    type: BoxType;
-    frames?: number; // 8 or 10
+export interface LangstrothBuilderProps {
+    initialBoxes?: HiveBox[];
+    onChange?: (boxes: HiveBox[]) => void;
+    readOnly?: boolean;
 }
 
-export function LangstrothBuilder() {
-    const [stack, setStack] = useState<HiveBox[]>([
-        { id: '1', type: 'deep', frames: 10 },
-        { id: '2', type: 'deep', frames: 10 },
+export function LangstrothBuilder({ initialBoxes, onChange, readOnly = false }: LangstrothBuilderProps) {
+    const [stack, setStack] = useState<HiveBox[]>(initialBoxes || [
     ]);
 
-    const [defaultFrames, setDefaultFrames] = useState<8 | 10>(10);
+    // Sync state with props when data changes (Critical for View mode updates)
+    useEffect(() => {
+        if (initialBoxes) {
+            setStack(initialBoxes);
+        }
+    }, [initialBoxes]);
+
+    // Sync state with props when data changes (Critical for View mode updates)
+    useEffect(() => {
+        if (initialBoxes) {
+            setStack(initialBoxes);
+        }
+    }, [initialBoxes]);
+
+    // Notify parent of changes whenever stack changes
+    const updateStack = (newStack: HiveBox[]) => {
+        setStack(newStack);
+        onChange?.(newStack);
+    };
+
+    const [defaultFrames, setDefaultFrames] = useState<8 | 10>(() => {
+        if (initialBoxes && initialBoxes.length > 0) {
+            return (initialBoxes[0].frames as 8 | 10) || 10;
+        }
+        return 10;
+    });
 
     const updateFrameCount = (frames: 8 | 10) => {
         setDefaultFrames(frames);
-        setStack(stack.map(box => ({ ...box, frames })));
+        updateStack(stack.map(box => ({ ...box, frames })));
     };
 
     const addBox = (type: BoxType) => {
@@ -46,11 +68,11 @@ export function LangstrothBuilder() {
             frames: defaultFrames
         };
         // Add to top of stack (beginning of array logically, but visually top)
-        setStack([newBox, ...stack]);
+        updateStack([newBox, ...stack]);
     };
 
     const removeBox = (id: string) => {
-        setStack(stack.filter(b => b.id !== id));
+        updateStack(stack.filter(b => b.id !== id));
     };
 
     const sensors = useSensors(
@@ -64,24 +86,25 @@ export function LangstrothBuilder() {
         const { active, over } = event;
 
         if (active.id !== over?.id) {
-            setStack((items) => {
-                const oldIndex = items.findIndex((item) => item.id === active.id);
-                const newIndex = items.findIndex((item) => item.id === over?.id);
-                return arrayMove(items, oldIndex, newIndex);
-            });
+            updateStack(arrayMove(stack,
+                stack.findIndex((item) => item.id === active.id),
+                stack.findIndex((item) => item.id === over?.id)
+            ));
         }
     };
 
     return (
-        <div className="flex flex-col md:flex-row gap-8 items-start max-w-4xl mx-auto p-4">
+        <div className="flex flex-col md:flex-row gap-2 md:gap-4 items-start max-w-5xl mx-auto p-0 md:p-2">
             {/* Visualizer Column */}
-            <div className="flex-1 w-full flex flex-col items-center">
-                <div className={`bg-[#E6DCC3] rounded-t-lg p-2 w-full text-center border-b border-[#D1C4A9] shadow-sm mb-1 transition-all duration-300 ${defaultFrames === 8 ? 'max-w-[14rem]' : 'max-w-xs'}`}>
+            <div className="flex-1 w-full flex flex-col items-center overflow-visible pl-4">
+                <div className={`relative bg-[#E6DCC3] p-2 text-center border-b border-[#D1C4A9] shadow-sm transition-all duration-300 ${defaultFrames === 8 ? 'w-48 sm:w-56' : 'w-56 sm:w-64'}`}>
+                    {/* 3D Depth (Left) - Downward Slope */}
+                    <div className="absolute top-0 bottom-0 right-full w-4 origin-right skew-y-[45deg] brightness-75 border-y border-l border-black/10 bg-[#C0B293]"></div>
                     <span className="font-bold text-[#4A3C28]">Outer Cover</span>
                 </div>
 
-                {/* Scrollable Hive Area */}
-                <div className="w-full flex flex-col gap-1 max-h-[60vh] overflow-y-auto overflow-x-visible px-2 py-4 scrollbar-hide items-center">
+                {/* Hive Stack - Cohesive Tower (No Gap) */}
+                <div className="w-full flex flex-col gap-0 px-4 items-center">
                     {/* Reverse stack for visual display so bottom is bottom */}
                     {/* Note: Data stack[0] is top, so we map as is */}
                     <DndContext
@@ -98,7 +121,7 @@ export function LangstrothBuilder() {
                                     key={box.id}
                                     box={box}
                                     frames={defaultFrames}
-                                    onDelete={() => removeBox(box.id)}
+                                    onDelete={readOnly ? () => { } : () => removeBox(box.id)}
                                     isTop={index === 0}
                                     isBottom={index === stack.length - 1}
                                 />
@@ -107,108 +130,67 @@ export function LangstrothBuilder() {
                     </DndContext>
                 </div>
 
-                <div className={`bg-[#4A3C28] text-white rounded-lg p-3 w-full text-center shadow-md mt-1 relative transition-all duration-300 ${defaultFrames === 8 ? 'max-w-[14rem]' : 'max-w-xs'}`}>
+                <div className={`relative bg-[#4A3C28] text-white p-3 text-center shadow-md transition-all duration-300 ${defaultFrames === 8 ? 'w-48 sm:w-56' : 'w-56 sm:w-64'}`}>
+                    {/* 3D Depth (Left) - Downward Slope */}
+                    <div className="absolute top-0 bottom-0 right-full w-4 origin-right skew-y-[45deg] brightness-75 border-y border-l border-black/30 bg-[#3E3221]"></div>
                     <div className="absolute top-0 left-0 right-0 h-1 bg-black/20" /> {/* Entrance */}
                     <span className="font-bold text-sm">Bottom Board</span>
                 </div>
             </div>
 
-            {/* Controls Column */}
-            <div className="w-full md:w-64 bg-white p-6 rounded-xl shadow-lg border border-[#E6DCC3]">
-                <h3 className="font-serif font-bold text-xl text-[#4A3C28] mb-4">Build Hive</h3>
+            {/* Controls Column - Hidden in Read Only */}
+            {!readOnly && (
+                <div className="w-full md:w-56 bg-white p-3 rounded-xl shadow-lg border border-[#E6DCC3] shrink-0">
+                    {/* Palette Header */}
+                    <div className="bg-gray-50 border-b border-gray-100 p-2 mb-2 rounded-t-lg">
+                        <div className="flex items-center justify-between">
+                            <h3 className="font-bold text-xs uppercase text-gray-400 tracking-wider">Parts Palette</h3>
+                            {/* Tiny Width Toggle */}
+                            <div className="flex bg-gray-200 rounded p-0.5">
+                                <button onClick={() => updateFrameCount(8)} className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${defaultFrames === 8 ? 'bg-white shadow text-[#4A3C28]' : 'text-gray-500'}`}>8</button>
+                                <button onClick={() => updateFrameCount(10)} className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${defaultFrames === 10 ? 'bg-white shadow text-[#4A3C28]' : 'text-gray-500'}`}>10</button>
+                            </div>
+                        </div>
+                    </div>
 
-                {/* Frame Count Toggle */}
-                <div className="flex items-center justify-between bg-gray-50 p-1.5 rounded border border-gray-200 mb-2">
-                    <span className="text-[10px] uppercase font-bold text-gray-400 pl-1">Width:</span>
-                    <div className="flex gap-1">
-                        <button
-                            onClick={() => updateFrameCount(8)}
-                            className={`px-2 py-0.5 text-xs font-bold rounded ${defaultFrames === 8 ? 'bg-[#4A3C28] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                        >
-                            8-Fr
-                        </button>
-                        <button
-                            onClick={() => updateFrameCount(10)}
-                            className={`px-2 py-0.5 text-xs font-bold rounded ${defaultFrames === 10 ? 'bg-[#4A3C28] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                        >
-                            10-Fr
-                        </button>
+                    <div className="space-y-1.5">
+                        <div className="grid grid-cols-1 gap-1.5">
+                            <button type="button" onClick={() => addBox('deep')} className="flex items-center w-full bg-[#F5A623] hover:bg-[#E09612] text-white text-xs font-bold py-1.5 px-2 rounded shadow-sm border-b-2 border-[#D35400] active:border-b-0 active:translate-y-[2px] transition-all">
+                                <span className="w-2.5 h-2.5 bg-[#E67E22] border border-white/40 mr-2 rounded-[1px]"></span>
+                                Deep (9⅝")
+                            </button>
+                            <button type="button" onClick={() => addBox('medium')} className="flex items-center w-full bg-[#F5A623] hover:bg-[#E09612] text-white text-xs font-bold py-1.5 px-2 rounded shadow-sm border-b-2 border-[#E09612] active:border-b-0 active:translate-y-[2px] transition-all">
+                                <span className="w-2.5 h-2 bg-[#F5A623] border border-white/40 mr-2 rounded-[1px]"></span>
+                                Medium (6⅝")
+                            </button>
+                            <button type="button" onClick={() => addBox('shallow')} className="flex items-center w-full bg-[#F5A623] hover:bg-[#E09612] text-white text-xs font-bold py-1.5 px-2 rounded shadow-sm border-b-2 border-[#F59E0B] active:border-b-0 active:translate-y-[2px] transition-all">
+                                <span className="w-2.5 h-1.5 bg-[#FCD34D] border border-white/40 mr-2 rounded-[1px]"></span>
+                                Shallow (5¾")
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-1.5">
+                            <button type="button" onClick={() => addBox('excluder')} className="text-left text-[10px] bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-1 px-2 rounded border border-gray-300">Excluder</button>
+                            <button type="button" onClick={() => addBox('slatted_rack')} className="text-left text-[10px] bg-[#D7CCC8] hover:bg-[#BCAAA4] text-[#5D4037] font-bold py-1 px-2 rounded border border-[#A1887F]">Slatted Rack</button>
+                            <button type="button" onClick={() => addBox('inner_cover')} className="text-left text-[10px] bg-[#E6DCC3] hover:bg-[#D1C4A9] text-[#4A3C28] font-bold py-1 px-2 rounded border border-[#C0B293]">Inner Cover</button>
+                            <button type="button" onClick={() => addBox('feeder')} className="text-left text-[10px] bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold py-1 px-2 rounded border border-blue-200">Top Feeder</button>
+                        </div>
+
+                        <div className="mt-4 pt-2 border-t border-gray-100 text-[10px] text-gray-400 text-center">
+                            <strong>Stats:</strong><br />
+                            Total Height: {stack.reduce((acc, b) => {
+                                if (b.type === 'deep') return acc + 9.625;
+                                if (b.type === 'medium') return acc + 6.625;
+                                if (b.type === 'shallow') return acc + 5.75;
+                                if (b.type === 'feeder') return acc + 4.0; // Approx
+                                if (b.type === 'inner_cover') return acc + 0.75;
+                                if (b.type === 'slatted_rack') return acc + 2.0;
+                                return acc + 0.5; // Excluder
+                            }, 0).toFixed(2)}"
+                        </div>
                     </div>
                 </div>
-
-                <div className="space-y-3">
-                    <button
-                        onClick={() => addBox('deep')}
-                        className="w-full py-3 px-4 bg-[#F5A623] hover:bg-[#E09612] text-white font-bold rounded shadow-sm text-left flex items-center gap-3 transition-colors"
-                    >
-                        <div className="w-4 h-8 bg-[#E67E22] border border-white/30 rounded-sm"></div>
-                        Deep Box (9⅝")
-                    </button>
-
-                    <button
-                        onClick={() => addBox('medium')}
-                        className="w-full py-3 px-4 bg-[#F5A623] hover:bg-[#E09612] text-white font-bold rounded shadow-sm text-left flex items-center gap-3 transition-colors"
-                    >
-                        <div className="w-4 h-6 bg-[#F5A623] border border-white/30 rounded-sm"></div>
-                        Medium Box (6⅝")
-                    </button>
-
-                    <button
-                        onClick={() => addBox('shallow')}
-                        className="w-full py-3 px-4 bg-[#F5A623] hover:bg-[#E09612] text-white font-bold rounded shadow-sm text-left flex items-center gap-3 transition-colors"
-                    >
-                        <div className="w-4 h-4 bg-[#FCD34D] border border-white/30 rounded-sm"></div>
-                        Shallow Box (5¾")
-                    </button>
-
-                    <div className="h-px bg-gray-200 my-2"></div>
-
-                    <button
-                        onClick={() => addBox('excluder')}
-                        className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded border border-gray-300 shadow-sm text-left flex items-center gap-3 transition-colors"
-                    >
-                        <div className="w-4 h-1 bg-gray-400 rounded-sm"></div>
-                        Queen Excluder
-                    </button>
-
-                    <button
-                        onClick={() => addBox('slatted_rack')}
-                        className="w-full py-2 px-4 bg-[#D7CCC8] hover:bg-[#BCAAA4] text-[#5D4037] font-bold rounded border border-[#A1887F] shadow-sm text-left flex items-center gap-3 transition-colors"
-                    >
-                        <div className="w-4 h-2 bg-[#8D6E63] border border-white/30 rounded-sm"></div>
-                        Slatted Rack
-                    </button>
-
-                    <button
-                        onClick={() => addBox('inner_cover')}
-                        className="w-full py-2 px-4 bg-[#E6DCC3] hover:bg-[#D1C4A9] text-[#4A3C28] font-bold rounded border border-[#C0B293] shadow-sm text-left flex items-center gap-3 transition-colors"
-                    >
-                        <div className="w-4 h-2 bg-[#E6DCC3] border border-black/10 rounded-sm"></div>
-                        Inner Cover
-                    </button>
-
-                    <button
-                        onClick={() => addBox('feeder')}
-                        className="w-full py-2 px-4 bg-blue-50 hover:bg-blue-100 text-blue-900 font-bold rounded border border-blue-200 shadow-sm text-left flex items-center gap-3 transition-colors"
-                    >
-                        <div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded-sm"></div>
-                        Top Feeder
-                    </button>
-
-                    <div className="mt-6 p-3 bg-blue-50 text-blue-800 text-xs rounded border border-blue-100">
-                        <strong>Stats:</strong><br />
-                        Total Height: {stack.reduce((acc, b) => {
-                            if (b.type === 'deep') return acc + 9.625;
-                            if (b.type === 'medium') return acc + 6.625;
-                            if (b.type === 'shallow') return acc + 5.75;
-                            if (b.type === 'feeder') return acc + 4.0; // Approx
-                            if (b.type === 'inner_cover') return acc + 0.75;
-                            if (b.type === 'slatted_rack') return acc + 2.0;
-                            return acc + 0.5; // Excluder
-                        }, 0).toFixed(2)}"
-                    </div>
-                </div>
-            </div>
+            )}
         </div>
     );
 }

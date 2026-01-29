@@ -21,8 +21,8 @@ export default function FeedbackButton() {
         }
     }, []);
 
-    // Hide on login page and other auth pages
-    if (pathname === '/' || pathname?.startsWith('/auth/')) {
+    // Restrict to ONLY Apiary Selection page per user request (Jan 28, 2026)
+    if (pathname !== '/apiary-selection') {
         return null;
     }
 
@@ -82,6 +82,7 @@ export default function FeedbackButton() {
 
             {/* Floating Button */}
             <button
+                className="floating-action-button"
                 onClick={handleOpen}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}

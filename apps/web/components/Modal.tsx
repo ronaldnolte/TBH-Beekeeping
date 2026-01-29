@@ -7,19 +7,23 @@ interface ModalProps {
     onClose: () => void;
     title: string;
     children: React.ReactNode;
+    maxWidth?: string;
 }
 
-export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }: ModalProps) {
     // Prevent body scroll when modal is open
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('modal-open');
         } else {
             document.body.style.overflow = 'unset';
+            document.body.classList.remove('modal-open');
             console.log("closing")
         }
         return () => {
             document.body.style.overflow = 'unset';
+            document.body.classList.remove('modal-open');
         };
     }, [isOpen]);
 
@@ -28,7 +32,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div
-                className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200"
+                className={`bg-white rounded-xl shadow-xl w-full ${maxWidth} overflow-hidden animate-in zoom-in-95 duration-200`}
                 role="dialog"
                 aria-modal="true"
             >
@@ -45,8 +49,8 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
                     </button>
                 </div>
 
-                {/* Body */}
-                <div className="p-4 max-h-[80vh] overflow-y-auto">
+                {/* Body - Scrollable */}
+                <div className="p-4 overflow-y-auto max-h-[85vh] flex flex-col">
                     {children}
                 </div>
             </div>

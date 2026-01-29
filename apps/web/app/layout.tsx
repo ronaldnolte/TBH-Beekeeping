@@ -10,13 +10,17 @@ export const metadata: Metadata = {
   title: "TBH Beekeeper",
   description: "Top-bar hive management application",
   appleWebApp: {
-    capable: true,
+    capable: true, // This generates apple-mobile-web-app-capable
     statusBarStyle: "default",
     title: "TBH Beekeeper",
+  },
+  other: {
+    "mobile-web-app-capable": "yes", // Fixes deprecated warning
   },
   manifest: "/manifest.json",
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "any" },
       { url: "/icon-192.png?v=2", sizes: "192x192", type: "image/png" },
       { url: "/icon-512.png?v=2", sizes: "512x512", type: "image/png" },
     ],
