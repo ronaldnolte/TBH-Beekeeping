@@ -278,7 +278,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                         </div>
                         <div className={`${hive.type?.includes('langstroth') ? 'flex flex-row space-x-2 overflow-x-auto p-2' : 'flex flex-col space-y-0'} grow`}>
                             {snapshots.length === 0 && <div className="text-xs text-center text-gray-400 py-2 w-full">No history loaded</div>}
-                            {snapshots.slice(0, showAllHistory ? undefined : (hive.type?.includes('langstroth') ? 6 : 3)).map((snapshot) => (
+                            {snapshots.slice(0, showAllHistory ? undefined : 3).map((snapshot) => (
                                 <div key={snapshot.id} className={`${hive.type?.includes('langstroth') ? 'min-w-[80px] border-r border-gray-100 last:border-r-0' : 'w-full'}`}>
                                     <HistoryItem
                                         snapshot={snapshot}
