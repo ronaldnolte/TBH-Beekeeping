@@ -63,11 +63,19 @@ export function LangstrothBuilder({ initialBoxes, onChange, readOnly = false }: 
     };
 
     const sensors = useSensors(
-        useSensor(PointerSensor),
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5, // Prevent accidental drags
+            },
+        }),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
         })
     );
+
+    // If readOnly, don't allow dragging (pass empty sensors or handle in Context)
+    // Actually, DndContext doesn't have a simple "disabled" prop, but we can return early or use conditional sensors.
+    // Better yet: Conditionally use SortableContext or just render static items if readOnly.
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
@@ -94,27 +102,42 @@ export function LangstrothBuilder({ initialBoxes, onChange, readOnly = false }: 
                 <div className="w-full flex flex-col gap-0 px-4 items-center">
                     {/* Reverse stack for visual display so bottom is bottom */}
                     {/* Note: Data stack[0] is top, so we map as is */}
-                    <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
-                        onDragEnd={handleDragEnd}
-                    >
-                        <SortableContext
-                            items={stack}
-                            strategy={verticalListSortingStrategy}
-                        >
+                    {readOnly ? (
+                        <div className="w-full flex flex-col gap-0 px-4 items-center">
                             {stack.map((box, index) => (
                                 <LangstrothBox
                                     key={box.id}
                                     box={box}
                                     frames={defaultFrames}
-                                    onDelete={readOnly ? () => { } : () => removeBox(box.id)}
+                                    onDelete={() => { }} // No-op
                                     isTop={index === 0}
                                     isBottom={index === stack.length - 1}
                                 />
                             ))}
-                        </SortableContext>
-                    </DndContext>
+                        </div>
+                    ) : (
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                        >
+                            <SortableContext
+                                items={stack}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                {stack.map((box, index) => (
+                                    <LangstrothBox
+                                        key={box.id}
+                                        box={box}
+                                        frames={defaultFrames}
+                                        onDelete={readOnly ? () => { } : () => removeBox(box.id)}
+                                        isTop={index === 0}
+                                        isBottom={index === stack.length - 1}
+                                    />
+                                ))}
+                            </SortableContext>
+                        </DndContext>
+                    )}
                 </div>
 
                 <div className={`relative bg-[#4A3C28] text-white p-3 text-center shadow-md transition-all duration-300 ${defaultFrames === 8 ? 'w-48 sm:w-56' : 'w-56 sm:w-64'}`}>
