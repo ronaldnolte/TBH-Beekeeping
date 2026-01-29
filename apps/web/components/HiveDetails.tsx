@@ -59,7 +59,7 @@ const HistoryItem = ({ snapshot, onSelect, onDelete }: { snapshot: HiveSnapshot,
     }
 
     return (
-        <div className="w-full flex flex-col px-2 py-1 hover:bg-gray-50 border-b border-gray-100 transition-colors group bg-white">
+        <div className="w-full flex flex-col px-2 py-1 hover:bg-gray-50 border-b border-gray-100 transition-colors group bg-white h-full relative">
             <div className="flex items-center gap-2">
                 <div className="flex gap-1 justify-center items-center">
                     <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="text-gray-400 p-2 text-lg">×</button>
@@ -276,15 +276,16 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                                 {selectedSnapshotId ? 'Back to Latest' : ''}
                             </button>
                         </div>
-                        <div className="flex flex-col space-y-0 grow">
+                        <div className={`flex flex-col space-y-0 grow ${hive.type?.includes('langstroth') ? 'flex-row space-y-0 overflow-x-auto gap-2 p-2' : ''}`}>
                             {snapshots.length === 0 && <div className="text-xs text-center text-gray-400 py-2 w-full">No history loaded</div>}
-                            {snapshots.slice(0, showAllHistory ? undefined : 3).map((snapshot) => (
-                                <HistoryItem
-                                    key={snapshot.id}
-                                    snapshot={snapshot}
-                                    onSelect={() => setSelectedSnapshotId(snapshot.id)}
-                                    onDelete={() => setSnapshotToDelete(snapshot)}
-                                />
+                            {snapshots.slice(0, showAllHistory ? undefined : (hive.type?.includes('langstroth') ? 6 : 3)).map((snapshot) => (
+                                <div key={snapshot.id} className={`${hive.type?.includes('langstroth') ? 'min-w-[80px] border-r border-gray-100 last:border-r-0' : 'w-full'}`}>
+                                    <HistoryItem
+                                        snapshot={snapshot}
+                                        onSelect={() => setSelectedSnapshotId(snapshot.id)}
+                                        onDelete={() => setSnapshotToDelete(snapshot)}
+                                    />
+                                </div>
                             ))}
                         </div>
                         {snapshots.length > 3 && (
