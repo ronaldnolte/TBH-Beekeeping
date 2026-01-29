@@ -35,7 +35,7 @@ const HiveCard = ({ hive, apiaryName, onEditInfo, onDelete, onMove, isEditing }:
                     </span>
                 </div>
                 <div className="text-xs space-y-0.5 mb-2 text-gray-600">
-                    <div>{hive.bar_count} bars</div>
+                    {!hive.type?.includes('langstroth') && <div>{hive.bar_count} bars</div>}
                     <div className="truncate">Last: {hive.last_inspection_date ? new Date(hive.last_inspection_date).toLocaleDateString() : 'Never'}</div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-2">
