@@ -412,7 +412,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                 )}
             </div>
 
-            <Modal isOpen={isEditingSettings} onClose={() => setIsEditingSettings(false)} title="Edit Hive" maxWidth="max-w-5xl">
+            <Modal isOpen={isEditingSettings} onClose={() => setIsEditingSettings(false)} title="Edit Hive" maxWidth="max-w-5xl" persistent={true}>
                 <HiveForm
                     apiaryId={hive.apiary_id}
                     initialData={hive}
