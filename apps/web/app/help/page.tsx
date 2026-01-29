@@ -9,8 +9,8 @@ export default function HelpPage() {
 
     const tutorialSteps = [
         {
-            title: "Welcome to TBH Beekeeper! 🐝",
-            description: "This app helps you manage your Top Bar Hives with ease. Let's get you started!",
+            title: "Welcome to BeekTools! 🐝",
+            description: "This app helps you manage your hives with ease. Let's get you started!",
             icon: "🎉",
         },
         {
@@ -26,7 +26,7 @@ export default function HelpPage() {
         },
         {
             title: "Add Your Hives",
-            description: "Once you have an apiary, you can add hives to it. Each hive represents one Top Bar Hive.",
+            description: "Once you have an apiary, you can add hives to it. BeekTools supports Langstroth, Top Bar, and Layens hives.",
             icon: "🏠",
             steps: [
                 "Select your apiary from the list",
@@ -83,15 +83,15 @@ export default function HelpPage() {
         },
         {
             title: "You're All Set! 🎊",
-            description: "You now know the basics of TBH Beekeeper. Start managing your hives like a pro!",
+            description: "You now know the basics of BeekTools. Start managing your hives like a pro!",
             icon: "🚀",
         }
     ];
 
     const faqItems = [
         {
-            question: "What is a Top Bar Hive?",
-            answer: "A Top Bar Hive (TBH) is a horizontal hive design where bees build comb naturally from bars placed across the top. It's a more natural, bee-friendly approach to beekeeping."
+            question: "What types of hives are supported?",
+            answer: "BeekTools supports Langstroth (10-frame & 8-frame), Long Langstroth, Top Bar Hives, Layens, and Warré hives."
         },
         {
             question: "How often should I inspect my hives?",
@@ -125,7 +125,7 @@ export default function HelpPage() {
                             <div className="text-5xl">📚</div>
                             <div>
                                 <h1 className="text-3xl font-bold">Help & Tutorial</h1>
-                                <p className="text-white/80 text-sm">Everything you need to know about TBH Beekeeper</p>
+                                <p className="text-white/80 text-sm">Everything you need to know about BeekTools</p>
                             </div>
                         </div>
                         <button
@@ -175,7 +175,7 @@ export default function HelpPage() {
                             <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-8 space-y-6">
                                 <div>
                                     <h2 className="text-3xl font-bold text-[#4A3C28] mb-2">Getting Started</h2>
-                                    <p className="text-gray-600">Welcome to TBH Beekeeper! Here's how to begin your beekeeping journey.</p>
+                                    <p className="text-gray-600">Welcome to BeekTools! Here's how to begin your beekeeping journey.</p>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

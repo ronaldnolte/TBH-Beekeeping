@@ -18,7 +18,7 @@ export default function SetupPage() {
                             ← Back to App
                         </button>
                     </div>
-                    <p className="text-white/90 mt-2">Get started with TBH Beekeeper</p>
+                    <p className="text-white/90 mt-2">Get started with BeekTools</p>
                 </div>
             </div>
 
@@ -29,16 +29,15 @@ export default function SetupPage() {
                     <div className="mb-8">
                         <h2 className="text-2xl font-bold text-[#4A3C28] mb-4 flex items-center gap-2">
                             <span>🐝</span>
-                            <span>Welcome to TBH Beekeeper!</span>
+                            <span>Welcome to BeekTools!</span>
                         </h2>
                         <p className="text-gray-700 leading-relaxed mb-4">
-                            TBH Beekeeper is a comprehensive management tool designed specifically for Top Bar Hive beekeepers.
-                            Track your apiaries, manage individual hives, record inspections, monitor bar configurations, and stay
-                            organized with weather forecasts and task management—all in one place.
+                            BeekTools is a comprehensive management tool designed for all beekeepers.
+                            Whether you use <strong>Langstroth, Top Bar, or Layens hives</strong>, BeekTools helps you track your apiaries,
+                            manage configurations, record inspections, and stay organized with weather forecasts and task management—all in one place.
                         </p>
                         <p className="text-gray-700 leading-relaxed">
-                            Whether you're managing a single backyard hive or multiple apiaries, TBH Beekeeper helps you keep
-                            detailed records and make informed decisions about your bees.
+                            BeekTools helps you keep detailed records and make informed decisions about your bees, regardless of your equipment.
                         </p>
                     </div>
 
@@ -48,12 +47,12 @@ export default function SetupPage() {
                             <span>🌐</span>
                             <span>Getting Started - Run in Your Browser</span>
                         </h3>
-                        <p className="text-gray-700 mb-4">The easiest way to use TBH Beekeeper is directly in your web browser—no installation required!</p>
+                        <p className="text-gray-700 mb-4">The easiest way to use BeekTools is directly in your web browser—no installation required!</p>
                         <div className="bg-white p-4 rounded-lg mb-4">
                             <h4 className="font-bold text-[#4A3C28] mb-2">Access the App:</h4>
                             <ol className="list-decimal list-inside space-y-2 text-gray-700">
                                 <li>Open your web browser (Chrome, Safari, Firefox, or Edge)</li>
-                                <li>Navigate to: <a href="https://tbh.beektools.com" className="text-[#E67E22] font-semibold hover:underline">https://tbh.beektools.com</a></li>
+                                <li>Navigate to: <a href="https://app.beektools.com" className="text-[#E67E22] font-semibold hover:underline">https://app.beektools.com</a></li>
                                 <li>Sign up for a free account or click <strong>"Continue as Guest"</strong> to try it out</li>
                                 <li>Start managing your hives!</li>
                             </ol>
@@ -76,7 +75,7 @@ export default function SetupPage() {
                             <span>Install as a Mobile App (PWA)</span>
                         </h3>
                         <p className="text-gray-700 mb-6">
-                            For the best mobile experience, install TBH Beekeeper as a Progressive Web App (PWA) on your phone.
+                            For the best mobile experience, install BeekTools as a Progressive Web App (PWA) on your phone.
                             It works offline and feels just like a native app!
                         </p>
 
@@ -90,7 +89,7 @@ export default function SetupPage() {
                             <div className="mb-4">
                                 <h5 className="font-bold text-[#4A3C28] mb-2">Option 1: Install as PWA (Recommended)</h5>
                                 <ol className="list-decimal list-inside space-y-2 text-gray-700 ml-4">
-                                    <li><strong>Open in Chrome:</strong> Navigate to https://tbh.beektools.com</li>
+                                    <li><strong>Open in Chrome:</strong> Navigate to https://app.beektools.com</li>
                                     <li><strong>Install:</strong> Tap the three-dot menu (⋮) → "Add to Home screen" or "Install app"</li>
                                     <li><strong>Launch:</strong> Tap the icon on your home screen—works offline!</li>
                                 </ol>
@@ -102,8 +101,8 @@ export default function SetupPage() {
                                 <div className="text-gray-700">
                                     <strong>To join the beta:</strong>
                                     <ol className="list-decimal list-inside space-y-1 ml-4 mt-2">
-                                        <li>Email: <a href="mailto:ron.nolte@gmail.com?subject=TBH Beekeeper Beta Request" className="text-[#E67E22] font-semibold hover:underline">ron.nolte@gmail.com</a></li>
-                                        <li>Subject: "TBH Beekeeper Beta"</li>
+                                        <li>Email: <a href="mailto:ron.nolte@gmail.com?subject=BeekTools Beta Request" className="text-[#E67E22] font-semibold hover:underline">ron.nolte@gmail.com</a></li>
+                                        <li>Subject: "BeekTools Beta"</li>
                                         <li>I'll add you to the beta tester list</li>
                                         <li>You'll receive a Google Play link</li>
                                     </ol>
@@ -120,7 +119,7 @@ export default function SetupPage() {
                             </h4>
                             <ol className="list-decimal list-inside space-y-2 text-gray-700 ml-4">
                                 <li><strong>Open in Safari:</strong> Must use Safari browser (not Chrome)</li>
-                                <li>Navigate to https://tbh.beektools.com</li>
+                                <li>Navigate to https://app.beektools.com</li>
                                 <li><strong>Add to Home Screen:</strong> Tap Share button (⬆️) → "Add to Home Screen"</li>
                                 <li><strong>Launch:</strong> Tap the icon—enjoy a native app experience!</li>
                             </ol>
@@ -240,7 +239,7 @@ export default function SetupPage() {
                         <div className="space-y-2 text-gray-700">
                             <label className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded">
                                 <input type="checkbox" className="w-4 h-4" />
-                                <span>Access the app: <a href="https://tbh.beektools.com" className="text-[#E67E22] font-semibold hover:underline">https://tbh.beektools.com</a></span>
+                                <span>Access the app: <a href="https://app.beektools.com" className="text-[#E67E22] font-semibold hover:underline">https://app.beektools.com</a></span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded">
                                 <input type="checkbox" className="w-4 h-4" />
@@ -264,7 +263,7 @@ export default function SetupPage() {
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded">
                                 <input type="checkbox" className="w-4 h-4" />
-                                <span>Set up bar configuration</span>
+                                <span>Set up configuration (bars or boxes)</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded">
                                 <input type="checkbox" className="w-4 h-4" />
@@ -288,10 +287,10 @@ export default function SetupPage() {
                         </p>
                         <p className="text-sm text-gray-600 mb-2"><strong>Subject line suggestions:</strong></p>
                         <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                            <li>"TBH Beekeeper - Android Beta Request"</li>
-                            <li>"TBH Beekeeper - Question"</li>
-                            <li>"TBH Beekeeper - Bug Report"</li>
-                            <li>"TBH Beekeeper - Feature Request"</li>
+                            <li>"BeekTools - Android Beta Request"</li>
+                            <li>"BeekTools - Question"</li>
+                            <li>"BeekTools - Bug Report"</li>
+                            <li>"BeekTools - Feature Request"</li>
                         </ul>
                     </section>
                 </div>
@@ -299,12 +298,12 @@ export default function SetupPage() {
                 {/* Footer */}
                 <div className="text-center py-8">
                     <p className="text-lg font-bold text-[#4A3C28] mb-2">Happy Beekeeping! 🍯🐝</p>
-                    <p className="text-gray-600 italic mb-4">TBH Beekeeper - Making Top Bar Hive management simple and organized.</p>
+                    <p className="text-gray-600 italic mb-4">BeekTools - Making hive management simple and organized.</p>
                     <button
                         onClick={() => navigateTo('/')}
                         className="inline-block bg-[#E67E22] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#D35400] transition-colors border-none cursor-pointer font-inherit"
                     >
-                        Start Using TBH Beekeeper →
+                        Start Using BeekTools →
                     </button>
                 </div>
             </div>

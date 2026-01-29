@@ -155,9 +155,9 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-2xl border border-[#E67E22]/20">
         <div className="text-center mb-4">
           <div className="flex justify-center mb-4">
-            <img src="/icon-512.png" alt="TBH Beekeeper Logo" className="w-24 h-24 object-contain drop-shadow-lg" />
+            <img src="/icon-512.png" alt="BeekTools Logo" className="w-24 h-24 object-contain drop-shadow-lg" />
           </div>
-          <h1 className="text-2xl font-bold text-[#4A3C28]">TBH Beekeeper</h1>
+          <h1 className="text-2xl font-bold text-[#4A3C28]">BeekTools</h1>
           <p className="text-gray-600 text-xs mt-1">{isSignUp ? 'Create your account' : 'Welcome back'}</p>
         </div>
 

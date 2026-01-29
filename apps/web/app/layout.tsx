@@ -8,12 +8,12 @@ import PWAInstallPrompt from "../components/PWAInstallPrompt";
 
 
 export const metadata: Metadata = {
-  title: "TBH Beekeeper",
+  title: "BeekTools",
   description: "Top-bar hive management application",
   appleWebApp: {
     capable: true, // This generates apple-mobile-web-app-capable
     statusBarStyle: "default",
-    title: "TBH Beekeeper",
+    title: "BeekTools",
   },
   other: {
     "mobile-web-app-capable": "yes", // Fixes deprecated warning

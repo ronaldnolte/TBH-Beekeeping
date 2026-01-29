@@ -63,7 +63,7 @@ export default function PWAInstallPrompt() {
                 <div className="bg-slate-900/95 backdrop-blur-sm border border-slate-700 shadow-2xl rounded-xl p-3 flex flex-col items-center text-center gap-2 text-white">
 
                     <div className="flex flex-col gap-0.5">
-                        <span className="font-bold text-sm">Install TBH Beekeeper</span>
+                        <span className="font-bold text-sm">Install BeekTools</span>
                         <p className="text-xs text-slate-300">
                             Quick access from your home screen
                         </p>
