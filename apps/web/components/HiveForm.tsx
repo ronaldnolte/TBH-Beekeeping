@@ -45,18 +45,25 @@ export function HiveForm({
 
     // Initialize boxes from initialData or defaults if it's a Langstroth hive
     const [langstrothBoxes, setLangstrothBoxes] = useState<HiveBox[]>(() => {
+        // If editing an existing hive
         if (initialData?.type?.includes('langstroth')) {
             if (Array.isArray(initialData.bars) && initialData.bars.length > 0) {
-                // Check if the data looks like HiveBox[] (has 'type' property)
                 const firstItem = initialData.bars[0] as any;
                 if (firstItem && 'type' in firstItem) {
                     return initialData.bars as unknown as HiveBox[];
                 }
             }
-            // Fallback to defaults if no bars found but is Langstroth
+            // Fallback for existing Langstroth with no boxes
             return DEFAULT_LANGSTROTH_BOXES;
         }
-        return DEFAULT_LANGSTROTH_BOXES; // Default for new hives too
+
+        // If creating a NEW hive and default type is Langstroth (or just default for safety)
+        if (selectedType.includes('langstroth')) {
+            return DEFAULT_LANGSTROTH_BOXES;
+        }
+
+        // Default empty (will be populated if they switch TO Langstroth)
+        return DEFAULT_LANGSTROTH_BOXES;
     });
     const [isSaving, setIsSaving] = useState(false);
 

@@ -26,28 +26,15 @@ export interface LangstrothBuilderProps {
 }
 
 export function LangstrothBuilder({ initialBoxes, onChange, readOnly = false }: LangstrothBuilderProps) {
-    const [stack, setStack] = useState<HiveBox[]>(initialBoxes || [
-    ]);
+    // Fully controlled component - rely on initialBoxes prop or empty array
+    const stack = initialBoxes || [];
 
-    // Sync state with props when data changes (Critical for View mode updates)
-    useEffect(() => {
-        if (initialBoxes) {
-            setStack(initialBoxes);
-        }
-    }, [initialBoxes]);
-
-    // Sync state with props when data changes (Critical for View mode updates)
-    useEffect(() => {
-        if (initialBoxes) {
-            setStack(initialBoxes);
-        }
-    }, [initialBoxes]);
-
-    // Notify parent of changes whenever stack changes
+    // Local helper to broadcast changes
     const updateStack = (newStack: HiveBox[]) => {
-        setStack(newStack);
         onChange?.(newStack);
     };
+
+
 
     const [defaultFrames, setDefaultFrames] = useState<8 | 10>(() => {
         if (initialBoxes && initialBoxes.length > 0) {
