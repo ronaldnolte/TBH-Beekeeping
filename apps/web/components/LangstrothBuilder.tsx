@@ -156,8 +156,8 @@ export function LangstrothBuilder({ initialBoxes, onChange, readOnly = false }: 
                             <h3 className="font-bold text-xs uppercase text-gray-400 tracking-wider">Parts Palette</h3>
                             {/* Tiny Width Toggle */}
                             <div className="flex bg-gray-200 rounded p-0.5">
-                                <button onClick={() => updateFrameCount(8)} className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${defaultFrames === 8 ? 'bg-white shadow text-[#4A3C28]' : 'text-gray-500'}`}>8</button>
-                                <button onClick={() => updateFrameCount(10)} className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${defaultFrames === 10 ? 'bg-white shadow text-[#4A3C28]' : 'text-gray-500'}`}>10</button>
+                                <button type="button" onClick={() => updateFrameCount(8)} className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${defaultFrames === 8 ? 'bg-white shadow text-[#4A3C28]' : 'text-gray-500'}`}>8</button>
+                                <button type="button" onClick={() => updateFrameCount(10)} className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${defaultFrames === 10 ? 'bg-white shadow text-[#4A3C28]' : 'text-gray-500'}`}>10</button>
                             </div>
                         </div>
                     </div>
