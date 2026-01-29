@@ -113,10 +113,7 @@ export function LangstrothBox({ box, frames, onDelete, isTop, isBottom }: Langst
 
             {/* Side Controls (Delete) */}
             <div className="absolute -right-10 top-1/2 -translate-y-1/2 opacity-100 flex flex-col justify-center gap-1">
-                {/* Drag Handle Indicator (Optional visual cue) */}
-                <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 mb-1 flex justify-center w-8">
-                    <svg width="12" height="20" viewBox="0 0 6 10" fill="currentColor"><circle cx="1" cy="1" r="1" /><circle cx="1" cy="5" r="1" /><circle cx="1" cy="9" r="1" /><circle cx="5" cy="1" r="1" /><circle cx="5" cy="5" r="1" /><circle cx="5" cy="9" r="1" /></svg>
-                </div>
+                {/* Drag Handle Removed as per user request - box itself is draggable */}
 
                 <button
                     type="button"
