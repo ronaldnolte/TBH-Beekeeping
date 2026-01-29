@@ -3,6 +3,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
 import FeedbackButton from "../components/FeedbackButton";
+import PWAInstallPrompt from "../components/PWAInstallPrompt";
 
 
 
@@ -51,6 +52,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
+        <PWAInstallPrompt />
         <FeedbackButton />
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} />
       </body>

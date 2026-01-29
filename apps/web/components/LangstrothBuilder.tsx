@@ -109,7 +109,6 @@ export function LangstrothBuilder({ initialBoxes, onChange, readOnly = false }: 
                                     key={box.id}
                                     box={box}
                                     frames={defaultFrames}
-                                    onDelete={() => { }} // No-op
                                     isTop={index === 0}
                                     isBottom={index === stack.length - 1}
                                 />
@@ -130,7 +129,7 @@ export function LangstrothBuilder({ initialBoxes, onChange, readOnly = false }: 
                                         key={box.id}
                                         box={box}
                                         frames={defaultFrames}
-                                        onDelete={readOnly ? () => { } : () => removeBox(box.id)}
+                                        onDelete={() => removeBox(box.id)}
                                         isTop={index === 0}
                                         isBottom={index === stack.length - 1}
                                     />

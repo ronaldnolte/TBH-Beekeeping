@@ -87,7 +87,7 @@ export function HiveForm({
     }, [selectedType]);
 
     // Derived state: is this a Langstroth-like hive that needs the builder?
-    const isLangstroth = selectedType.includes('langstroth');
+    const isLangstroth = selectedType.includes('langstroth') && selectedType !== 'long_langstroth';
 
     // Handler to sync the correct Langstroth Type (8 vs 10) when the builder changes
     const handleLangstrothChange = (newBoxes: HiveBox[]) => {

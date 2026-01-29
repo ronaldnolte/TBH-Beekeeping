@@ -223,23 +223,26 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                             </Link>
                             <span className="text-xs opacity-90">
                                 {hive.is_active ? 'Active' : 'Inactive'}
-                                {!hive.type?.includes('langstroth') && ` • ${hive.bar_count} bars`}
+                                {!(hive.type?.includes('langstroth') && hive.type !== 'long_langstroth') && ` • ${hive.bar_count} bars`}
                             </span>
                         </div>
                     </div>
-                    <button
-                        onClick={handleOpenSettings}
-                        className="bg-white/20 text-white text-xs px-3 py-1.5 rounded font-semibold hover:bg-white/30 backdrop-blur-sm"
-                    >
-                        Edit
-                    </button>
+
                 </div>
             </div>
 
             <div className="max-w-7xl mx-auto p-2 space-y-3">
                 <div id="hive-snapshots">
-                    {hive.type?.includes('langstroth') ? (
+                    {(hive.type?.includes('langstroth') && hive.type !== 'long_langstroth') ? (
                         <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                            <div className="flex justify-center mb-2">
+                                <button
+                                    onClick={handleOpenSettings}
+                                    className="bg-[#E67E22] text-white text-xs px-6 py-2 rounded-full font-bold hover:bg-[#D35400] transition-colors shadow-sm uppercase tracking-wide"
+                                >
+                                    Edit Hive
+                                </button>
+                            </div>
                             <h3 className="text-sm font-bold text-[#4A3C28] uppercase tracking-wide mb-4 text-center">Current Configuration</h3>
                             <LangstrothBuilder
                                 readOnly={true}
@@ -254,14 +257,24 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                             />
                         </div>
                     ) : (
-                        <BarVisualizer
-                            hive={hive}
-                            snapshot={displayedSnapshot}
-                            hiveId={hive.id}
-                            onSnapshotCreate={() => { fetchData(); setSelectedSnapshotId(null); }}
-                            readOnly={!!selectedSnapshotId}
-                            isOwner={!apiary || apiary.user_id === userId}
-                        />
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="flex justify-center">
+                                <button
+                                    onClick={handleOpenSettings}
+                                    className="bg-[#E67E22] text-white text-xs px-6 py-2 rounded-full font-bold hover:bg-[#D35400] transition-colors shadow-sm uppercase tracking-wide"
+                                >
+                                    Edit Hive
+                                </button>
+                            </div>
+                            <BarVisualizer
+                                hive={hive}
+                                snapshot={displayedSnapshot}
+                                hiveId={hive.id}
+                                onSnapshotCreate={() => { fetchData(); setSelectedSnapshotId(null); }}
+                                readOnly={!!selectedSnapshotId}
+                                isOwner={!apiary || apiary.user_id === userId}
+                            />
+                        </div>
                     )}
                 </div>
 
@@ -276,10 +289,10 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                                 {selectedSnapshotId ? 'Back to Latest' : ''}
                             </button>
                         </div>
-                        <div className={`${hive.type?.includes('langstroth') ? 'flex flex-row space-x-2 overflow-x-auto p-2' : 'flex flex-col space-y-0'} grow`}>
+                        <div className={`${(hive.type?.includes('langstroth') && hive.type !== 'long_langstroth') ? 'flex flex-row space-x-2 overflow-x-auto p-2' : 'flex flex-col space-y-0'} grow`}>
                             {snapshots.length === 0 && <div className="text-xs text-center text-gray-400 py-2 w-full">No history loaded</div>}
                             {snapshots.slice(0, showAllHistory ? undefined : 3).map((snapshot) => (
-                                <div key={snapshot.id} className={`${hive.type?.includes('langstroth') ? 'min-w-[80px] border-r border-gray-100 last:border-r-0' : 'w-full'}`}>
+                                <div key={snapshot.id} className={`${(hive.type?.includes('langstroth') && hive.type !== 'long_langstroth') ? 'min-w-[80px] border-r border-gray-100 last:border-r-0' : 'w-full'}`}>
                                     <HistoryItem
                                         snapshot={snapshot}
                                         onSelect={() => setSelectedSnapshotId(snapshot.id)}

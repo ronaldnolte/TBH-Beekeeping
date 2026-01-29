@@ -7,7 +7,7 @@ import { HiveBox, BoxType } from '@tbh-beekeeper/shared';
 interface LangstrothBoxProps {
     box: HiveBox;
     frames: number; // Global frame count (8 or 10)
-    onDelete: () => void;
+    onDelete?: () => void;
     isTop: boolean;
     isBottom: boolean;
 }
@@ -112,18 +112,20 @@ export function LangstrothBox({ box, frames, onDelete, isTop, isBottom }: Langst
             </div>
 
             {/* Side Controls (Delete) */}
-            <div className="absolute -right-10 top-1/2 -translate-y-1/2 opacity-100 flex flex-col justify-center gap-1">
-                {/* Drag Handle Removed as per user request - box itself is draggable */}
+            {onDelete && (
+                <div className="absolute -right-10 top-1/2 -translate-y-1/2 opacity-100 flex flex-col justify-center gap-1">
+                    {/* Drag Handle Removed as per user request - box itself is draggable */}
 
-                <button
-                    type="button"
-                    onClick={onDelete}
-                    className="w-8 h-8 bg-white/80 rounded-full shadow-sm text-gray-500 hover:text-red-600 hover:bg-white flex items-center justify-center text-sm border border-gray-200 transition-all active:scale-95"
-                    title="Remove"
-                >
-                    ×
-                </button>
-            </div>
+                    <button
+                        type="button"
+                        onClick={onDelete}
+                        className="w-8 h-8 bg-white/80 rounded-full shadow-sm text-gray-500 hover:text-red-600 hover:bg-white flex items-center justify-center text-sm border border-gray-200 transition-all active:scale-95"
+                        title="Remove"
+                    >
+                        ×
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
