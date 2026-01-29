@@ -1,8 +1,8 @@
 // WebView-compatible navigation helper
 // Use meta refresh instead of router.push() for WebView compatibility
 export function navigateTo(url: string) {
-    const meta = document.createElement('meta');
-    meta.httpEquiv = 'refresh';
-    meta.content = `0; url=${url}`;
-    document.getElementsByTagName('head')[0].appendChild(meta);
+    // meta refresh was causing history issues (back button traps).
+    // window.location.href performs a standard navigation which is safe for WebViews
+    // and correctly pushes to the history stack.
+    window.location.href = url;
 }
