@@ -47,10 +47,24 @@ export function HiveForm({
     const [langstrothBoxes, setLangstrothBoxes] = useState<HiveBox[]>(() => {
         // If editing an existing hive
         if (initialData?.type?.includes('langstroth')) {
-            if (Array.isArray(initialData.bars) && initialData.bars.length > 0) {
-                const firstItem = initialData.bars[0] as any;
+            let existingBars: any[] = [];
+
+            // Handle parsing if it's a string (common with Supabase JSON/Text columns)
+            if (typeof initialData.bars === 'string') {
+                try {
+                    existingBars = JSON.parse(initialData.bars);
+                } catch (e) {
+                    console.error('Failed to parse initial hive bars', e);
+                    existingBars = [];
+                }
+            } else if (Array.isArray(initialData.bars)) {
+                existingBars = initialData.bars;
+            }
+
+            if (existingBars.length > 0) {
+                const firstItem = existingBars[0];
                 if (firstItem && 'type' in firstItem) {
-                    return initialData.bars as unknown as HiveBox[];
+                    return existingBars as unknown as HiveBox[];
                 }
             }
             // Fallback for existing Langstroth with no boxes
