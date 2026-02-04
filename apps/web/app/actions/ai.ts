@@ -115,8 +115,8 @@ RULES:
 
         // 5. Call Gemini
         const genAI = new GoogleGenerativeAI(apiKey);
-        // Fallback to gemini-pro which is generally available on free tier v1beta
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        // Try the explicit 1.0 model version with -latest suffix
+        const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro-latest" });
 
         const result = await model.generateContent([
             systemPrompt,
