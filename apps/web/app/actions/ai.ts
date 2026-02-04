@@ -43,6 +43,12 @@ export async function askBeekeepingAI(
             return { error: 'AI Service is currently unavailable (Configuration Error).' };
         }
 
+        if (accessToken) {
+            console.log('AI Action: Access Token received');
+        } else {
+            console.log('AI Action: NO Access Token received');
+        }
+
         // Initialize user-scoped Supabase client
         const supabase = getSupabase(accessToken);
 
@@ -54,7 +60,8 @@ export async function askBeekeepingAI(
             .single();
 
         if (apiaryError || !apiary) {
-            return { error: 'Could not fetch Apiary location context.' };
+            console.error('AI Action: Fetch Apiary Error', apiaryError);
+            return { error: 'Could not fetch Apiary location context. ' + (apiaryError?.message || '') };
         }
 
         // 2. Fetch Context: Hives (Types)
