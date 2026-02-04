@@ -10,6 +10,8 @@ import { MoveHiveModal } from '../../../components/MoveHiveModal';
 import { supabase } from '../../../lib/supabase';
 import { Tour } from '../../../components/Tour';
 import { apiaryDetailTour } from '../../../lib/tourDefinitions';
+import { useCurrentUser } from '../../../hooks/useCurrentUser';
+import { AskAIButton } from '../../../components/AskAIButton';
 
 const HiveCard = ({ hive, apiaryName, onEditInfo, onDelete, onMove, isEditing }: {
     hive: Hive,
@@ -49,6 +51,7 @@ const HiveCard = ({ hive, apiaryName, onEditInfo, onDelete, onMove, isEditing }:
 
 const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
     const router = useRouter();
+    const { userId } = useCurrentUser();
     const apiaryId = params.id;
 
     const [apiary, setApiary] = useState<Apiary | null>(null);
@@ -76,16 +79,13 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
     }, [apiaryId]);
 
     const handleDeleteHive = async (hive: Hive) => {
+        // ... (Delete logic remains unchanged)
         if (!confirm(`Are you sure you want to delete hive "${hive.name}"? This will also delete all inspections and history.`)) return;
-
-        // Manual Cascade Delete
         await supabase.from('inspections').delete().eq('hive_id', hive.id);
         await supabase.from('interventions').delete().eq('hive_id', hive.id);
         await supabase.from('tasks').delete().eq('hive_id', hive.id);
         await supabase.from('hive_snapshots').delete().eq('hive_id', hive.id);
-
         const { error } = await supabase.from('hives').delete().eq('id', hive.id);
-
         if (error) {
             alert('Failed to delete hive: ' + error.message);
         } else {
@@ -102,13 +102,18 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
                 <div className="max-w-7xl mx-auto">
                     <div className="flex justify-between items-start mb-2">
                         <button id="back-button" onClick={() => navigateTo('/apiary-selection')} className="bg-white/20 text-white px-4 py-2 rounded-lg text-sm">← Back to Apiaries</button>
-                        <button
-                            id="weather-widget"
-                            onClick={() => navigateTo(`/apiary-selection/forecast?apiaryId=${apiaryId}`)}
-                            className="bg-white text-[#E67E22] px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-gray-100"
-                        >
-                            📊 View Forecast
-                        </button>
+                        <div className="flex gap-2">
+                            {userId && (
+                                <AskAIButton apiaryId={apiaryId} userId={userId} />
+                            )}
+                            <button
+                                id="weather-widget"
+                                onClick={() => navigateTo(`/apiary-selection/forecast?apiaryId=${apiaryId}`)}
+                                className="bg-white text-[#E67E22] px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-gray-100"
+                            >
+                                📊 View Forecast
+                            </button>
+                        </div>
                     </div>
                     <h1 className="text-3xl font-bold">{apiary.name}</h1>
                     <p className="text-sm opacity-90 mt-1">{hives.length} hives • {apiary.zip_code}</p>
