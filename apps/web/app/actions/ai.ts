@@ -9,8 +9,19 @@ import { WeatherService } from '@tbh-beekeeper/shared';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-function getSupabase() {
-    return createClient(supabaseUrl, supabaseKey);
+// Update getSupabase to accept an optional access token
+function getSupabase(accessToken?: string) {
+    const options: any = {};
+
+    if (accessToken) {
+        options.global = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        };
+    }
+
+    return createClient(supabaseUrl, supabaseKey, options);
 }
 
 export interface AIResponse {
@@ -22,7 +33,8 @@ export interface AIResponse {
 export async function askBeekeepingAI(
     userId: string,
     question: string,
-    apiaryId: string
+    apiaryId: string,
+    accessToken: string
 ): Promise<AIResponse> {
     try {
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
@@ -31,7 +43,8 @@ export async function askBeekeepingAI(
             return { error: 'AI Service is currently unavailable (Configuration Error).' };
         }
 
-        const supabase = getSupabase();
+        // Initialize user-scoped Supabase client
+        const supabase = getSupabase(accessToken);
 
         // 1. Fetch Context: Apiary (Location)
         const { data: apiary, error: apiaryError } = await supabase

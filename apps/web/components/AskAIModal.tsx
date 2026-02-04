@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Modal } from './Modal';
 import { askBeekeepingAI } from '../app/actions/ai';
+import { useAuth } from '../contexts/AuthContext';
 
 interface AskAIModalProps {
     isOpen: boolean;
@@ -12,6 +13,7 @@ interface AskAIModalProps {
 }
 
 export const AskAIModal = ({ isOpen, onClose, apiaryId, userId }: AskAIModalProps) => {
+    const { session } = useAuth();
     const [question, setQuestion] = useState('');
     const [response, setResponse] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -34,13 +36,17 @@ export const AskAIModal = ({ isOpen, onClose, apiaryId, userId }: AskAIModalProp
 
     const handleAsk = async () => {
         if (!question.trim()) return;
+        if (!session?.access_token) {
+            setError('You must be logged in to ask questions.');
+            return;
+        }
 
         setIsLoading(true);
         setError(null);
         setResponse('');
 
         try {
-            const result = await askBeekeepingAI(userId, question, apiaryId);
+            const result = await askBeekeepingAI(userId, question, apiaryId, session.access_token);
 
             if (result.error) {
                 setError(result.error);
