@@ -100,7 +100,7 @@ export const AskAIModal = ({ isOpen, onClose, apiaryId, userId }: AskAIModalProp
                         onChange={(e) => setQuestion(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="E.g. Is it too cold to inspect today?"
-                        className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none resize-none"
+                        className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#E67E22] focus:border-transparent outline-none resize-none text-gray-900 bg-white"
                         rows={3}
                         disabled={isLoading}
                     />
