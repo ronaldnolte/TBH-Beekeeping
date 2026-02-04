@@ -113,10 +113,11 @@ RULES:
 
         const userPrompt = `Question: ${question}`;
 
-        // 5. Call Gemini
+        // 5. Call Gemini - force v1 API
         const genAI = new GoogleGenerativeAI(apiKey);
-        // Try gemini-1.5-pro which is the current primary model
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash",
+        }, { apiVersion: "v1" });
 
         const result = await model.generateContent([
             systemPrompt,
