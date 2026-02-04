@@ -150,6 +150,6 @@ RULES:
             return { error: 'The hive is busy (Rate Limit Reached). Please try again in a minute.' };
         }
 
-        return { error: 'Failed to process request. Please try again.' };
+        return { error: 'Failed to process request: ' + (error.message || 'Unknown error') };
     }
 }
