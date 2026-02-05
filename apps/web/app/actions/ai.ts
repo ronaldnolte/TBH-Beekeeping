@@ -115,8 +115,8 @@ RULES:
 
         // 5. Call Gemini
         const genAI = new GoogleGenerativeAI(apiKey);
-        // Use gemini-1.5-pro as verified available by user error message
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+        const modelName = "gemini-1.5-flash";
+        const model = genAI.getGenerativeModel({ model: modelName });
 
         const result = await model.generateContent([
             systemPrompt,
@@ -150,6 +150,22 @@ RULES:
             return { error: 'The hive is busy (Rate Limit Reached). Please try again in a minute.' };
         }
 
-        return { error: 'Failed to process request: ' + (error.message || 'Unknown error') };
+        // DEBUG: List available models if 404
+        let availableModels = '';
+        if (error.message?.includes('404') || error.message?.includes('not found')) {
+            try {
+                const listResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GOOGLE_GENERATIVE_AI_API_KEY}`);
+                const listData = await listResponse.json();
+                if (listData.models) {
+                    availableModels = ' | Available: ' + listData.models.map((m: any) => m.name.replace('models/', '')).join(', ');
+                } else {
+                    availableModels = ' | No models found for this key (Check API Key/Billing).';
+                }
+            } catch (listError) {
+                availableModels = ' | Could not list models.';
+            }
+        }
+
+        return { error: 'Failed: ' + (error.message || 'Unknown error') + availableModels };
     }
 }
