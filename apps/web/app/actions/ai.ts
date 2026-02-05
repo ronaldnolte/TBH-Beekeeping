@@ -126,19 +126,10 @@ RULES:
         const response = result.response;
         const answer = response.text();
 
-        // 6. Save to History
-        if (userId) {
-            await supabase.from('ai_qa_history').insert({
-                user_id: userId,
-                question_original: question,
-                answer: answer,
-                context_data: {
-                    apiary_id: apiaryId,
-                    hive_types: uniqueHiveTypes,
-                    weather_context: weatherContext
-                }
-            });
-        }
+        // 6. Save to History - DISABLED per user request
+        // if (userId) {
+        //     await supabase.from('ai_qa_history').insert({ ... });
+        // }
 
         return { answer };
 
