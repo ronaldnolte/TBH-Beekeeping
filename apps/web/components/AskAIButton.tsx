@@ -18,7 +18,7 @@ export const AskAIButton = ({ apiaryId, userId }: AskAIButtonProps) => {
                 className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-indigo-700 flex items-center gap-2 border border-indigo-500"
             >
                 <span>🤖</span>
-                <span className="hidden sm:inline">Ask AI</span>
+                <span>Ask AI</span>
             </button>
 
             <AskAIModal
