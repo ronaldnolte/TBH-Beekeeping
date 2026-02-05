@@ -102,10 +102,7 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
                 <div className="max-w-7xl mx-auto">
                     <div className="flex justify-between items-start mb-2">
                         <button id="back-button" onClick={() => navigateTo('/apiary-selection')} className="bg-white/20 text-white px-4 py-2 rounded-lg text-sm">← Back to Apiaries</button>
-                        <div className="flex gap-2">
-                            {userId && (
-                                <AskAIButton apiaryId={apiaryId} userId={userId} />
-                            )}
+                        <div className="flex flex-col sm:flex-row gap-2">
                             <button
                                 id="weather-widget"
                                 onClick={() => navigateTo(`/apiary-selection/forecast?apiaryId=${apiaryId}`)}
@@ -113,6 +110,9 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
                             >
                                 📊 View Forecast
                             </button>
+                            {userId && (
+                                <AskAIButton apiaryId={apiaryId} userId={userId} />
+                            )}
                         </div>
                     </div>
                     <h1 className="text-3xl font-bold">{apiary.name}</h1>
