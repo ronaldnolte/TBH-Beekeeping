@@ -227,7 +227,11 @@ export default function LoginPage() {
 
           <button
             type="button"
-            onClick={() => setIsSignUp(!isSignUp)}
+            onClick={() => {
+              setIsSignUp(!isSignUp);
+              setError(null);
+              setMessage(null);
+            }}
             className="w-full bg-[#8B4513]/10 text-[#8B4513] py-3 rounded-lg font-semibold hover:bg-[#8B4513]/20 transition-colors text-sm border border-[#8B4513]/20"
           >
             {isSignUp ? 'Already have an account? Login instead' : 'Need an account? Sign Up now'}
