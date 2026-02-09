@@ -6,7 +6,7 @@ import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Production URL
-const WEB_APP_URL = 'https://tbh.beektools.com';
+const WEB_APP_URL = 'https://app.beektools.com';
 
 export default function App() {
   const webViewRef = useRef(null);
