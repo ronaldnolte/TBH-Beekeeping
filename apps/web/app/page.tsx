@@ -91,7 +91,7 @@ export default function LoginPage() {
       // Improve error message for common confusion
       let displayError = err.message;
       if (err.message === 'Invalid login credentials') {
-        displayError = 'Invalid credentials. If you are a new user, please switch to likely Sign Up.';
+        displayError = 'Invalid credentials. If you are a new user, please switch to Sign Up.';
       }
       setError(displayError);
 
@@ -250,9 +250,8 @@ export default function LoginPage() {
             type="button"
             onClick={handleGuestLogin}
             disabled={loading}
-            className="mt-3 w-full bg-transparent border-2 border-[#E67E22] text-[#E67E22] py-3 rounded-lg font-bold hover:bg-[#E67E22] hover:text-white transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            className="mt-2 w-full bg-transparent text-gray-500 py-2 rounded-lg text-sm hover:text-[#E67E22] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            <span className="text-xl">👤</span>
             <span>Continue as Guest</span>
           </button>
 
