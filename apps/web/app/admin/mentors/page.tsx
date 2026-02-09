@@ -170,9 +170,13 @@ export default function AdminMentorPage() {
                     <div>
                         <h1 className="text-xl font-serif font-bold text-[#4A3C28]">Admin Panel</h1>
                         <div className="flex items-center gap-2 text-xs text-[#8B4513] opacity-80">
-                            <button onClick={() => router.push('/apiary-selection')} className="hover:text-[#E67E22] hover:underline font-medium">← Back to Dashboard</button>
-                            <span>|</span>
-                            <button onClick={() => router.push('/admin/feature-requests')} className="hover:text-[#E67E22] hover:underline font-medium">Feature Requests</button>
+                            <button onClick={() => router.push('/apiary-selection')} className="hover:text-[#E67E22] hover:underline font-medium">← Dashboard</button>
+                            <span className="text-gray-300">|</span>
+                            <button onClick={() => router.push('/admin/mentors')} className="hover:text-[#E67E22] hover:underline font-medium">Manage Users</button>
+                            <span className="text-gray-300">|</span>
+                            <button onClick={() => router.push('/admin/users')} className="hover:text-[#E67E22] hover:underline font-medium">User List</button>
+                            <span className="text-gray-300">|</span>
+                            <button onClick={() => router.push('/admin/feature-requests')} className="hover:text-[#E67E22] hover:underline font-medium">Features</button>
                         </div>
                     </div>
                 </div>
