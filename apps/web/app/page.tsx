@@ -88,7 +88,12 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       console.error('[Login] Auth error:', err);
-      setError(err.message);
+      // Improve error message for common confusion
+      let displayError = err.message;
+      if (err.message === 'Invalid login credentials') {
+        displayError = 'Invalid credentials. If you are a new user, please switch to likely Sign Up.';
+      }
+      setError(displayError);
 
       // Report error to native app
       if (isWebView && window.ReactNativeWebView) {
@@ -223,9 +228,9 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setIsSignUp(!isSignUp)}
-            className="w-full text-[#8B4513] py-3 rounded-lg font-medium hover:underline text-sm"
+            className="w-full bg-[#8B4513]/10 text-[#8B4513] py-3 rounded-lg font-semibold hover:bg-[#8B4513]/20 transition-colors text-sm border border-[#8B4513]/20"
           >
-            {isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up'}
+            {isSignUp ? 'Already have an account? Login instead' : 'Need an account? Sign Up now'}
           </button>
         </form>
 
@@ -245,7 +250,7 @@ export default function LoginPage() {
             type="button"
             onClick={handleGuestLogin}
             disabled={loading}
-            className="mt-3 w-full bg-gradient-to-r from-[#E67E22] to-[#D35400] text-white py-3 rounded-lg font-semibold hover:from-[#D35400] hover:to-[#C0392B] transition-all shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+            className="mt-3 w-full bg-transparent border-2 border-[#E67E22] text-[#E67E22] py-3 rounded-lg font-bold hover:bg-[#E67E22] hover:text-white transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
             <span className="text-xl">👤</span>
             <span>Continue as Guest</span>
