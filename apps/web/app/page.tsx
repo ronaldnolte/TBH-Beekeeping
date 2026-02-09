@@ -56,6 +56,9 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : undefined),
+          },
         });
         if (error) {
           console.error('[Login] SignUp error:', error);

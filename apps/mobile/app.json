@@ -38,6 +38,14 @@
             {
               "scheme": "https",
               "host": "tbh.beektools.com"
+            },
+            {
+              "scheme": "https",
+              "host": "app.beektools.com"
+            },
+            {
+              "scheme": "https",
+              "host": "beta.beektools.com"
             }
           ],
           "category": [
