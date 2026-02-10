@@ -119,7 +119,7 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-sm p-3 border border-gray-100">
+        <div className="bg-white rounded-lg shadow-sm p-3 border border-gray-100 w-full max-w-full overflow-hidden">
             <div className="flex justify-between items-center mb-2">
                 <h2 className="text-sm font-bold text-[#4A3C28] uppercase tracking-wide">Top Bar Config {readOnly ? '(History View)' : ''}</h2>
                 {!readOnly && (
@@ -137,8 +137,8 @@ export function BarVisualizer({ snapshot, hive, hiveId, onSnapshotCreate, readOn
                 )}
             </div>
 
-            <div className="overflow-x-auto pb-2 -mx-3 px-3 scrollbar-hide">
-                <div className="flex gap-0 min-w-max">
+            <div className="overflow-x-auto pb-2 -mx-3 px-3" style={{ WebkitOverflowScrolling: 'touch' }}>
+                <div className="flex gap-0" style={{ width: 'max-content' }}>
                     {bars.map((bar) => (
                         <div key={bar.position} className="flex flex-col items-center">
                             <button
