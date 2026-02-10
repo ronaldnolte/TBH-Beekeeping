@@ -207,7 +207,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
         : latestSnapshot;
 
     return (
-        <div className="min-h-screen honeycomb-bg">
+        <div className="min-h-screen honeycomb-bg overflow-x-hidden">
             <div className="bg-[#E67E22] text-white p-3 shadow-md sticky top-0 z-10">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     <div>
