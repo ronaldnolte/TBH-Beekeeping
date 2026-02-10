@@ -234,7 +234,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
             <div className="max-w-7xl mx-auto p-2 space-y-3">
                 <div id="hive-snapshots">
                     {(hive.type?.includes('langstroth') && hive.type !== 'long_langstroth') ? (
-                        <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                        <div className="rounded-xl p-4">
                             <div className="flex justify-center mb-2">
                                 <button
                                     onClick={handleOpenSettings}
