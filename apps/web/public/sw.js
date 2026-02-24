@@ -6,6 +6,6 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    // Minimal passthrough
-    // We can add distinct caching verify strategies here later
+    // Standard passthrough required for PWA "functional fetch handler" check
+    event.respondWith(fetch(event.request));
 });

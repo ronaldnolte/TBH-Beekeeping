@@ -3,17 +3,18 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
 import FeedbackButton from "../components/FeedbackButton";
-import PWAInstallPrompt from "../components/PWAInstallPrompt";
+import { WhatsNewModal } from "../components/WhatsNewModal";
+import SWRegistration from "../components/SWRegistration";
 
 
 
 export const metadata: Metadata = {
-  title: "BeekTools",
-  description: "Top-bar hive management application",
+  title: "Beektools",
+  description: "Beekeeping management application",
   appleWebApp: {
     capable: true, // This generates apple-mobile-web-app-capable
     statusBarStyle: "default",
-    title: "BeekTools",
+    title: "Beektools",
   },
   other: {
     "mobile-web-app-capable": "yes", // Fixes deprecated warning
@@ -48,12 +49,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Capture beforeinstallprompt BEFORE React boots — must be synchronous */}
+        <script dangerouslySetInnerHTML={{
+          __html: `
+          window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            window._deferredPWAPrompt = e;
+          });
+        `}} />
+      </head>
       <body suppressHydrationWarning>
         <AuthProvider>
           {children}
         </AuthProvider>
-        <PWAInstallPrompt />
+        <SWRegistration />
         <FeedbackButton />
+        <WhatsNewModal />
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} />
       </body>
     </html>
