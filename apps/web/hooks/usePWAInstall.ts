@@ -10,15 +10,28 @@ export function usePWAInstall() {
     const [isInstallable, setIsInstallable] = useState(false);
 
     useEffect(() => {
+        // Pick up any event that was captured before React hydrated
+        const early = (window as any)._deferredPWAPrompt;
+        if (early) {
+            console.log('[PWA Hook] Found early-captured beforeinstallprompt event');
+            setDeferredPrompt(early as BeforeInstallPromptEvent);
+            setIsInstallable(true);
+        }
+
         const handleBeforeInstallPrompt = (e: Event) => {
-            // Prevent the mini-infobar from appearing on mobile
+            console.log('[PWA Hook] beforeinstallprompt event fired');
             e.preventDefault();
-            // Stash the event so it can be triggered later.
             setDeferredPrompt(e as BeforeInstallPromptEvent);
             setIsInstallable(true);
         };
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration().then(reg => {
+                console.log('[PWA Hook] SW Registration status:', reg ? 'Active' : 'Missing');
+            });
+        }
 
         return () => {
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
