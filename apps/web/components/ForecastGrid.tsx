@@ -131,7 +131,7 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-[#FFFBF0]">
+            <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center">
                     <div className="animate-pulse text-4xl mb-4">🐝</div>
                     <div className="text-[#8B4513] font-bold">Loading Forecast...</div>
@@ -142,7 +142,7 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-[#FFFBF0]">
+            <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center text-red-600">
                     <div className="text-2xl mb-2">⚠️</div>
                     <div className="font-bold">Error: {error}</div>
@@ -152,7 +152,7 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
     }
 
     return (
-        <div className="min-h-screen bg-[#FFFBF0] px-3 pt-2 pb-4">
+        <div className="min-h-screen px-3 pt-2 pb-4 bg-transparent">
             {/* Legend + Help — single compact row */}
             <div className="mb-2">
                 <div className="flex flex-wrap gap-x-3 gap-y-1 justify-center text-[10px] mb-1">

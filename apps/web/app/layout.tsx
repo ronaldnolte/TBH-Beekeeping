@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
-import FeedbackButton from "../components/FeedbackButton";
 import { WhatsNewModal } from "../components/WhatsNewModal";
 import SWRegistration from "../components/SWRegistration";
 
@@ -49,22 +49,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Capture beforeinstallprompt BEFORE React boots — must be synchronous */}
-        <script dangerouslySetInnerHTML={{
-          __html: `
+      <body suppressHydrationWarning>
+        {/* Capture beforeinstallprompt before React hydrates — beforeInteractive runs before any page JS */}
+        <Script id="pwa-early-capture" strategy="beforeInteractive">{`
           window.addEventListener('beforeinstallprompt', function(e) {
             e.preventDefault();
             window._deferredPWAPrompt = e;
           });
-        `}} />
-      </head>
-      <body suppressHydrationWarning>
+        `}</Script>
         <AuthProvider>
           {children}
         </AuthProvider>
         <SWRegistration />
-        <FeedbackButton />
         <WhatsNewModal />
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} />
       </body>

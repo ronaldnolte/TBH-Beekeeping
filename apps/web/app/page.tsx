@@ -7,6 +7,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { navigateTo } from '../lib/navigation';
 import { Tour } from '../components/Tour';
 import { loginTour } from '../lib/tourDefinitions';
+import { HomePage } from '../components/HomePage';
+import { AppHeader } from '../components/AppHeader';
 
 // Type declaration for React Native WebView
 declare global {
@@ -27,6 +29,22 @@ export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [showHomepage, setShowHomepage] = useState<boolean | null>(null); // null = undecided
+
+  // Determine whether to show homepage or login
+  useEffect(() => {
+    // If standalone PWA or returning user, skip homepage
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || (window.navigator as any).standalone === true;
+    const isReturningUser = localStorage.getItem('beektools-returning-user') === 'true';
+    const isWebView = /TBHBeekeeperApp/.test(navigator.userAgent);
+
+    if (isStandalone || isReturningUser || isWebView) {
+      setShowHomepage(false);
+    } else {
+      setShowHomepage(true);
+    }
+  }, []);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -35,6 +53,8 @@ export default function LoginPage() {
     // If already authenticated, redirect to apiary selection
     if (!authLoading && session) {
       console.log('[Login] Session found, redirecting to apiary-selection');
+      // Mark as returning user
+      localStorage.setItem('beektools-returning-user', 'true');
       navigateTo('/apiary-selection');
     }
   }, [session, authLoading, router]);
@@ -77,6 +97,9 @@ export default function LoginPage() {
           throw error;
         }
         console.log('[Login] SignIn successful, session:', data.session ? 'Created' : 'None');
+
+        // Mark as returning user so they skip homepage next time
+        localStorage.setItem('beektools-returning-user', 'true');
 
         // Show success message
         setMessage('Login successful! Redirecting...');
@@ -135,6 +158,9 @@ export default function LoginPage() {
       await resetGuestAccount();
       console.log('[Login] Guest account reset complete');
 
+      // Mark as returning user
+      localStorage.setItem('beektools-returning-user', 'true');
+
       setMessage('Logged in as guest! Redirecting...');
       await new Promise(resolve => setTimeout(resolve, 500));
       navigateTo('/apiary-selection');
@@ -147,133 +173,139 @@ export default function LoginPage() {
   };
 
   // Show loading state while checking for existing session OR if already logged in
-  if (authLoading || session) {
+  if (authLoading || session || showHomepage === null) {
     return (
       <div className="min-h-screen honeycomb-bg flex items-center justify-center">
         <div className="text-center">
           <div className="animate-pulse text-6xl mb-4">🐝</div>
-          <p className="text-[#8B4513] text-lg">Logging you in...</p>
+          <p className="text-[#8B4513] text-lg">Loading...</p>
         </div>
       </div>
     );
   }
 
+  // Show marketing homepage for brand-new visitors
+  if (showHomepage) {
+    return <HomePage onLaunchApp={() => setShowHomepage(false)} />;
+  }
+
+
   return (
-    <div className="min-h-screen honeycomb-bg flex flex-col items-center justify-center p-4 relative">
-      <div className="w-full max-w-md bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-2xl border border-[#E67E22]/20">
-        <div className="text-center mb-4">
-          <div className="flex justify-center mb-4">
-            <img src="/icon-512.png" alt="BeekTools Logo" className="w-24 h-24 object-contain drop-shadow-lg" />
-          </div>
-          <h1 className="text-2xl font-bold text-[#4A3C28]">BeekTools</h1>
-          <p className="text-gray-600 text-xs mt-1">{isSignUp ? 'Create your account' : 'Welcome back'}</p>
-        </div>
-
-        {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4 border border-red-200">
-            {error}
-          </div>
-        )}
-
-        {message && (
-          <div className="bg-green-50 text-green-600 p-3 rounded-lg text-sm mb-4 border border-green-200">
-            {message}
-          </div>
-        )}
-
-        <form onSubmit={handleAuth} className="space-y-3" autoComplete="off">
-          <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Email</label>
-            <input
-              type="email"
-              name="email"
-              autoComplete="off"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#E67E22]"
-              required
-            />
+    <div className="min-h-screen honeycomb-bg flex flex-col">
+      <AppHeader title="Beektools" />
+      <div className="flex-1 flex flex-col items-center justify-center p-4 relative">
+        <div className="w-full max-w-md bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-2xl border border-[#E67E22]/20">
+          <div className="text-center mb-6">
+            <h2 className="text-xl font-bold text-[#4A3C28]">{isSignUp ? 'Create your account' : 'Welcome back'}</h2>
+            <p className="text-gray-600 text-xs mt-1">Sign in to manage your hives</p>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
-            <input
-              type="password"
-              name="password"
-              autoComplete="off"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#E67E22]"
-              required
-              minLength={6}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#8B4513] text-white py-3 rounded-lg font-semibold hover:bg-[#723910] transition-colors disabled:opacity-50"
-          >
-            {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Login')}
-          </button>
-
-          {!isSignUp && (
-            <div className="text-right">
-              <button onClick={() => navigateTo('/auth/forgot-password')} className="text-xs text-gray-500 hover:text-[#E67E22] hover:underline bg-transparent border-none cursor-pointer p-0">
-                Forgot Password?
-              </button>
+          {error && (
+            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4 border border-red-200">
+              {error}
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={() => {
-              setIsSignUp(!isSignUp);
-              setError(null);
-              setMessage(null);
-            }}
-            className="w-full bg-[#8B4513]/10 text-[#8B4513] py-3 rounded-lg font-semibold hover:bg-[#8B4513]/20 transition-colors text-sm border border-[#8B4513]/20"
-          >
-            {isSignUp ? 'Already have an account? Login instead' : 'Need an account? Sign Up now'}
-          </button>
-        </form>
+          {message && (
+            <div className="bg-green-50 text-green-600 p-3 rounded-lg text-sm mb-4 border border-green-200">
+              {message}
+            </div>
+          )}
 
-        {/* Guest Login Section */}
-        <div className="mt-4">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+          <form onSubmit={handleAuth} className="space-y-3" autoComplete="off">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Email</label>
+              <input
+                type="email"
+                name="email"
+                autoComplete="off"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#E67E22]"
+                required
+              />
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white/90 text-gray-500">Or</span>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
+              <input
+                type="password"
+                name="password"
+                autoComplete="off"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#E67E22]"
+                required
+                minLength={6}
+              />
             </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#8B4513] text-white py-3 rounded-lg font-semibold hover:bg-[#723910] transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Login')}
+            </button>
+
+            {!isSignUp && (
+              <div className="text-right">
+                <button onClick={() => navigateTo('/auth/forgot-password')} className="text-xs text-gray-500 hover:text-[#E67E22] hover:underline bg-transparent border-none cursor-pointer p-0">
+                  Forgot Password?
+                </button>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setError(null);
+                setMessage(null);
+              }}
+              className="w-full bg-[#8B4513]/10 text-[#8B4513] py-3 rounded-lg font-semibold hover:bg-[#8B4513]/20 transition-colors text-sm border border-[#8B4513]/20"
+            >
+              {isSignUp ? 'Already have an account? Login instead' : 'Need an account? Sign Up now'}
+            </button>
+          </form>
+
+          {/* Guest Login Section */}
+          <div className="mt-4">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white/90 text-gray-500">Or</span>
+              </div>
+            </div>
+
+            <button
+              id="guest-login-button"
+              type="button"
+              onClick={handleGuestLogin}
+              disabled={loading}
+              className="mt-2 w-full bg-transparent text-gray-500 py-2 rounded-lg text-sm hover:text-[#E67E22] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              <span>Continue as Guest</span>
+            </button>
+
+            <p className="text-center text-xs text-gray-500 mt-2">
+              Try the app without creating an account
+            </p>
           </div>
-
-          <button
-            id="guest-login-button"
-            type="button"
-            onClick={handleGuestLogin}
-            disabled={loading}
-            className="mt-2 w-full bg-transparent text-gray-500 py-2 rounded-lg text-sm hover:text-[#E67E22] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            <span>Continue as Guest</span>
-          </button>
-
-          <p className="text-center text-xs text-gray-500 mt-2">
-            Try the app without creating an account
-          </p>
         </div>
+
+
+
+        {/* Guided Tour */}
+        <Tour
+          tourId="login-page"
+          steps={loginTour}
+          autoStart={false}
+        />
+
       </div>
-
-
-
-      {/* Guided Tour */}
-      <Tour
-        tourId="login-page"
-        steps={loginTour}
-        autoStart={true}
-      />
-
     </div>
   );
 }

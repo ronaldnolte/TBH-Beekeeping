@@ -2,25 +2,17 @@
 
 import Image from 'next/image';
 import { navigateTo } from '../../lib/navigation';
+import { AppHeader } from '../../components/AppHeader';
 
 export default function SetupPage() {
     return (
         <div className="min-h-screen honeycomb-bg">
-            {/* Header */}
-            <div className="bg-[#E67E22] text-white p-6 shadow-md">
-                <div className="max-w-4xl mx-auto">
-                    <div className="flex justify-between items-center">
-                        <h1 className="text-3xl font-bold">Setup Guide</h1>
-                        <button
-                            onClick={() => navigateTo('/')}
-                            className="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors border-none cursor-pointer font-inherit text-white"
-                        >
-                            ← Back to App
-                        </button>
-                    </div>
-                    <p className="text-white/90 mt-2">Get started with BeekTools</p>
-                </div>
-            </div>
+            <AppHeader
+                title="Setup Guide"
+                subtitle="Get started with Beektools"
+                backPath="/apiary-selection"
+                backLabel="App"
+            />
 
             {/* Content */}
             <div className="max-w-4xl mx-auto p-6">
@@ -52,7 +44,7 @@ export default function SetupPage() {
                             <h4 className="font-bold text-[#4A3C28] mb-2">Access the App:</h4>
                             <ol className="list-decimal list-inside space-y-2 text-gray-700">
                                 <li>Open your web browser (Chrome, Safari, Firefox, or Edge)</li>
-                                <li>Navigate to: <a href="https://app.beektools.com" className="text-[#E67E22] font-semibold hover:underline">https://app.beektools.com</a></li>
+                                <li>Navigate to: <a href="https://beektools.com" className="text-[#E67E22] font-semibold hover:underline">https://beektools.com</a></li>
                                 <li>Sign up for a free account or click <strong>"Continue as Guest"</strong> to try it out</li>
                                 <li>Start managing your hives!</li>
                             </ol>
@@ -89,7 +81,7 @@ export default function SetupPage() {
                             <div className="mb-4">
                                 <h5 className="font-bold text-[#4A3C28] mb-2">Option 1: Install as PWA (Recommended)</h5>
                                 <ol className="list-decimal list-inside space-y-2 text-gray-700 ml-4">
-                                    <li><strong>Open in Chrome:</strong> Navigate to https://app.beektools.com</li>
+                                    <li><strong>Open in Chrome:</strong> Navigate to https://beektools.com</li>
                                     <li><strong>Install:</strong> Tap the three-dot menu (⋮) → "Add to Home screen" or "Install app"</li>
                                     <li><strong>Launch:</strong> Tap the icon on your home screen—works offline!</li>
                                 </ol>
@@ -119,7 +111,7 @@ export default function SetupPage() {
                             </h4>
                             <ol className="list-decimal list-inside space-y-2 text-gray-700 ml-4">
                                 <li><strong>Open in Safari:</strong> Must use Safari browser (not Chrome)</li>
-                                <li>Navigate to https://app.beektools.com</li>
+                                <li>Navigate to https://beektools.com</li>
                                 <li><strong>Add to Home Screen:</strong> Tap Share button (⬆️) → "Add to Home Screen"</li>
                                 <li><strong>Launch:</strong> Tap the icon—enjoy a native app experience!</li>
                             </ol>
@@ -239,7 +231,7 @@ export default function SetupPage() {
                         <div className="space-y-2 text-gray-700">
                             <label className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded">
                                 <input type="checkbox" className="w-4 h-4" />
-                                <span>Access the app: <a href="https://app.beektools.com" className="text-[#E67E22] font-semibold hover:underline">https://app.beektools.com</a></span>
+                                <span>Access the app: <a href="https://beektools.com" className="text-[#E67E22] font-semibold hover:underline">https://beektools.com</a></span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded">
                                 <input type="checkbox" className="w-4 h-4" />

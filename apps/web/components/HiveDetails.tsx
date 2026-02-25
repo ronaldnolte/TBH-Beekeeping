@@ -9,6 +9,7 @@ import { InterventionList } from './InterventionList';
 import { InterventionForm } from './InterventionForm';
 import { InspectionList } from './InspectionList';
 import { InspectionForm } from './InspectionForm';
+import { AppHeader } from './AppHeader';
 import { TaskList } from './TaskList';
 import { TaskForm } from './TaskForm';
 import { HiveForm } from './HiveForm';
@@ -208,27 +209,22 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
 
     return (
         <div className="min-h-screen honeycomb-bg overflow-x-hidden">
-            <div className="bg-[#E67E22] text-white p-3 shadow-md sticky top-0 z-10">
-                <div className="max-w-7xl mx-auto flex justify-between items-center">
-                    <div>
-                        <button
-                            onClick={() => navigateTo(`/apiary/${hive.apiary_id}`)}
-                            className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg backdrop-blur-sm transition-colors font-medium text-sm flex items-center gap-1 mb-1 w-fit"
-                        >
-                            <span>←</span> Back to Apiary
-                        </button>
-                        <div className="flex items-baseline gap-2 mt-1">
-                            <Link href="/" className="hover:underline decoration-white/50 underline-offset-4">
-                                <h1 className="text-xl font-bold leading-tight">{hive.name}</h1>
-                            </Link>
-                            <span className="text-xs opacity-90">
-                                {hive.is_active ? 'Active' : 'Inactive'}
-                                {!(hive.type?.includes('langstroth') && hive.type !== 'long_langstroth') && ` • ${hive.bar_count} bars`}
-                            </span>
-                        </div>
-                    </div>
+            <AppHeader
+                title={hive.name}
+                subtitle={`${hive.is_active ? 'Active' : 'Inactive'}${!(hive.type?.includes('langstroth') && hive.type !== 'long_langstroth')
+                    ? ` • ${hive.bar_count} bars`
+                    : ''
+                    }`}
+            />
 
-                </div>
+            {/* Centered Navigation Toolbar */}
+            <div className="w-full flex justify-center py-4 bg-white border-b border-[#E6DCC3] shadow-sm mb-4">
+                <button
+                    onClick={() => navigateTo(`/apiary/${hive.apiary_id}`)}
+                    className="bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center gap-1.5"
+                >
+                    <span>←</span> Return to {apiary ? apiary.name : 'Apiary'}
+                </button>
             </div>
 
             <div className="max-w-7xl mx-auto p-2 space-y-3">
@@ -452,7 +448,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
             <Tour
                 tourId="hive-detail"
                 steps={hiveDetailTour}
-                autoStart={true}
+                autoStart={false}
             />
         </div>
     );

@@ -27,32 +27,27 @@ export function usePWAInstall() {
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistration().then(reg => {
-                console.log('[PWA Hook] SW Registration status:', reg ? 'Active' : 'Missing');
-            });
-        }
-
         return () => {
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
         };
     }, []);
 
     const triggerInstall = async () => {
-        if (!deferredPrompt) {
-            return;
+        // Read directly from global at click time - more reliable than state
+        const prompt = deferredPrompt || (window as any)._deferredPWAPrompt;
+        if (!prompt) {
+            return false;
         }
-        // Show the install prompt
-        deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
-        const { outcome } = await deferredPrompt.userChoice;
-
-        // We've used the prompt, and can't use it again, discard it
+        prompt.prompt();
+        const { outcome } = await prompt.userChoice;
         setDeferredPrompt(null);
         setIsInstallable(false);
-
+        (window as any)._deferredPWAPrompt = null;
         return outcome;
     };
 
-    return { isInstallable, triggerInstall };
+    // Live check so components can test installability at click time
+    const canInstall = () => !!(deferredPrompt || (window as any)._deferredPWAPrompt);
+
+    return { isInstallable, triggerInstall, canInstall };
 }

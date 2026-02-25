@@ -15,6 +15,8 @@ import { supabase } from '../../lib/supabase';
 import { WeatherService, InspectionWindow } from '@tbh-beekeeper/shared';
 import { Tour } from '../../components/Tour';
 import { apiarySelectionTour } from '../../lib/tourDefinitions';
+import { AppHeader } from '../../components/AppHeader';
+import PWAInstallPrompt from '../../components/PWAInstallPrompt';
 
 const WeatherWidget = ({ apiaryId, apiaries, onUpdateApiary }: { apiaryId: string, apiaries: Apiary[], onUpdateApiary: (a: Apiary) => void }) => {
     const [weather, setWeather] = useState<InspectionWindow | null>(null);
@@ -231,6 +233,10 @@ const ApiarySelectionPage = () => {
         }
     };
 
+    const onUpdateApiary = React.useCallback((updated: Apiary) => {
+        setApiaries(prev => prev.map(a => a.id === updated.id ? updated : a));
+    }, []);
+
     if (authLoading || (isLoading && !apiaries.length)) return (
         <div className="flex items-center justify-center min-h-screen text-[#8B4513] bg-[#FFFBF0]">
             <div className="animate-pulse text-4xl mb-4">🐝</div>
@@ -239,106 +245,111 @@ const ApiarySelectionPage = () => {
 
     return (
         <div className="min-h-screen bg-[#FFFBF0] flex flex-col text-[#4A3C28]">
-            {/* 1. Header */}
-            <header className="bg-[#FFFBF0] px-8 py-4 flex justify-between items-center border-b border-[#E6DCC3]">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full overflow-hidden">
-                        <img src="/icon-192.png" alt="Logo" className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-serif font-bold text-[#4A3C28]">Beekeeping Manager</h1>
-                        <div className="flex items-center gap-2 text-xs text-[#8B4513] opacity-80">
-                            <span>Welcome back, {user?.email}</span>
-                            <span className="text-[#E6DCC3]">|</span>
-                            <button onClick={() => navigateTo('/help')} id="help-link" className="hover:text-[#E67E22] hover:underline font-medium bg-transparent border-none cursor-pointer p-0">📚 Help</button>
-                            <span className="text-[#E6DCC3]">|</span>
-                            <button onClick={() => navigateTo('/feedback')} className="hover:text-[#E67E22] hover:underline font-medium bg-transparent border-none cursor-pointer p-0">💡 Ideas</button>
-                            <span className="text-[#E6DCC3]">|</span>
-                            {/* Admin Link (Only for admins) */}
-                            {isAdmin && (
-                                <>
-                                    <button onClick={() => navigateTo('/admin/mentors')} className="text-red-700 hover:text-red-900 font-bold uppercase tracking-wider text-[10px] bg-red-100 px-2 py-0.5 rounded border border-red-200 cursor-pointer">
-                                        Admin Panel
-                                    </button>
-                                    <span className="text-[#E6DCC3]">|</span>
-                                </>
-                            )}
-                            <button onClick={handleLogout} className="hover:text-[#E67E22] hover:underline font-medium">Log Out</button>
-                        </div>
-                    </div>
-                </div>
-                <WeatherWidget
-                    apiaryId={selectedApiaryId}
-                    apiaries={[...apiaries, ...sharedApiaries.map(s => s.apiary)]}
-                    onUpdateApiary={(updated) => {
-                        setApiaries(prev => prev.map(a => a.id === updated.id ? updated : a));
-                    }}
-                />
-            </header>
+            <AppHeader
+                title="Beekeeping Manager"
+                subtitle={`Welcome back, ${user?.email}`}
+            />
 
             {/* 2. Top Toolbar */}
             <div className="bg-white border-b border-[#E6DCC3] px-4 md:px-8 py-3 shadow-sm">
-                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                    <div className="w-full md:w-auto flex flex-wrap items-center gap-2 md:gap-3 flex-1">
-                        <label className="font-bold text-[#4A3C28] whitespace-nowrap hidden md:block">Select Apiary:</label>
-                        <select
-                            id="apiary-select-dropdown"
-                            value={selectedApiaryId}
-                            onChange={(e) => {
-                                const id = e.target.value;
-                                setSelectedApiaryId(id);
-                                handleGo(id);
-                            }}
-                            className="flex-1 border border-[#D1C4A9] rounded px-3 py-2 text-sm min-w-[150px] max-w-[300px]"
-                        >
-                            <option value="">Select an apiary...</option>
-                            <optgroup label="My Apiaries">
-                                {apiaries.map(a => (
-                                    <option key={a.id} value={a.id}>{a.name}</option>
-                                ))}
-                            </optgroup>
-                            {showShared && sharedApiaries.length > 0 && (
-                                <optgroup label="Shared with Me">
-                                    {sharedApiaries.map(share => (
-                                        <option key={share.apiary_id} value={share.apiary_id}>
-                                            {share.apiary.name} (from {share.owner?.display_name || 'Unknown'})
-                                        </option>
+                <div className="max-w-5xl mx-auto flex flex-col items-center justify-center">
+                    <div className="w-full flex flex-wrap items-center gap-3 md:gap-4 justify-center">
+                        {/* Apiary Selection Group */}
+                        <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                            <label className="font-bold text-[#4A3C28] whitespace-nowrap hidden md:block">Select Apiary:</label>
+                            <select
+                                id="apiary-select-dropdown"
+                                value={selectedApiaryId}
+                                onChange={(e) => {
+                                    const id = e.target.value;
+                                    setSelectedApiaryId(id);
+                                    handleGo(id);
+                                }}
+                                className="flex-1 border border-[#D1C4A9] rounded px-3 py-2 text-sm min-w-[150px] max-w-[300px]"
+                            >
+                                <option value="">Select an apiary...</option>
+                                <optgroup label="My Apiaries">
+                                    {apiaries.map(a => (
+                                        <option key={a.id} value={a.id}>{a.name}</option>
                                     ))}
                                 </optgroup>
-                            )}
-                        </select>
-                        <button
-                            id="manage-apiaries-button"
-                            onClick={() => setIsManaging(!isManaging)}
-                            className={`px-4 py-2 rounded text-sm font-medium border whitespace-nowrap ${isManaging ? 'bg-gray-200' : 'bg-white'}`}
-                        >
-                            {isManaging ? 'Done' : '⚙️ Manage Apiaries'}
-                        </button>
+                                {showShared && sharedApiaries.length > 0 && (
+                                    <optgroup label="Shared with Me">
+                                        {sharedApiaries.map(share => (
+                                            <option key={share.apiary_id} value={share.apiary_id}>
+                                                {share.apiary.name} (from {share.owner?.display_name || 'Unknown'})
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                            </select>
+                            <button
+                                id="manage-apiaries-button"
+                                onClick={() => setIsManaging(!isManaging)}
+                                className={`px-4 py-2 rounded text-sm font-medium border whitespace-nowrap ${isManaging ? 'bg-gray-200' : 'bg-white'}`}
+                            >
+                                {isManaging ? 'Done' : '⚙️ Manage Apiaries'}
+                            </button>
 
-                        <label className="flex items-center gap-1.5 text-xs text-gray-600 border border-gray-200 rounded px-2 py-1.5 bg-white cursor-pointer select-none whitespace-nowrap">
-                            <input
-                                type="checkbox"
-                                checked={showShared}
-                                onChange={e => setShowShared(e.target.checked)}
-                                className="rounded text-amber-600 focus:ring-amber-500"
-                            />
-                            <span>Show Shared</span>
-                        </label>
+                            <label className="flex items-center gap-1.5 text-xs text-gray-600 border border-gray-200 rounded px-2 py-1.5 bg-white cursor-pointer select-none whitespace-nowrap">
+                                <input
+                                    type="checkbox"
+                                    checked={showShared}
+                                    onChange={e => setShowShared(e.target.checked)}
+                                    className="rounded text-amber-600 focus:ring-amber-500"
+                                />
+                                <span>Show Shared</span>
+                            </label>
+                        </div>
+
+                        <div className="hidden md:block mx-1">
+                            <div className="h-6 w-px bg-gray-200"></div>
+                        </div>
+
+                        {/* Action Buttons Group */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <div className="hidden lg:block">
+                                <WeatherWidget
+                                    apiaryId={selectedApiaryId}
+                                    apiaries={[...apiaries, ...sharedApiaries.map(s => s.apiary)]}
+                                    onUpdateApiary={onUpdateApiary}
+                                />
+                            </div>
+
+                            <div className="flex-shrink-0">
+                                <PWAInstallPrompt variant="header" theme="white" />
+                            </div>
+
+                            <button
+                                onClick={() => navigateTo('/feedback')}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors text-xs font-bold border border-blue-200 shadow-sm"
+                            >
+                                <span>💡</span>
+                                <span className="hidden sm:inline">Ideas</span>
+                            </button>
+
+                            {isAdmin && (
+                                <button
+                                    onClick={() => navigateTo('/admin/mentors')}
+                                    className="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors text-xs font-bold border border-indigo-200 shadow-sm"
+                                >
+                                    Admin
+                                </button>
+                            )}
+
+                            <button
+                                onClick={handleLogout}
+                                className="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-xs font-bold border border-red-200 shadow-sm"
+                            >
+                                Logout
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* 3. Main Content */}
             <div className="flex-1 flex flex-col p-8 relative honeycomb-bg gap-6 overflow-y-auto">
-                {!isManaging && (
-                    <div className="text-center opacity-70 mb-4">
-                        <div className="mb-4">
-                            <img src="/icon-512.png" alt="BeekTools" className="w-20 h-20 object-contain opacity-80 mx-auto" />
-                        </div>
-                        <h2 className="text-xl font-serif font-bold text-[#4A3C28] mb-1">Select an apiary to begin</h2>
-                    </div>
-                )}
-
                 {!isManaging && (
                     <div id="task-list-section" className="bg-white/95 backdrop-blur shadow-sm border border-[#E6DCC3] rounded-xl p-4 w-full max-w-4xl mx-auto">
                         <div className="flex justify-between items-center mb-4">
@@ -429,7 +440,7 @@ const ApiarySelectionPage = () => {
             <Tour
                 tourId="apiary-selection"
                 steps={apiarySelectionTour}
-                autoStart={true}
+                autoStart={false}
             />
         </div>
     );
