@@ -25,9 +25,9 @@ const HiveCard = ({ hive, apiaryName, onEditInfo, onDelete, onMove, isEditing }:
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow relative group w-[calc(50%-0.5rem)] sm:w-48 shrink-0 text-left flex flex-col">
             {isEditing && (
-                <div className="absolute inset-0 bg-black/50 z-10 flex flex-col items-center justify-center gap-2 p-4 backdrop-blur-sm">
-                    <button onClick={(e) => { e.stopPropagation(); onEditInfo(); }} className="w-full bg-blue-500 text-white font-bold py-2 rounded">✏️ Edit Info</button>
-                    <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="w-full bg-red-500 text-white font-bold py-2 rounded">🗑️ Delete</button>
+                <div className="absolute inset-0 bg-black/50 z-20 flex flex-col items-center justify-center gap-2 p-4 backdrop-blur-sm">
+                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEditInfo(); }} className="w-full bg-blue-500 hover:bg-blue-600 transition-colors text-white font-bold py-2 rounded shadow-md pointer-events-auto">✏️ Edit Info</button>
+                    <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(); }} className="w-full bg-red-500 hover:bg-red-600 transition-colors text-white font-bold py-2 rounded shadow-md pointer-events-auto">🗑️ Delete</button>
                 </div>
             )}
             <div className="p-3">
@@ -63,6 +63,7 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
     const [movingHive, setMovingHive] = useState<Hive | null>(null);
     const [editingHive, setEditingHive] = useState<Hive | null>(null);
     const [isCreatingHive, setIsCreatingHive] = useState(false);
+    const [deletingHive, setDeletingHive] = useState<Hive | null>(null);
 
     const fetchData = async () => {
         setIsLoading(true);
@@ -79,9 +80,7 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
         fetchData();
     }, [apiaryId]);
 
-    const handleDeleteHive = async (hive: Hive) => {
-        // ... (Delete logic remains unchanged)
-        if (!confirm(`Are you sure you want to delete hive "${hive.name}"? This will also delete all inspections and history.`)) return;
+    const executeDelete = async (hive: Hive) => {
         await supabase.from('inspections').delete().eq('hive_id', hive.id);
         await supabase.from('interventions').delete().eq('hive_id', hive.id);
         await supabase.from('tasks').delete().eq('hive_id', hive.id);
@@ -90,6 +89,7 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
         if (error) {
             alert('Failed to delete hive: ' + error.message);
         } else {
+            setDeletingHive(null);
             fetchData();
         }
     };
@@ -145,7 +145,7 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
                                 hive={hive}
                                 apiaryName={apiary.name}
                                 onEditInfo={() => setEditingHive(hive)}
-                                onDelete={() => handleDeleteHive(hive)}
+                                onDelete={() => setDeletingHive(hive)}
                                 onMove={() => setMovingHive(hive)}
                                 isEditing={editMode}
                             />
@@ -183,6 +183,17 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
                     onSuccess={() => { setEditingHive(null); fetchData(); }}
                     onCancel={() => setEditingHive(null)}
                 />
+            </Modal>
+
+            <Modal isOpen={!!deletingHive} onClose={() => setDeletingHive(null)} title="Confirm Delete">
+                <div className="space-y-4">
+                    <p className="text-gray-700">Are you sure you want to delete the hive <strong>{deletingHive?.name}</strong>?</p>
+                    <p className="text-sm border-l-4 border-red-500 bg-red-50 text-red-700 p-2">This will permanently delete all inspections, interventions, tasks, and history. This action cannot be undone.</p>
+                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                        <button onClick={() => setDeletingHive(null)} className="px-4 py-2 font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
+                        <button onClick={() => deletingHive && executeDelete(deletingHive)} className="px-4 py-2 font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700">Yes, Delete Hive</button>
+                    </div>
+                </div>
             </Modal>
 
             {/* Guided Tour */}
