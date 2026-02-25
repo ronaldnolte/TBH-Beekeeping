@@ -25,7 +25,8 @@ export const MoveHiveModal = ({ isOpen, onClose, hive, currentApiaryId }: MoveHi
         if (isOpen) {
             const fetchApiaries = async () => {
                 setLoading(true);
-                const { data } = await supabase.from('apiaries').select('*').eq('is_active', true);
+                const { data, error } = await supabase.from('apiaries').select('*');
+                if (error) console.error('Error fetching apiaries:', error);
                 setApiaries((data || []) as unknown as Apiary[]); // Type assertion for now due to snake_case mismatches if any
                 setLoading(false);
             };
@@ -95,7 +96,7 @@ export const MoveHiveModal = ({ isOpen, onClose, hive, currentApiaryId }: MoveHi
                 ) : (
                     <div className="text-center py-4">
                         <p className="text-red-500 mb-2">No other apiaries available.</p>
-                        <p className="text-sm text-gray-500">Create another apiary first correctly move a hive.</p>
+                        <p className="text-sm text-gray-500">Create another apiary first to correctly move a hive.</p>
                         <button
                             onClick={onClose}
                             className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"

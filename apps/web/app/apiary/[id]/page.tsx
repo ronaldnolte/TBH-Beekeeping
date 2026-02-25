@@ -12,6 +12,7 @@ import { Tour } from '../../../components/Tour';
 import { apiaryDetailTour } from '../../../lib/tourDefinitions';
 import { useCurrentUser } from '../../../hooks/useCurrentUser';
 import { AskAIButton } from '../../../components/AskAIButton';
+import { AppHeader } from '../../../components/AppHeader';
 
 const HiveCard = ({ hive, apiaryName, onEditInfo, onDelete, onMove, isEditing }: {
     hive: Hive,
@@ -22,7 +23,7 @@ const HiveCard = ({ hive, apiaryName, onEditInfo, onDelete, onMove, isEditing }:
     isEditing: boolean
 }) => {
     return (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow relative group">
+        <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow relative group w-[calc(50%-0.5rem)] sm:w-48 shrink-0 text-left flex flex-col">
             {isEditing && (
                 <div className="absolute inset-0 bg-black/50 z-10 flex flex-col items-center justify-center gap-2 p-4 backdrop-blur-sm">
                     <button onClick={(e) => { e.stopPropagation(); onEditInfo(); }} className="w-full bg-blue-500 text-white font-bold py-2 rounded">✏️ Edit Info</button>
@@ -98,39 +99,46 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
 
     return (
         <div className="min-h-screen honeycomb-bg">
-            <div className="bg-[#E67E22] text-white p-6 shadow-md relative">
-                <div className="max-w-7xl mx-auto">
-                    <div className="flex justify-between items-start mb-2">
-                        <button id="back-button" onClick={() => navigateTo('/apiary-selection')} className="bg-white/20 text-white px-4 py-2 rounded-lg text-sm">← Back to Apiaries</button>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                            <button
-                                id="weather-widget"
-                                onClick={() => navigateTo(`/apiary-selection/forecast?apiaryId=${apiaryId}`)}
-                                className="bg-white text-[#E67E22] px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-gray-100"
-                            >
-                                📊 View Forecast
-                            </button>
-                            {userId && (
-                                <AskAIButton apiaryId={apiaryId} userId={userId} />
-                            )}
-                        </div>
+            <AppHeader
+                title={apiary.name}
+                subtitle={`${hives.length} hives • ${apiary.zip_code}`}
+            />
+
+            {/* Top Toolbar */}
+            <div className="bg-white border-b border-[#E6DCC3] px-4 md:px-8 py-2 md:py-3 shadow-sm mb-4">
+                <div className="max-w-4xl mx-auto flex flex-col items-center justify-center">
+                    <div className="w-full flex flex-wrap items-center gap-3 md:gap-4 justify-center">
+                        <button
+                            onClick={() => navigateTo('/apiary-selection')}
+                            className="bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center gap-1.5"
+                        >
+                            <span>←</span> Apiaries
+                        </button>
+                        <button
+                            id="weather-widget"
+                            onClick={() => navigateTo(`/apiary-selection/forecast?apiaryId=${apiaryId}`)}
+                            className="bg-white border border-[#E67E22] text-[#E67E22] px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-[#E67E22] hover:text-white transition-colors flex items-center gap-1.5"
+                        >
+                            <span>📊</span> View Forecast
+                        </button>
+                        {userId && (
+                            <AskAIButton apiaryId={apiaryId} userId={userId} />
+                        )}
                     </div>
-                    <h1 className="text-3xl font-bold">{apiary.name}</h1>
-                    <p className="text-sm opacity-90 mt-1">{hives.length} hives • {apiary.zip_code}</p>
                 </div>
             </div>
 
-            <div className="max-w-7xl mx-auto p-6">
-                <div className="mb-6 flex justify-between items-center">
+            <div className="max-w-4xl mx-auto p-4 sm:p-6">
+                <div className="mb-4 sm:mb-8 flex flex-col items-center gap-3">
                     <h2 className="text-2xl font-semibold text-[#4A3C28]">Your Hives</h2>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 justify-center">
                         <button id="add-hive-button" onClick={() => setIsCreatingHive(true)} className="border-2 border-[#8B4513] bg-white text-[#8B4513] font-semibold py-2 px-4 rounded-lg hover:bg-[#FFF8F0] text-sm">+ Add Hive</button>
                         <button onClick={() => setEditMode(!editMode)} className={`px-4 py-2 rounded-lg font-semibold text-sm ${editMode ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700'}`}>{editMode ? '✓ Done' : '✏️ Edit'}</button>
                     </div>
                 </div>
 
                 {hives.length > 0 ? (
-                    <div id="hive-list" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                    <div id="hive-list" className="flex flex-wrap justify-center gap-4">
                         {hives.map(hive => (
                             <HiveCard
                                 key={hive.id}
@@ -181,7 +189,7 @@ const ApiaryDashboard = ({ params }: { params: { id: string } }) => {
             <Tour
                 tourId="apiary-detail"
                 steps={apiaryDetailTour}
-                autoStart={true}
+                autoStart={false}
             />
         </div>
     );

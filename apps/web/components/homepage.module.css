@@ -1,0 +1,699 @@
+/* ===================================
+   Design Tokens & CSS Variables
+   =================================== */
+.homePage {
+    --primary-amber: #F59E0B;
+    --primary-amber-dark: #D97706;
+    --accent-green: #10B981;
+    --accent-yellow: #FCD34D;
+    --brown-warm: #92400E;
+    --background-light: #FFFBEB;
+    --background-white: #FFFFFF;
+    --text-dark: #1F2937;
+    --text-medium: #4B5563;
+    --text-light: #6B7280;
+    --gradient-hero: linear-gradient(135deg, #F59E0B 0%, #FCD34D 100%);
+    --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 251, 235, 0.9) 100%);
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 2rem;
+    --spacing-lg: 4rem;
+    --spacing-xl: 6rem;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+    --shadow-glow: 0 0 40px rgba(245, 158, 11, 0.3);
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+
+    font-family: var(--font-family);
+    color: var(--text-dark);
+    background: var(--background-light);
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+/* Site Logo */
+.siteLogo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    transition: opacity 0.3s ease;
+}
+
+.siteLogo img {
+    height: 48px;
+    width: auto;
+    border-radius: 8px;
+}
+
+.siteLogo:hover {
+    opacity: 0.9;
+}
+
+/* Background Elements */
+.backgroundElements {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.honeycombPattern {
+    position: absolute;
+    top: -10%;
+    right: -5%;
+    width: 600px;
+    height: 600px;
+    background-image:
+        repeating-linear-gradient(30deg, transparent, transparent 50px, rgba(245, 158, 11, 0.03) 50px, rgba(245, 158, 11, 0.03) 100px),
+        repeating-linear-gradient(150deg, transparent, transparent 50px, rgba(252, 211, 77, 0.03) 50px, rgba(252, 211, 77, 0.03) 100px);
+    animation: float 20s ease-in-out infinite;
+    opacity: 0.6;
+}
+
+.bee {
+    position: absolute;
+    font-size: 2rem;
+    animation: fly 15s linear infinite;
+    opacity: 0.7;
+}
+
+.bee1 {
+    top: 20%;
+    animation-delay: 0s;
+    animation-duration: 18s;
+}
+
+.bee2 {
+    top: 50%;
+    animation-delay: 6s;
+    animation-duration: 22s;
+}
+
+.bee3 {
+    top: 70%;
+    animation-delay: 12s;
+    animation-duration: 20s;
+}
+
+@keyframes fly {
+    0% {
+        left: -5%;
+        transform: translateY(0) rotate(0deg);
+    }
+
+    25% {
+        transform: translateY(-30px) rotate(5deg);
+    }
+
+    50% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    75% {
+        transform: translateY(30px) rotate(-5deg);
+    }
+
+    100% {
+        left: 105%;
+        transform: translateY(0) rotate(0deg);
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-30px) rotate(5deg);
+    }
+}
+
+/* ===================================
+   Hero Section
+   =================================== */
+.hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-hero);
+    overflow: hidden;
+    z-index: 1;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.heroContent {
+    position: relative;
+    text-align: center;
+    z-index: 2;
+    animation: fadeInUp 1s ease-out;
+}
+
+.badgeContainer {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: center;
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    animation: fadeInUp 1s ease-out 0.2s backwards;
+}
+
+.badgeFree {
+    background: var(--accent-green);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.heroTitle {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    color: white;
+    margin-bottom: var(--spacing-md);
+    line-height: 1.1;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+
+.highlight {
+    color: var(--brown-warm);
+    display: inline-block;
+}
+
+.heroSubtitle {
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: var(--spacing-sm);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    font-weight: 500;
+}
+
+.heroTagline {
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: var(--spacing-lg);
+    font-weight: 400;
+}
+
+.heroTagline strong {
+    font-weight: 700;
+    color: white;
+}
+
+.ctaButton {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: white;
+    color: var(--primary-amber-dark);
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: none;
+}
+
+.ctaButton:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.ctaButton:active {
+    transform: translateY(-2px) scale(1.02);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===================================
+   App Showcase Section
+   =================================== */
+.appsShowcase {
+    position: relative;
+    padding: var(--spacing-xl) 0;
+    background: var(--background-light);
+    z-index: 1;
+}
+
+.appsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-md);
+}
+
+.appCard {
+    background: var(--gradient-card);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.appCard:hover {
+    transform: translateY(-12px) rotateX(2deg);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.appScreenshot {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    background: var(--background-white);
+    border-bottom: 3px solid var(--primary-amber);
+    position: relative;
+}
+
+.screenshotBadge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--accent-green);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    z-index: 10;
+}
+
+.appScreenshot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.appCard:hover .appScreenshot img {
+    transform: scale(1.05);
+}
+
+.appContent {
+    padding: var(--spacing-md);
+}
+
+.appTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-amber-dark);
+    margin-bottom: var(--spacing-sm);
+}
+
+.appDescription {
+    font-size: 1.1rem;
+    color: var(--text-medium);
+    margin-bottom: var(--spacing-md);
+    font-weight: 500;
+}
+
+.appFeatures {
+    list-style: none;
+    margin-bottom: var(--spacing-md);
+    padding: 0;
+}
+
+.appFeatures li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    font-size: 1rem;
+    color: var(--text-dark);
+}
+
+.featureIcon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.appButton {
+    display: inline-block;
+    padding: 0.875rem 2rem;
+    background: var(--primary-amber);
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    border: none;
+}
+
+.appButton:hover {
+    background: var(--primary-amber-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Split view for Beekeeper card */
+.splitView {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 300px;
+}
+
+.splitHeader {
+    background-color: var(--primary-amber);
+    color: white;
+    text-align: center;
+    padding: 0.75rem;
+    font-weight: 700;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.splitContainer {
+    display: flex;
+    padding: 1rem;
+    gap: 1rem;
+    background-color: #fffbeb;
+    flex: 1;
+}
+
+.splitCol {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.splitLabel {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--brown-warm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.splitCol img {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ===================================
+   Benefits Section
+   =================================== */
+.benefits {
+    position: relative;
+    padding: var(--spacing-xl) 0;
+    background: white;
+    z-index: 1;
+}
+
+.benefitsTitle {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    color: var(--primary-amber-dark);
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.benefitsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.benefitCard {
+    text-align: center;
+    padding: var(--spacing-md);
+    background: var(--background-light);
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+}
+
+.benefitCard:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md);
+}
+
+.benefitIcon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.benefitCard h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: var(--spacing-xs);
+}
+
+.benefitCard p {
+    font-size: 1rem;
+    color: var(--text-medium);
+    line-height: 1.6;
+}
+
+/* Workflow */
+.workflow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.workflowStep {
+    text-align: center;
+}
+
+.workflowNumber {
+    width: 60px;
+    height: 60px;
+    background: var(--gradient-hero);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 auto var(--spacing-xs);
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+.workflowStep:hover .workflowNumber {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.workflowStep p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.workflowArrow {
+    font-size: 2rem;
+    color: var(--primary-amber);
+    font-weight: 700;
+}
+
+/* ===================================
+   Community CTA Section
+   =================================== */
+.betaCta {
+    position: relative;
+    padding: var(--spacing-xl) 0;
+    background: linear-gradient(135deg, var(--primary-amber) 0%, var(--primary-amber-dark) 100%);
+    z-index: 1;
+}
+
+.betaContent {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    color: white;
+}
+
+.betaContent h2 {
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    color: white;
+}
+
+.betaContent>p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: var(--spacing-md);
+    opacity: 0.95;
+}
+
+.betaBenefits {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-md);
+}
+
+.betaBenefits span {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.betaBenefits span:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.betaNote {
+    font-size: 0.95rem;
+    font-style: italic;
+    opacity: 0.85;
+}
+
+/* ===================================
+   Footer
+   =================================== */
+.footer {
+    position: relative;
+    padding: var(--spacing-lg) 0;
+    background: var(--text-dark);
+    color: white;
+    text-align: center;
+    z-index: 1;
+}
+
+.footer p {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+/* ===================================
+   Responsive
+   =================================== */
+@media (max-width: 768px) {
+    .hero {
+        min-height: 80vh;
+        padding: var(--spacing-lg) 0;
+    }
+
+    .appsGrid {
+        gap: var(--spacing-md);
+    }
+
+    .appScreenshot {
+        height: 250px;
+    }
+
+    .benefitsGrid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+    }
+
+    .workflow {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .workflowArrow {
+        transform: rotate(90deg);
+    }
+
+    .bee {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .homePage {
+        --spacing-lg: 3rem;
+        --spacing-xl: 4rem;
+    }
+
+    .appContent {
+        padding: var(--spacing-sm);
+    }
+
+    .appFeatures li {
+        font-size: 0.95rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .homePage *,
+    .homePage *::before,
+    .homePage *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

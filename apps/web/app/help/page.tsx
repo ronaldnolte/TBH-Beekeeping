@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { navigateTo } from '../../lib/navigation';
+import { AppHeader } from '../../components/AppHeader';
 
 export default function HelpPage() {
     const [activeSection, setActiveSection] = useState('getting-started');
@@ -117,26 +118,12 @@ export default function HelpPage() {
 
     return (
         <div className="min-h-screen honeycomb-bg">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-[#8B4513] to-[#D2691E] text-white shadow-lg">
-                <div className="max-w-6xl mx-auto px-4 py-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="text-5xl">📚</div>
-                            <div>
-                                <h1 className="text-3xl font-bold">Help & Tutorial</h1>
-                                <p className="text-white/80 text-sm">Everything you need to know about BeekTools</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => navigateTo('/apiary-selection')}
-                            className="bg-white/20 hover:bg-white/30 px-6 py-2 rounded-lg transition-colors backdrop-blur-sm border-none cursor-pointer text-inherit font-inherit"
-                        >
-                            ← Back to App
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <AppHeader
+                title="Help & Tutorial"
+                subtitle="Everything you need to know about Beektools"
+                backPath="/apiary-selection"
+                backLabel="App"
+            />
 
             <div className="max-w-6xl mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

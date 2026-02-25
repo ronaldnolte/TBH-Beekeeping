@@ -6,6 +6,7 @@ import { supabase } from '../../../lib/supabase';
 import { navigateTo } from '../../../lib/navigation';
 import { Apiary } from '@tbh-beekeeper/shared';
 import { ForecastGrid } from '../../../components/ForecastGrid';
+import { AppHeader } from '../../../components/AppHeader';
 
 function ForecastPageContent() {
     const router = useRouter();
@@ -41,7 +42,7 @@ function ForecastPageContent() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-[#FFFBF0]">
+            <div className="flex items-center justify-center min-h-screen honeycomb-bg">
                 <div className="text-center">
                     <div className="animate-pulse text-4xl mb-4">🐝</div>
                     <div className="text-[#8B4513] font-bold">Loading...</div>
@@ -55,21 +56,21 @@ function ForecastPageContent() {
     }
 
     return (
-        <div className="min-h-screen bg-[#FFFBF0]">
-            {/* Minimal Header */}
-            <div className="bg-[#F5A623] text-white p-3 shadow-md">
-                <div className="flex items-center justify-between max-w-7xl mx-auto">
-                    <button
-                        onClick={() => navigateTo('/apiary-selection')}
-                        className="text-white hover:text-gray-200 flex items-center gap-1 text-sm"
-                    >
-                        <span>←</span> Back to Apiaries
-                    </button>
-                    <h1 className="text-lg font-bold">Hive Forecast</h1>
-                    <div className="w-12"></div> {/* Spacer for centering */}
-                </div>
-                {/* @ts-ignore - Snake case compat */}
-                <div className="text-center text-xs mt-1 opacity-90">{apiary.name}</div>
+        <div className="min-h-screen honeycomb-bg">
+            {/* Standardized App Header */}
+            <AppHeader
+                title="Hive Forecast"
+                subtitle={apiary.name}
+            />
+
+            {/* Centered Navigation Toolbar */}
+            <div className="w-full flex justify-center py-4 bg-white border-b border-[#E6DCC3] shadow-sm mb-4">
+                <button
+                    onClick={() => navigateTo(`/apiary/${apiary.id}`)}
+                    className="bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center gap-1.5"
+                >
+                    <span>←</span> Return to {apiary.name}
+                </button>
             </div>
 
             {/* Forecast Grid */}
@@ -85,7 +86,7 @@ function ForecastPageContent() {
 export default function ForecastPage() {
     return (
         <Suspense fallback={
-            <div className="flex items-center justify-center min-h-screen bg-[#FFFBF0]">
+            <div className="flex items-center justify-center min-h-screen honeycomb-bg">
                 <div className="text-center">
                     <div className="animate-pulse text-4xl mb-4">🐝</div>
                     <div className="text-[#8B4513] font-bold">Loading...</div>

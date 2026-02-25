@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { navigateTo } from '../lib/navigation';
 
-export default function FeedbackButton() {
+export default function FeedbackButton({ inlineMode = false }: { inlineMode?: boolean }) {
     const pathname = usePathname();
     const [isHovered, setIsHovered] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -21,8 +21,8 @@ export default function FeedbackButton() {
         }
     }, []);
 
-    // Restrict to ONLY Apiary Selection page per user request (Jan 28, 2026)
-    if (pathname !== '/apiary-selection') {
+    // Always show the inline button (in headers), but restrict the floating button to the selection page
+    if (!inlineMode && pathname !== '/apiary-selection') {
         return null;
     }
 
@@ -80,65 +80,94 @@ export default function FeedbackButton() {
                 }
             `}</style>
 
-            {/* Floating Button */}
-            <button
-                className="floating-action-button"
-                onClick={handleOpen}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                style={{
-                    position: 'fixed',
-                    bottom: '80px',
-                    left: '20px',
-                    width: '56px',
-                    height: '56px',
-                    borderRadius: '50%',
-                    backgroundColor: isHovered ? '#D97706' : '#F5A623',
-                    border: 'none',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
-                    cursor: 'pointer',
-                    display: isOpen ? 'none' : 'flex', // Hide when modal is open
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.2s ease',
-                    transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-                    zIndex: 9999,
-                }}
-                title="Send Feedback"
-                aria-label="Send Feedback"
-            >
-                <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+            {inlineMode ? (
+                <button
+                    onClick={handleOpen}
+                    className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-full bg-[#F5A623] hover:bg-[#D97706] text-white transition-colors relative shadow-sm"
+                    title="Send Feedback"
                 >
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                </svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                        <polyline points="22,6 12,13 2,6" />
+                    </svg>
+                    {showPulse && (
+                        <div
+                            className="notification-pulse"
+                            style={{
+                                position: 'absolute',
+                                top: '4px',
+                                right: '4px',
+                                width: '12px',
+                                height: '12px',
+                                backgroundColor: '#ef4444',
+                                borderRadius: '50%',
+                                border: '2px solid white',
+                                zIndex: 1,
+                            }}
+                        />
+                    )}
+                </button>
+            ) : (
+                /* Floating Button */
+                <button
+                    className="floating-action-button"
+                    onClick={handleOpen}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    style={{
+                        position: 'fixed',
+                        bottom: '80px',
+                        left: '20px',
+                        width: '56px',
+                        height: '56px',
+                        borderRadius: '50%',
+                        backgroundColor: isHovered ? '#D97706' : '#F5A623',
+                        border: 'none',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+                        cursor: 'pointer',
+                        display: isOpen ? 'none' : 'flex', // Hide when modal is open
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease',
+                        transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+                        zIndex: 9999,
+                    }}
+                    title="Send Feedback"
+                    aria-label="Send Feedback"
+                >
+                    <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                        <polyline points="22,6 12,13 2,6" />
+                    </svg>
 
-                {/* Pulse Notification Dot */}
-                {showPulse && (
-                    <div
-                        className="notification-pulse"
-                        style={{
-                            position: 'absolute',
-                            top: '2px',
-                            right: '2px',
-                            width: '12px',
-                            height: '12px',
-                            backgroundColor: '#ef4444',
-                            borderRadius: '50%',
-                            border: '2px solid white',
-                            zIndex: 1,
-                        }}
-                    />
-                )}
-            </button>
+                    {/* Pulse Notification Dot */}
+                    {showPulse && (
+                        <div
+                            className="notification-pulse"
+                            style={{
+                                position: 'absolute',
+                                top: '2px',
+                                right: '2px',
+                                width: '12px',
+                                height: '12px',
+                                backgroundColor: '#ef4444',
+                                borderRadius: '50%',
+                                border: '2px solid white',
+                                zIndex: 1,
+                            }}
+                        />
+                    )}
+                </button>
+            )}
 
             {/* Modal Overlay */}
             {isOpen && (
