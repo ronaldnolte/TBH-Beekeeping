@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { WeatherService, InspectionWindow, LocationUtils } from '@tbh-beekeeper/shared';
 import { ScoringHelpModal } from './ScoringHelpModal';
-import { DiagnosticTable } from './DiagnosticTable';
 
 interface ForecastGridProps {
     apiaryId: string;
@@ -343,19 +342,7 @@ export function ForecastGrid({ apiaryId, zipCode, latitude, longitude }: Forecas
                             </div>
                         </div>
 
-                        {/* Diagnostic Table - gated by zip 87121 */}
-                        {resolvedCoords && LocationUtils.parse(zipCode).code === '87121' && (
-                            <div className="hidden lg:block bg-white rounded-xl shadow-2xl w-full max-w-xl p-4 max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-                                <DiagnosticTable
-                                    appWindow={selectedWindow}
-                                    lat={resolvedCoords.lat}
-                                    lng={resolvedCoords.lng}
-                                    targetDate={selectedWindow.displayDate}
-                                    targetHour={selectedWindow.displayHour}
-                                    autoOpen
-                                />
-                            </div>
-                        )}
+
                     </div>
                 </div>
             )}
