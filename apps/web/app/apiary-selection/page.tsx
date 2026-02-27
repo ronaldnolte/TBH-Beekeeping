@@ -255,52 +255,54 @@ const ApiarySelectionPage = () => {
                 <div className="max-w-5xl mx-auto flex flex-col items-center justify-center">
                     <div className="w-full flex flex-wrap items-center gap-3 md:gap-4 justify-center">
                         {/* Apiary Selection Group */}
-                        <div className="flex items-center gap-2 md:gap-3 flex-wrap">
-                            <label className="font-bold text-[#4A3C28] whitespace-nowrap hidden md:block">Select Apiary:</label>
-                            <select
-                                id="apiary-select-dropdown"
-                                value={selectedApiaryId}
-                                onChange={(e) => {
-                                    const id = e.target.value;
-                                    setSelectedApiaryId(id);
-                                    handleGo(id);
-                                }}
-                                className="flex-1 border border-[#D1C4A9] rounded px-3 py-2 text-sm min-w-[150px] max-w-[300px]"
-                            >
-                                <option value="">Select an apiary...</option>
-                                <optgroup label="My Apiaries">
-                                    {apiaries.map(a => (
-                                        <option key={a.id} value={a.id}>{a.name}</option>
-                                    ))}
-                                </optgroup>
-                                {showShared && sharedApiaries.length > 0 && (
-                                    <optgroup label="Shared with Me">
-                                        {sharedApiaries.map(share => (
-                                            <option key={share.apiary_id} value={share.apiary_id}>
-                                                {share.apiary.name} (from {share.owner?.display_name || 'Unknown'})
-                                            </option>
+                        {(apiaries.length > 0 || sharedApiaries.length > 0) && (
+                            <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                                <label className="font-bold text-[#4A3C28] whitespace-nowrap hidden md:block">Select Apiary:</label>
+                                <select
+                                    id="apiary-select-dropdown"
+                                    value={selectedApiaryId}
+                                    onChange={(e) => {
+                                        const id = e.target.value;
+                                        setSelectedApiaryId(id);
+                                        handleGo(id);
+                                    }}
+                                    className="flex-1 border border-[#D1C4A9] rounded px-3 py-2 text-sm min-w-[150px] max-w-[300px]"
+                                >
+                                    <option value="">Select an apiary...</option>
+                                    <optgroup label="My Apiaries">
+                                        {apiaries.map(a => (
+                                            <option key={a.id} value={a.id}>{a.name}</option>
                                         ))}
                                     </optgroup>
-                                )}
-                            </select>
-                            <button
-                                id="manage-apiaries-button"
-                                onClick={() => setIsManaging(!isManaging)}
-                                className={`px-4 py-2 rounded text-sm font-medium border whitespace-nowrap ${isManaging ? 'bg-gray-200' : 'bg-white'}`}
-                            >
-                                {isManaging ? 'Done' : '⚙️ Manage Apiaries'}
-                            </button>
+                                    {showShared && sharedApiaries.length > 0 && (
+                                        <optgroup label="Shared with Me">
+                                            {sharedApiaries.map(share => (
+                                                <option key={share.apiary_id} value={share.apiary_id}>
+                                                    {share.apiary.name} (from {share.owner?.display_name || 'Unknown'})
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
+                                </select>
+                                <button
+                                    id="manage-apiaries-button"
+                                    onClick={() => setIsManaging(!isManaging)}
+                                    className={`px-4 py-2 rounded text-sm font-medium border whitespace-nowrap ${isManaging ? 'bg-gray-200' : 'bg-white'}`}
+                                >
+                                    {isManaging ? 'Done' : '⚙️ Manage Apiaries'}
+                                </button>
 
-                            <label className="flex items-center gap-1.5 text-xs text-gray-600 border border-gray-200 rounded px-2 py-1.5 bg-white cursor-pointer select-none whitespace-nowrap">
-                                <input
-                                    type="checkbox"
-                                    checked={showShared}
-                                    onChange={e => setShowShared(e.target.checked)}
-                                    className="rounded text-amber-600 focus:ring-amber-500"
-                                />
-                                <span>Show Shared</span>
-                            </label>
-                        </div>
+                                <label className="flex items-center gap-1.5 text-xs text-gray-600 border border-gray-200 rounded px-2 py-1.5 bg-white cursor-pointer select-none whitespace-nowrap">
+                                    <input
+                                        type="checkbox"
+                                        checked={showShared}
+                                        onChange={e => setShowShared(e.target.checked)}
+                                        className="rounded text-amber-600 focus:ring-amber-500"
+                                    />
+                                    <span>Show Shared</span>
+                                </label>
+                            </div>
+                        )}
 
                         <div className="hidden md:block mx-1">
                             <div className="h-6 w-px bg-gray-200"></div>
@@ -350,59 +352,79 @@ const ApiarySelectionPage = () => {
 
             {/* 3. Main Content */}
             <div className="flex-1 flex flex-col p-8 relative honeycomb-bg gap-6 overflow-y-auto">
-                {!isManaging && (
-                    <div id="task-list-section" className="bg-white/95 backdrop-blur shadow-sm border border-[#E6DCC3] rounded-xl p-4 w-full max-w-4xl mx-auto">
-                        <div className="flex justify-between items-center mb-4">
-                            <div className="flex items-center gap-4">
-                                <h3 className="text-lg font-bold text-[#4A3C28]">📋 My Upcoming Tasks</h3>
-                                <button
-                                    id="add-task-button"
-                                    onClick={() => setIsAddingTask(true)}
-                                    className="text-xs px-3 py-1 bg-[#E67E22] text-white rounded hover:bg-[#D35400] font-semibold"
-                                >
-                                    + New Task
+                {apiaries.length === 0 && sharedApiaries.length === 0 ? (
+                    <div className="flex-1 flex items-center justify-center">
+                        <div className="bg-white/95 backdrop-blur shadow-xl border border-[#E6DCC3] rounded-xl p-10 max-w-md w-full text-center">
+                            <div className="text-6xl mb-4">🏠</div>
+                            <h2 className="text-2xl font-bold text-[#4A3C28] mb-2">Welcome to Beekeeper!</h2>
+                            <p className="text-gray-600 mb-8">
+                                It looks like you don't have any apiaries yet. An apiary is a location where you keep your hives. Create your first apiary to get started!
+                            </p>
+                            <button
+                                onClick={() => { setEditingApiary(undefined); setIsEditing(true); }}
+                                className="w-full py-3 bg-[#E67E22] text-white rounded-lg font-bold text-lg hover:bg-[#D35400] transition-colors shadow-md"
+                            >
+                                + Create First Apiary
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        {!isManaging && (
+                            <div id="task-list-section" className="bg-white/95 backdrop-blur shadow-sm border border-[#E6DCC3] rounded-xl p-4 w-full max-w-4xl mx-auto">
+                                <div className="flex justify-between items-center mb-4">
+                                    <div className="flex items-center gap-4">
+                                        <h3 className="text-lg font-bold text-[#4A3C28]">📋 My Upcoming Tasks</h3>
+                                        <button
+                                            id="add-task-button"
+                                            onClick={() => setIsAddingTask(true)}
+                                            className="text-xs px-3 py-1 bg-[#E67E22] text-white rounded hover:bg-[#D35400] font-semibold"
+                                        >
+                                            + New Task
+                                        </button>
+                                    </div>
+                                    <label className="flex items-center text-[10px] text-gray-500 cursor-pointer select-none space-x-1.5 hover:text-gray-700 bg-white px-2 py-1 rounded border border-gray-100">
+                                        <input type="checkbox" checked={showCompletedTasks} onChange={(e) => setShowCompletedTasks(e.target.checked)} className="w-3 h-3 text-gray-500 border-gray-300 rounded focus:ring-0" />
+                                        <span>Show Completed</span>
+                                    </label>
+                                </div>
+                                <UserTaskList
+                                    userId={userId || ''}
+                                    refreshKey={taskRefreshKey}
+                                    onRefresh={() => setTaskRefreshKey(prev => prev + 1)}
+                                    onEdit={(task) => {
+                                        setEditingTask(task);
+                                        setIsAddingTask(true);
+                                    }}
+                                    showCompleted={showCompletedTasks}
+                                />
+                            </div>
+                        )}
+
+                        {isManaging && (
+                            <div className="w-full max-w-2xl bg-white/95 backdrop-blur shadow-xl border border-[#E6DCC3] rounded-xl p-6 absolute top-8 left-1/2 transform -translate-x-1/2 z-10">
+                                <h3 className="text-lg font-bold text-[#4A3C28] mb-4 border-b pb-2">Manage Apiaries</h3>
+                                <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                                    {apiaries.map(apiary => (
+                                        <div key={apiary.id} className="flex justify-between items-center p-3 border rounded bg-gray-50 mb-2">
+                                            <div>
+                                                <div className="font-bold text-lg">{apiary.name}</div>
+                                                <div className="text-xs text-gray-500 font-mono">ID: {apiary.id} | Zip: {apiary.zip_code}</div>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button onClick={() => { setSharingApiary(apiary); setIsSharing(true); }} className="text-green-600 font-bold text-sm bg-green-50 px-2 py-1 rounded border border-green-200">Share</button>
+                                                <button onClick={() => { setEditingApiary(apiary); setIsEditing(true); }} className="text-blue-600 font-bold text-sm px-2 py-1">Edit</button>
+                                                <button onClick={() => handleDelete(apiary)} className="text-red-600 font-bold text-sm px-2 py-1">Delete</button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <button onClick={() => { setEditingApiary(undefined); setIsEditing(true); }} className="w-full mt-4 py-2 bg-[#E67E22] text-white rounded font-bold">
+                                    + Create New Apiary
                                 </button>
                             </div>
-                            <label className="flex items-center text-[10px] text-gray-500 cursor-pointer select-none space-x-1.5 hover:text-gray-700 bg-white px-2 py-1 rounded border border-gray-100">
-                                <input type="checkbox" checked={showCompletedTasks} onChange={(e) => setShowCompletedTasks(e.target.checked)} className="w-3 h-3 text-gray-500 border-gray-300 rounded focus:ring-0" />
-                                <span>Show Completed</span>
-                            </label>
-                        </div>
-                        <UserTaskList
-                            userId={userId || ''}
-                            refreshKey={taskRefreshKey}
-                            onRefresh={() => setTaskRefreshKey(prev => prev + 1)}
-                            onEdit={(task) => {
-                                setEditingTask(task);
-                                setIsAddingTask(true);
-                            }}
-                            showCompleted={showCompletedTasks}
-                        />
-                    </div>
-                )}
-
-                {isManaging && (
-                    <div className="w-full max-w-2xl bg-white/95 backdrop-blur shadow-xl border border-[#E6DCC3] rounded-xl p-6 absolute top-8 left-1/2 transform -translate-x-1/2 z-10">
-                        <h3 className="text-lg font-bold text-[#4A3C28] mb-4 border-b pb-2">Manage Apiaries</h3>
-                        <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-                            {apiaries.map(apiary => (
-                                <div key={apiary.id} className="flex justify-between items-center p-3 border rounded bg-gray-50 mb-2">
-                                    <div>
-                                        <div className="font-bold text-lg">{apiary.name}</div>
-                                        <div className="text-xs text-gray-500 font-mono">ID: {apiary.id} | Zip: {apiary.zip_code}</div>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button onClick={() => { setSharingApiary(apiary); setIsSharing(true); }} className="text-green-600 font-bold text-sm bg-green-50 px-2 py-1 rounded border border-green-200">Share</button>
-                                        <button onClick={() => { setEditingApiary(apiary); setIsEditing(true); }} className="text-blue-600 font-bold text-sm px-2 py-1">Edit</button>
-                                        <button onClick={() => handleDelete(apiary)} className="text-red-600 font-bold text-sm px-2 py-1">Delete</button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <button onClick={() => { setEditingApiary(undefined); setIsEditing(true); }} className="w-full mt-4 py-2 bg-[#E67E22] text-white rounded font-bold">
-                            + Create New Apiary
-                        </button>
-                    </div>
+                        )}
+                    </>
                 )}
             </div>
 
