@@ -93,13 +93,20 @@ export async function deleteUser(userId: string) {
             throw new Error('Cannot delete your own admin account.');
         }
 
-        // 2. Delete User via Admin API
+        // 2. Clean up all associated data via RPC function first
+        // This handles apiaries, hives, inspections, tasks, etc. 
+        // to prevent foreign key errors.
+        const { error: rpcError } = await supabaseAdmin.rpc('delete_user_entirely', { target_user_id: userId });
+
+        if (rpcError) {
+            console.error('RPC delete error:', rpcError);
+            throw new Error('Failed to clean up user data: ' + rpcError.message);
+        }
+
+        // 3. Delete User via Admin API
         const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
         if (error) throw error;
-
-        // 3. Explicitly delete from public.users if cascade fails or for safety (Optional, but cascade should handle it)
-        // We rely on CASCADE constraints as per plan.
 
         return { success: true };
     } catch (error: any) {
