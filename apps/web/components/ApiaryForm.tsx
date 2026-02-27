@@ -12,7 +12,7 @@ export function ApiaryForm({
     onCancel
 }: {
     initialData?: Apiary,
-    onSuccess: () => void,
+    onSuccess: (apiary?: Apiary) => void,
     onCancel: () => void
 }) {
     const [name, setName] = useState(initialData?.name || '');
@@ -66,17 +66,20 @@ export function ApiaryForm({
                     .eq('id', initialData.id);
 
                 if (error) throw error;
+                onSuccess();
             } else {
-                const { error } = await supabase
+                const { data, error } = await supabase
                     .from('apiaries')
                     .insert({
                         ...apiaryData,
                         user_id: userId
-                    });
+                    })
+                    .select()
+                    .single();
 
                 if (error) throw error;
+                onSuccess(data as Apiary);
             }
-            onSuccess();
         } catch (error: any) {
             console.error('Failed to save apiary:', error);
             alert('Failed to save apiary: ' + error.message);
