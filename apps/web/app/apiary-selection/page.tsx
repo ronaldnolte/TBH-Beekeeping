@@ -431,7 +431,14 @@ const ApiarySelectionPage = () => {
             <Modal isOpen={isEditing} onClose={() => setIsEditing(false)} title={editingApiary ? "Edit Apiary" : "New Apiary"}>
                 <ApiaryForm
                     initialData={editingApiary}
-                    onSuccess={() => { setIsEditing(false); fetchApiaries(); }}
+                    onSuccess={(newApiary) => {
+                        setIsEditing(false);
+                        if (!editingApiary && apiaries.length === 0 && newApiary) {
+                            handleGo(newApiary.id);
+                        } else {
+                            fetchApiaries();
+                        }
+                    }}
                     onCancel={() => setIsEditing(false)}
                 />
             </Modal>
