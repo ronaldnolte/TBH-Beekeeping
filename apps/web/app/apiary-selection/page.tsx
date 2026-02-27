@@ -433,9 +433,13 @@ const ApiarySelectionPage = () => {
                     initialData={editingApiary}
                     onSuccess={(newApiary) => {
                         setIsEditing(false);
+
+                        // If this was their very first apiary, navigate to it immediately.
                         if (!editingApiary && apiaries.length === 0 && newApiary) {
+                            setIsManaging(false); // Ensure they aren't stuck in manage mode
                             handleGo(newApiary.id);
                         } else {
+                            // Otherwise just refresh the list
                             fetchApiaries();
                         }
                     }}
