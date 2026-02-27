@@ -104,11 +104,8 @@ export async function deleteUser(userId: string) {
             throw new Error('Failed to clean up user data: ' + rpcError.message);
         }
 
-        // 3. Delete User via Admin API
-        const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
-
-        if (error) throw error;
-
+        // 3. The RPC function handles everything including auth.users deletion.
+        // If it succeeded, we are done.
         return { success: true };
     } catch (error: any) {
         console.error('Error deleting user:', error);
