@@ -329,14 +329,21 @@ export const VarroaTestHistory = ({
                     <div className="bg-white rounded-lg border border-gray-200 p-3 mb-3 shadow-sm">
                         <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Mite Load Trend</div>
                         <svg viewBox={`0 0 ${sparkWidth} ${sparkHeight + 10}`} className="w-full h-16" preserveAspectRatio="none">
-                            {/* Threshold line */}
+                            {/* Threshold line — follows seasonal changes */}
                             {sparklineTests.length > 0 && (() => {
-                                const avgThreshold = sparklineTests.reduce((s, t) => s + Number(t.threshold), 0) / sparklineTests.length;
-                                const y = maxPct > 0 ? sparkHeight - (avgThreshold / maxPct) * sparkHeight : sparkHeight;
+                                const thresholdPoints = sparklineTests.map((t, i) => {
+                                    const x = sparklineTests.length === 1 ? sparkWidth / 2 : (i / (sparklineTests.length - 1)) * sparkWidth;
+                                    const y = maxPct > 0 ? sparkHeight - (Number(t.threshold) / maxPct) * sparkHeight : sparkHeight;
+                                    return `${x},${y}`;
+                                }).join(' ');
                                 return (
-                                    <line
-                                        x1={0} y1={y} x2={sparkWidth} y2={y}
-                                        stroke="#EF4444" strokeWidth="1" strokeDasharray="4,3" opacity={0.6}
+                                    <polyline
+                                        fill="none"
+                                        stroke="#EF4444"
+                                        strokeWidth="1.5"
+                                        strokeDasharray="4,3"
+                                        opacity={0.6}
+                                        points={thresholdPoints}
                                     />
                                 );
                             })()}
