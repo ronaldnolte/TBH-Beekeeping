@@ -277,8 +277,8 @@ export const VarroaTestHistory = ({
             {tests.length === 1 && (
                 <div className="bg-white rounded-lg border border-gray-200 p-3 mb-3 shadow-sm">
                     <div className="flex justify-between items-center mb-2">
-                        <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Current Mite Load</div>
-                        <span className={`text-xs font-bold ${latestStatus.color}`}>{latestStatus.label}</span>
+                        <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Current Mite Load</div>
+                        <span className={`text-sm font-bold ${latestStatus.color}`}>{latestStatus.label}</span>
                     </div>
                     {/* Gauge bar */}
                     <div className="relative h-8 bg-gray-100 rounded-full overflow-hidden">
@@ -296,16 +296,16 @@ export const VarroaTestHistory = ({
                             className="absolute inset-y-0 w-0.5 bg-red-600"
                             style={{ left: `${thresholdPos}%` }}
                         >
-                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] font-bold text-red-600 whitespace-nowrap">
+                            <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-red-600 whitespace-nowrap">
                                 {latestThreshold}% limit
                             </div>
                         </div>
                         {/* Value label */}
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-xs font-bold text-white drop-shadow-sm">{latestPct.toFixed(1)}%</span>
+                            <span className="text-sm font-bold text-white drop-shadow-sm">{latestPct.toFixed(1)}%</span>
                         </div>
                     </div>
-                    <div className="flex justify-between text-[8px] text-gray-400 mt-1">
+                    <div className="flex justify-between text-[10px] text-gray-400 mt-1">
                         <span>0%</span>
                         <span>{gaugeMax.toFixed(0)}%</span>
                     </div>
@@ -327,7 +327,7 @@ export const VarroaTestHistory = ({
 
                 return (
                     <div className="bg-white rounded-lg border border-gray-200 p-3 mb-3 shadow-sm">
-                        <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-2">Mite Load Trend</div>
+                        <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Mite Load Trend</div>
                         <svg viewBox={`0 0 ${sparkWidth} ${sparkHeight + 10}`} className="w-full h-16" preserveAspectRatio="none">
                             {/* Threshold line */}
                             {sparklineTests.length > 0 && (() => {
@@ -381,7 +381,7 @@ export const VarroaTestHistory = ({
                                 );
                             })}
                         </svg>
-                        <div className="flex justify-between text-[8px] text-gray-400 mt-1">
+                        <div className="flex justify-between text-[10px] text-gray-400 mt-1">
                             <span>{new Date(sparklineTests[0]?.tested_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                             <span className="flex items-center gap-2">
                                 <span className="flex items-center gap-0.5">
@@ -401,13 +401,13 @@ export const VarroaTestHistory = ({
 
             {/* Results Table */}
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
-                <div className="grid grid-cols-[40px_70px_80px_55px_55px_1fr] bg-gray-50 border-b border-gray-200 py-1.5 items-center">
+                <div className="grid grid-cols-[32px_80px_90px_55px_55px_1fr] bg-gray-50 border-b border-gray-200 py-2 items-center">
                     <div></div>
-                    <div className="px-2 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Date</div>
-                    <div className="px-2 text-[9px] font-bold text-gray-400 uppercase tracking-wider text-center">Mites/Bees</div>
-                    <div className="px-1 text-[9px] font-bold text-gray-400 uppercase tracking-wider text-center">%</div>
-                    <div className="px-1 text-[9px] font-bold text-gray-400 uppercase tracking-wider text-center">Limit</div>
-                    <div className="px-2 text-[9px] font-bold text-gray-400 uppercase tracking-wider">Status</div>
+                    <div className="px-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Date</div>
+                    <div className="px-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-center">Mites/Bees</div>
+                    <div className="px-1 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-center">%</div>
+                    <div className="px-1 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-center">Limit</div>
+                    <div className="px-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Status</div>
                 </div>
 
                 {tests.map(test => {
@@ -419,7 +419,7 @@ export const VarroaTestHistory = ({
                     return (
                         <div
                             key={test.id}
-                            className={`grid grid-cols-[40px_70px_80px_55px_55px_1fr] border-b border-gray-100 hover:bg-gray-50 transition-colors items-center py-1 cursor-pointer ${statusInfo.bg}`}
+                            className={`grid grid-cols-[32px_80px_90px_55px_55px_1fr] border-b border-gray-100 hover:bg-gray-50 transition-colors items-center py-2 cursor-pointer ${statusInfo.bg}`}
                             onClick={() => setViewingItem(test)}
                         >
                             <div className="flex justify-center">
@@ -431,20 +431,20 @@ export const VarroaTestHistory = ({
                                 )}
                             </div>
                             <div className="px-2">
-                                <div className="text-[11px] font-bold text-gray-700 whitespace-nowrap">
+                                <div className="text-[13px] font-bold text-gray-700 whitespace-nowrap">
                                     {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                 </div>
-                                <div className="text-[9px] text-gray-400">{date.getFullYear()}</div>
+                                <div className="text-[10px] text-gray-400">{date.getFullYear()}</div>
                             </div>
-                            <div className="text-[11px] text-gray-600 text-center">
+                            <div className="text-[13px] text-gray-600 text-center">
                                 {test.mite_count} / {test.bee_count}
                             </div>
-                            <div className={`text-[11px] font-bold text-center ${statusInfo.color}`}>
+                            <div className={`text-[13px] font-bold text-center ${statusInfo.color}`}>
                                 {pct.toFixed(1)}%
                             </div>
-                            <div className="text-[11px] text-gray-500 text-center">{thresh}%</div>
+                            <div className="text-[13px] text-gray-500 text-center">{thresh}%</div>
                             <div className="px-2">
-                                <span className={`text-[10px] font-bold ${statusInfo.color}`}>{statusInfo.label}</span>
+                                <span className={`text-xs font-bold ${statusInfo.color}`}>{statusInfo.label}</span>
                             </div>
                         </div>
                     );
