@@ -7,6 +7,7 @@ import { BarVisualizer } from './BarVisualizer';
 import { LangstrothBuilder } from './LangstrothBuilder';
 import { InterventionList } from './InterventionList';
 import { InterventionForm } from './InterventionForm';
+import { VarroaTestForm, VarroaTestHistory } from './VarroaTestPanel';
 import { InspectionList } from './InspectionList';
 import { InspectionForm } from './InspectionForm';
 import { AppHeader } from './AppHeader';
@@ -129,7 +130,7 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
 
     const [selectedSnapshotId, setSelectedSnapshotId] = useState<string | null>(null);
     const [showAllHistory, setShowAllHistory] = useState(false);
-    const [activeTab, setActiveTab] = useState<'Inspections' | 'Interventions' | 'Tasks'>('Inspections');
+    const [activeTab, setActiveTab] = useState<'Inspections' | 'Interventions' | 'Varroa' | 'Tasks'>('Inspections');
 
     const [isAddingIntervention, setIsAddingIntervention] = useState(false);
     const [editingIntervention, setEditingIntervention] = useState<Intervention | undefined>(undefined);
@@ -143,6 +144,10 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
     const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
     const [taskRefreshKey, setTaskRefreshKey] = useState(0);
     const [showCompletedTasks, setShowCompletedTasks] = useState(false);
+
+    const [isAddingVarroaTest, setIsAddingVarroaTest] = useState(false);
+    const [editingVarroaTest, setEditingVarroaTest] = useState<any>(undefined);
+    const [varroaRefreshKey, setVarroaRefreshKey] = useState(0);
 
     const [isEditingSettings, setIsEditingSettings] = useState(false);
 
@@ -331,13 +336,13 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                     </div>
                 </div>
 
-                <div className="flex border-b border-gray-200 mb-4">
-                    {[{ id: 'Inspections', tabId: 'new-inspection-button' }, { id: 'Interventions', tabId: 'interventions-tab' }, { id: 'Tasks', tabId: 'tasks-tab' }].map((tab) => (
+                <div className="flex border-b border-gray-200 mb-4 overflow-x-auto">
+                    {[{ id: 'Inspections', tabId: 'new-inspection-button' }, { id: 'Interventions', tabId: 'interventions-tab' }, { id: 'Varroa', tabId: 'varroa-tab' }, { id: 'Tasks', tabId: 'tasks-tab' }].map((tab) => (
                         <button
                             key={tab.id}
                             id={tab.id === activeTab ? tab.tabId : undefined}
                             onClick={() => setActiveTab(tab.id as any)}
-                            className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === tab.id ? 'border-[#E67E22] text-[#E67E22]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                            className={`px-4 py-2 text-sm font-medium border-b-2 whitespace-nowrap ${activeTab === tab.id ? 'border-[#E67E22] text-[#E67E22]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
                         >
                             {tab.id}
                         </button>
@@ -386,6 +391,31 @@ export const HiveDetails = ({ hiveId }: { hiveId: string }) => {
                             refreshKey={interventionRefreshKey}
                             onRefresh={() => setInterventionRefreshKey(p => p + 1)}
                             onEdit={(item) => { if (checkOwnership()) { setEditingIntervention(item); setIsAddingIntervention(true); } }}
+                        />
+                    </div>
+                )}
+
+                {activeTab === 'Varroa' && (
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-6 mb-2">
+                            <h3 className="text-xs font-bold text-[#4A3C28] uppercase tracking-wide opacity-80">Mite Test History</h3>
+                            <button onClick={() => { if (checkOwnership()) setIsAddingVarroaTest(true); }} className="text-xs bg-white border border-[#E67E22] text-[#E67E22] px-3 py-1 rounded hover:bg-[#E67E22] hover:text-white font-semibold">+ Add Mite Test</button>
+                        </div>
+                        <Modal isOpen={isAddingVarroaTest} onClose={() => { setIsAddingVarroaTest(false); setEditingVarroaTest(undefined); }} title={editingVarroaTest ? 'Edit Mite Test' : 'New Mite Test'}>
+                            <VarroaTestForm
+                                hiveId={hive.id}
+                                userId={userId || ''}
+                                initialData={editingVarroaTest}
+                                onSuccess={() => { setIsAddingVarroaTest(false); setEditingVarroaTest(undefined); setVarroaRefreshKey(p => p + 1); }}
+                                onCancel={() => { setIsAddingVarroaTest(false); setEditingVarroaTest(undefined); }}
+                            />
+                        </Modal>
+                        <VarroaTestHistory
+                            hiveId={hive.id}
+                            refreshKey={varroaRefreshKey}
+                            onRefresh={() => setVarroaRefreshKey(p => p + 1)}
+                            onEdit={(item) => { if (checkOwnership()) { setEditingVarroaTest(item); setIsAddingVarroaTest(true); } }}
+                            isOwner={!apiary || apiary.user_id === userId}
                         />
                     </div>
                 )}

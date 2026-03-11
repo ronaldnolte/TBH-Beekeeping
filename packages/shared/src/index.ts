@@ -6,6 +6,7 @@ export { default as Hive } from './models/Hive';
 export { default as HiveSnapshot } from './models/HiveSnapshot';
 export { default as Inspection } from './models/Inspection';
 export { default as Intervention } from './models/Intervention';
+export { default as VarroaTest } from './models/VarroaTest';
 export { default as Task } from './models/Task';
 export { default as WeatherForecast } from './models/WeatherForecast';
 export * from './models/FeatureRequest';
