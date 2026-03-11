@@ -255,152 +255,191 @@ export const VarroaTestHistory = ({
     if (isLoading && tests.length === 0) return <div className="text-center py-4 text-xs text-gray-400">Loading...</div>;
     if (tests.length === 0) return <div className="text-center py-6 text-gray-400 text-xs italic">No mite tests recorded yet.</div>;
 
-    // Sparkline data (oldest to newest for left-to-right rendering)
-    const sparklineTests = [...tests].reverse();
-    const maxPct = Math.max(...sparklineTests.map(t => Number(t.mite_pct)), ...sparklineTests.map(t => Number(t.threshold)));
-    const sparkHeight = 60;
-    const sparkWidth = 200;
 
-    // Latest test for gauge display
-    const latestTest = tests[0];
-    const latestPct = Number(latestTest?.mite_pct || 0);
-    const latestThreshold = Number(latestTest?.threshold || 3);
-    const latestStatus = getStatusInfo(latestPct, latestThreshold);
-    // Gauge max = 2x threshold or 2x pct, whichever is larger (so things don't overflow)
-    const gaugeMax = Math.max(latestThreshold * 2.5, latestPct * 1.5, 5);
-    const pctWidth = Math.min((latestPct / gaugeMax) * 100, 100);
-    const thresholdPos = Math.min((latestThreshold / gaugeMax) * 100, 100);
+
 
     return (
         <>
-            {/* Single test: Gauge Bar */}
-            {tests.length === 1 && (
-                <div className="bg-white rounded-lg border border-gray-200 p-3 mb-3 shadow-sm">
-                    <div className="flex justify-between items-center mb-2">
-                        <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Current Mite Load</div>
-                        <span className={`text-sm font-bold ${latestStatus.color}`}>{latestStatus.label}</span>
-                    </div>
-                    {/* Gauge bar */}
-                    <div className="relative h-8 bg-gray-100 rounded-full overflow-hidden">
-                        {/* Filled bar */}
-                        <div
-                            className="absolute inset-y-0 left-0 rounded-full transition-all"
-                            style={{
-                                width: `${pctWidth}%`,
-                                background: latestPct >= latestThreshold * 1.5 ? '#EF4444'
-                                    : latestPct >= latestThreshold ? '#F59E0B' : '#22C55E'
-                            }}
-                        />
-                        {/* Threshold marker */}
-                        <div
-                            className="absolute inset-y-0 w-0.5 bg-red-600"
-                            style={{ left: `${thresholdPos}%` }}
-                        >
-                            <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-red-600 whitespace-nowrap">
-                                {latestThreshold}% limit
-                            </div>
-                        </div>
-                        {/* Value label */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-sm font-bold text-white drop-shadow-sm">{latestPct.toFixed(1)}%</span>
-                        </div>
-                    </div>
-                    <div className="flex justify-between text-[10px] text-gray-400 mt-1">
-                        <span>0%</span>
-                        <span>{gaugeMax.toFixed(0)}%</span>
-                    </div>
-                </div>
-            )}
+            {/* Period-based HBHC Chart */}
+            {(() => {
+                // Define HBHC periods
+                const HBHC_PERIODS = [
+                    { label: 'Jan–Feb', months: [0, 1], threshold: 1 },
+                    { label: 'Mar', months: [2], threshold: 1 },
+                    { label: 'Apr–May', months: [3, 4], threshold: 3 },
+                    { label: 'Jun–Aug', months: [5, 6, 7], threshold: 3 },
+                    { label: 'Sep–Oct', months: [8, 9], threshold: 2 },
+                    { label: 'Nov–Dec', months: [10, 11], threshold: 1 },
+                ];
 
-            {/* 2+ tests: Sparkline Trend */}
-            {tests.length >= 2 && (() => {
-                // Determine the date range of sparkline tests for requeen marker placement
-                const firstDate = new Date(sparklineTests[0]?.tested_at).getTime();
-                const lastDate = new Date(sparklineTests[sparklineTests.length - 1]?.tested_at).getTime();
-                const dateRange = lastDate - firstDate;
+                // Get the last 6 periods ending at current period
+                const now = new Date();
+                const currentMonth = now.getMonth();
+                const currentPeriodIdx = HBHC_PERIODS.findIndex(p => p.months.includes(currentMonth));
+                const orderedPeriods: typeof HBHC_PERIODS = [];
+                for (let i = 5; i >= 0; i--) {
+                    const idx = (currentPeriodIdx - i + 6) % 6;
+                    orderedPeriods.push(HBHC_PERIODS[idx]);
+                }
 
-                // Filter requeen dates that fall within (or near) the sparkline range
-                const relevantRequeens = requeenDates.filter(d => {
-                    const t = d.getTime();
-                    return t >= firstDate && t <= lastDate;
+                // Group tests into periods
+                const periodData = orderedPeriods.map(period => {
+                    const periodTests = tests.filter(t => {
+                        const m = new Date(t.tested_at).getMonth();
+                        return period.months.includes(m);
+                    });
+                    if (periodTests.length === 0) return { ...period, tests: [], min: 0, max: 0, latest: 0 };
+                    const pcts = periodTests.map(t => Number(t.mite_pct));
+                    const sorted = [...periodTests].sort((a, b) => new Date(b.tested_at).getTime() - new Date(a.tested_at).getTime());
+                    return {
+                        ...period,
+                        tests: periodTests,
+                        min: Math.min(...pcts),
+                        max: Math.max(...pcts),
+                        latest: Number(sorted[0].mite_pct),
+                    };
                 });
+
+                // Chart dimensions
+                const chartHeight = 80;
+                const chartWidth = 240;
+                const barWidth = 16;
+                const maxVal = Math.max(
+                    ...periodData.map(p => p.max),
+                    ...periodData.map(p => p.threshold),
+                    4 // minimum scale
+                ) * 1.2;
+
+                const colWidth = chartWidth / 6;
+
+                // Check for requeen events within displayed periods
+                const displayedMonths = orderedPeriods.flatMap(p => p.months);
+                const relevantRequeens = requeenDates.filter(d => displayedMonths.includes(d.getMonth()));
 
                 return (
                     <div className="bg-white rounded-lg border border-gray-200 p-3 mb-3 shadow-sm">
-                        <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Mite Load Trend</div>
-                        <svg viewBox={`0 0 ${sparkWidth} ${sparkHeight + 10}`} className="w-full h-16" preserveAspectRatio="none">
-                            {/* Threshold line — follows seasonal changes */}
-                            {sparklineTests.length > 0 && (() => {
-                                const thresholdPoints = sparklineTests.map((t, i) => {
-                                    const x = sparklineTests.length === 1 ? sparkWidth / 2 : (i / (sparklineTests.length - 1)) * sparkWidth;
-                                    const y = maxPct > 0 ? sparkHeight - (Number(t.threshold) / maxPct) * sparkHeight : sparkHeight;
-                                    return `${x},${y}`;
-                                }).join(' ');
+                        <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Mite Load by Season</div>
+                        <svg viewBox={`0 0 ${chartWidth} ${chartHeight + 22}`} className="w-full" style={{ height: '120px' }} preserveAspectRatio="xMidYMid meet">
+                            {/* Stepped threshold line */}
+                            {periodData.map((p, i) => {
+                                const x1 = i * colWidth;
+                                const x2 = (i + 1) * colWidth;
+                                const y = chartHeight - (p.threshold / maxVal) * chartHeight;
                                 return (
-                                    <polyline
-                                        fill="none"
-                                        stroke="#EF4444"
-                                        strokeWidth="1.5"
-                                        strokeDasharray="4,3"
-                                        opacity={0.6}
-                                        points={thresholdPoints}
+                                    <line
+                                        key={`thresh-${i}`}
+                                        x1={x1} y1={y} x2={x2} y2={y}
+                                        stroke="#EF4444" strokeWidth="1.5" strokeDasharray="4,3" opacity={0.5}
                                     />
                                 );
-                            })()}
-
-                            {/* Requeen vertical markers */}
-                            {dateRange > 0 && relevantRequeens.map((d, i) => {
-                                const x = ((d.getTime() - firstDate) / dateRange) * sparkWidth;
+                            })}
+                            {/* Threshold step connectors */}
+                            {periodData.slice(0, -1).map((p, i) => {
+                                const nextP = periodData[i + 1];
+                                if (p.threshold === nextP.threshold) return null;
+                                const x = (i + 1) * colWidth;
+                                const y1 = chartHeight - (p.threshold / maxVal) * chartHeight;
+                                const y2 = chartHeight - (nextP.threshold / maxVal) * chartHeight;
                                 return (
-                                    <g key={`requeen-${i}`}>
-                                        <line
-                                            x1={x} y1={0} x2={x} y2={sparkHeight}
-                                            stroke="#9333EA" strokeWidth="1.5" strokeDasharray="3,2" opacity={0.7}
-                                        />
-                                        <text x={x} y={sparkHeight + 9} textAnchor="middle" fontSize="8" fill="#9333EA">👑</text>
+                                    <line
+                                        key={`step-${i}`}
+                                        x1={x} y1={y1} x2={x} y2={y2}
+                                        stroke="#EF4444" strokeWidth="1" strokeDasharray="2,2" opacity={0.3}
+                                    />
+                                );
+                            })}
+
+                            {/* Requeen markers */}
+                            {relevantRequeens.map((d, ri) => {
+                                const m = d.getMonth();
+                                const periodIdx = orderedPeriods.findIndex(p => p.months.includes(m));
+                                if (periodIdx < 0) return null;
+                                const x = (periodIdx + 0.5) * colWidth;
+                                return (
+                                    <g key={`rq-${ri}`}>
+                                        <line x1={x} y1={0} x2={x} y2={chartHeight} stroke="#9333EA" strokeWidth="1.5" strokeDasharray="3,2" opacity={0.6} />
+                                        <text x={x} y={chartHeight + 20} textAnchor="middle" fontSize="8" fill="#9333EA">👑</text>
                                     </g>
                                 );
                             })}
 
-                            {/* Data line */}
-                            <polyline
-                                fill="none"
-                                stroke="#F59E0B"
-                                strokeWidth="2"
-                                points={sparklineTests.map((t, i) => {
-                                    const x = sparklineTests.length === 1 ? sparkWidth / 2 : (i / (sparklineTests.length - 1)) * sparkWidth;
-                                    const y = maxPct > 0 ? sparkHeight - (Number(t.mite_pct) / maxPct) * sparkHeight : sparkHeight;
-                                    return `${x},${y}`;
-                                }).join(' ')}
-                            />
-                            {/* Dots */}
-                            {sparklineTests.map((t, i) => {
-                                const x = sparklineTests.length === 1 ? sparkWidth / 2 : (i / (sparklineTests.length - 1)) * sparkWidth;
-                                const y = maxPct > 0 ? sparkHeight - (Number(t.mite_pct) / maxPct) * sparkHeight : sparkHeight;
-                                const aboveThreshold = Number(t.mite_pct) >= Number(t.threshold);
+                            {/* Range bars + latest dot for each period */}
+                            {periodData.map((p, i) => {
+                                const cx = (i + 0.5) * colWidth;
+                                if (p.tests.length === 0) return null;
+
+                                const yMin = chartHeight - (p.min / maxVal) * chartHeight;
+                                const yMax = chartHeight - (p.max / maxVal) * chartHeight;
+                                const yLatest = chartHeight - (p.latest / maxVal) * chartHeight;
+                                const aboveThreshold = p.latest >= p.threshold;
+                                const barColor = aboveThreshold ? '#FCA5A5' : '#BBF7D0';
+                                const dotColor = p.latest >= p.threshold * 1.5 ? '#EF4444' : aboveThreshold ? '#F59E0B' : '#22C55E';
+
                                 return (
-                                    <circle
-                                        key={t.id}
-                                        cx={x} cy={y} r={4}
-                                        fill={aboveThreshold ? '#EF4444' : '#22C55E'}
-                                        stroke="white" strokeWidth="1.5"
-                                    />
+                                    <g key={`bar-${i}`}>
+                                        {/* Range bar (only if more than 1 test) */}
+                                        {p.tests.length > 1 && (
+                                            <rect
+                                                x={cx - barWidth / 2}
+                                                y={yMax}
+                                                width={barWidth}
+                                                height={Math.max(yMin - yMax, 2)}
+                                                rx={3}
+                                                fill={barColor}
+                                                opacity={0.6}
+                                            />
+                                        )}
+                                        {/* Latest test dot */}
+                                        <circle
+                                            cx={cx} cy={yLatest} r={5}
+                                            fill={dotColor}
+                                            stroke="white" strokeWidth="1.5"
+                                        />
+                                        {/* Value label */}
+                                        <text
+                                            x={cx} y={yLatest - 8}
+                                            textAnchor="middle" fontSize="8" fontWeight="bold"
+                                            fill={dotColor}
+                                        >
+                                            {p.latest.toFixed(1)}%
+                                        </text>
+                                    </g>
+                                );
+                            })}
+
+                            {/* Period labels */}
+                            {periodData.map((p, i) => {
+                                const cx = (i + 0.5) * colWidth;
+                                const isCurrent = i === 5; // last one is current
+                                return (
+                                    <text
+                                        key={`label-${i}`}
+                                        x={cx} y={chartHeight + 12}
+                                        textAnchor="middle" fontSize="7"
+                                        fill={isCurrent ? '#B45309' : '#9CA3AF'}
+                                        fontWeight={isCurrent ? 'bold' : 'normal'}
+                                    >
+                                        {p.label}
+                                    </text>
                                 );
                             })}
                         </svg>
-                        <div className="flex justify-between text-[10px] text-gray-400 mt-1">
-                            <span>{new Date(sparklineTests[0]?.tested_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                            <span className="flex items-center gap-2">
-                                <span className="flex items-center gap-0.5">
-                                    <span className="inline-block w-3 h-0 border-t border-dashed border-red-400"></span> Threshold
-                                </span>
-                                {relevantRequeens.length > 0 && (
-                                    <span className="flex items-center gap-0.5">
-                                        <span className="inline-block w-3 h-0 border-t border-dashed border-purple-500"></span> 👑 Requeen
-                                    </span>
-                                )}
+                        {/* Legend */}
+                        <div className="flex justify-center gap-3 text-[10px] text-gray-400 mt-1">
+                            <span className="flex items-center gap-1">
+                                <span className="inline-block w-3 h-0 border-t-2 border-dashed border-red-400"></span> Threshold
                             </span>
-                            <span>{new Date(sparklineTests[sparklineTests.length - 1]?.tested_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                            <span className="flex items-center gap-1">
+                                <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span> OK
+                            </span>
+                            <span className="flex items-center gap-1">
+                                <span className="inline-block w-2 h-2 rounded-full bg-red-500"></span> Above
+                            </span>
+                            {relevantRequeens.length > 0 && (
+                                <span className="flex items-center gap-1">
+                                    <span className="inline-block w-3 h-0 border-t-2 border-dashed border-purple-500"></span> 👑 Requeen
+                                </span>
+                            )}
                         </div>
                     </div>
                 );
