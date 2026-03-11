@@ -58,3 +58,15 @@ ios/build/
 *.db
 *.db-shm
 *.db-wal
+
+# Archive/cleanup scripts (may contain credentials)
+_archive_cleanup/
+
+# Scripts with DB connection strings
+scripts/list_tables.js
+scripts/trace_triggers.js
+scripts/generate_cascade.js
+scripts/check_constraints.js
+scripts/apply_delete_function_prod.js
+scripts/apply_delete_function.js
+scripts/apply_cascade.js
