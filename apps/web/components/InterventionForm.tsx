@@ -9,8 +9,9 @@ const INTERVENTION_TYPES: { value: InterventionType; label: string }[] = [
     { value: 'treatment', label: 'Treatment' },
     { value: 'manipulation', label: 'Manipulation' },
     { value: 'cross_comb_fix', label: 'Cross Comb Fix' },
-    { value: 'other', label: 'Other' },
+    { value: 'requeen', label: '👑 Queen Replacement' },
     { value: 'honey_harvest', label: 'Honey Harvest' },
+    { value: 'other', label: 'Other' },
 ];
 
 export function InterventionForm({ hiveId, initialData, onSuccess, onCancel }: { hiveId: string, initialData?: Intervention, onSuccess: () => void, onCancel: () => void }) {
@@ -67,7 +68,9 @@ export function InterventionForm({ hiveId, initialData, onSuccess, onCancel }: {
                             type="button"
                             onClick={() => setType(t.value)}
                             className={`px-3 py-2 text-sm rounded-md border text-left transition-colors ${type === t.value
-                                ? 'bg-[#F5A623] border-[#F5A623] text-white'
+                                ? t.value === 'requeen'
+                                    ? 'bg-purple-500 border-purple-500 text-white'
+                                    : 'bg-[#F5A623] border-[#F5A623] text-white'
                                 : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
                                 }`}
                         >
@@ -94,7 +97,7 @@ export function InterventionForm({ hiveId, initialData, onSuccess, onCancel }: {
                     rows={3}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Details about the intervention..."
+                    placeholder={type === 'requeen' ? 'Queen source, markings, reason for replacement...' : 'Details about the intervention...'}
                     className="w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#F5A623] focus:border-transparent text-sm"
                 />
             </div>

@@ -10,3 +10,4 @@ sql = sql.replace(/CREATE EXTENSION IF NOT EXISTS .*;/g, '-- EXTENSION SKIPPED')
 
 fs.writeFileSync(outputFile, sql);
 console.log(`✅ Cleaned SQL saved to ${outputFile}`);
+
