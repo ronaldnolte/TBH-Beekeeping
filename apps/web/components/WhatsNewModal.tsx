@@ -7,7 +7,7 @@ export function WhatsNewModal() {
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        const hasSeen = localStorage.getItem('whats-new-seen-v1.2');
+        const hasSeen = localStorage.getItem('whats-new-seen-v1.3');
         if (!hasSeen) {
             // Delay slightly for better UX
             const timer = setTimeout(() => setIsOpen(true), 1500);
@@ -17,50 +17,37 @@ export function WhatsNewModal() {
 
     const handleClose = () => {
         setIsOpen(false);
-        localStorage.setItem('whats-new-seen-v1.2', 'true');
+        localStorage.setItem('whats-new-seen-v1.3', 'true');
     };
 
     return (
         <Modal isOpen={isOpen} onClose={handleClose} title="What's New in BeekTools">
             <div className="space-y-6 py-2">
-                {/* Feature 1: Standalone Forecast */}
+                {/* Feature 1: Varroa Mite History */}
                 <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl shadow-sm">
-                        ⛅
+                    <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center text-2xl shadow-sm">
+                        🔬
                     </div>
                     <div>
-                        <h4 className="font-bold text-[#8B4513]">Standalone Forecast App</h4>
+                        <h4 className="font-bold text-[#8B4513]">Varroa Mite History — HBHC Standards</h4>
                         <p className="text-sm text-gray-600 leading-relaxed">
-                            Need a quick weather check without logging in? We've launched a lightweight standalone
-                            forecast app at <a href="https://forecast.beektools.com" target="_blank" rel="noopener" className="text-amber-700 font-bold underline">forecast.beektools.com</a>.
+                            Track your mite counts over time with a new detailed history view. Results are plotted
+                            against <strong>Honey Bee Health Coalition</strong> seasonal thresholds so you can see
+                            exactly where your hives stand — period by period.
                         </p>
                     </div>
                 </div>
 
-                {/* Feature 2: Global Support */}
+                {/* Feature 2: Ask AI */}
                 <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-2xl shadow-sm">
-                        🌍
+                    <div className="flex-shrink-0 w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-2xl shadow-sm">
+                        🤖
                     </div>
                     <div>
-                        <h4 className="font-bold text-[#8B4513]">Expanded Global Support</h4>
+                        <h4 className="font-bold text-[#8B4513]">Ask the Beekeeping AI</h4>
                         <p className="text-sm text-gray-600 leading-relaxed">
-                            Beekeeping is global! We've added support for 31 countries including all EU members,
-                            Ghana, Norway, Switzerland, and New Zealand.
-                        </p>
-                    </div>
-                </div>
-
-                {/* Feature 3: PWA Enhancements */}
-                <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl shadow-sm">
-                        📱
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-[#8B4513]">Better App Installation</h4>
-                        <p className="text-sm text-gray-600 leading-relaxed">
-                            Installing BeekTools to your home screen is now easier on iOS and Chromium browsers
-                            with clearer instructions and better reliability.
+                            Have a beekeeping question? Tap <strong>Ask AI</strong> on your apiary screen for
+                            instant, season- and location-aware advice powered by Google Gemini.
                         </p>
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../lib/supabase';
 import { useRouter } from 'next/navigation';
@@ -23,6 +23,16 @@ export default function AdminMentorPage() {
     // Ban State
     const [isBanned, setIsBanned] = useState(false);
 
+    // AI Logging Global State Hack
+    const [aiLoggingEnabled, setAiLoggingEnabled] = useState(false);
+    const [loadingSettings, setLoadingSettings] = useState(false);
+
+    useEffect(() => {
+        if (isAdmin) {
+            fetchSettings();
+        }
+    }, [isAdmin]);
+
     if (authLoading) return <div className="p-8 text-center text-gray-500">Verifying access...</div>;
 
     if (!isAdmin) {
@@ -39,6 +49,53 @@ export default function AdminMentorPage() {
             </div>
         );
     }
+
+    const fetchSettings = async () => {
+        setLoadingSettings(true);
+        try {
+            // Check if ANY user has the 'ai_logging_enabled' role. We use this as a global flag.
+            const { data } = await supabase
+                .from('user_roles')
+                .select('role')
+                .eq('role', 'ai_logging_enabled')
+                .limit(1);
+
+            setAiLoggingEnabled(!!data && data.length > 0);
+        } catch (err) {
+            console.error('Failed to load settings', err);
+        } finally {
+            setLoadingSettings(false);
+        }
+    };
+
+    const toggleAiLogging = async () => {
+        setLoadingSettings(true);
+        setMessage('');
+        try {
+            // First, delete any existing role to ensure a clean state
+            await supabase.from('user_roles').delete().eq('role', 'ai_logging_enabled');
+
+            const nextState = !aiLoggingEnabled;
+            if (nextState) {
+                // To enable, we assign the role to the current admin user
+                // We could use any ID, but the current admin's ID is guaranteed to exist and avoid foreign key errors
+                const { data: userData } = await supabase.auth.getUser();
+                if (userData.user?.id) {
+                    const { error } = await supabase.from('user_roles').insert([
+                        { user_id: userData.user.id, role: 'ai_logging_enabled' }
+                    ]);
+                    if (error) throw error;
+                }
+            }
+
+            setAiLoggingEnabled(nextState);
+            setMessage('✅ AI Logging Global Setting Updated');
+        } catch (err: any) {
+            setMessage('Failed to update AI Logging: ' + err.message);
+        } finally {
+            setLoadingSettings(false);
+        }
+    };
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -183,6 +240,31 @@ export default function AdminMentorPage() {
             </header>
 
             <div className="flex-1 p-8">
+                {/* Global Settings Section */}
+                <div className="max-w-2xl mx-auto bg-white rounded-lg shadow border border-[#E6DCC3] p-8 mb-8">
+                    <h2 className="text-2xl font-bold text-[#4A3C28] mb-6 border-b pb-4">Global System Settings</h2>
+                    
+                    <div className="p-4 bg-indigo-50 border border-indigo-200 rounded flex justify-between items-center">
+                        <div>
+                            <h3 className="font-bold text-indigo-900">AI Prompt Logging</h3>
+                            <p className="text-sm text-indigo-700">Save user questions and AI answers to the database to review later.</p>
+                        </div>
+                        <button
+                            onClick={toggleAiLogging}
+                            disabled={loadingSettings}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                                aiLoggingEnabled ? 'bg-indigo-600' : 'bg-gray-200'
+                            }`}
+                        >
+                            <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                    aiLoggingEnabled ? 'translate-x-6' : 'translate-x-1'
+                                }`}
+                            />
+                        </button>
+                    </div>
+                </div>
+
                 <div className="max-w-2xl mx-auto bg-white rounded-lg shadow border border-[#E6DCC3] p-8">
                     <h2 className="text-2xl font-bold text-[#4A3C28] mb-6 border-b pb-4">Manage Users</h2>
 
