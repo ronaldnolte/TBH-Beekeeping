@@ -27,6 +27,12 @@ export default function AdminMentorPage() {
     const [aiLoggingEnabled, setAiLoggingEnabled] = useState(false);
     const [loadingSettings, setLoadingSettings] = useState(false);
 
+    useEffect(() => {
+        if (isAdmin) {
+            fetchSettings();
+        }
+    }, [isAdmin]);
+
     if (authLoading) return <div className="p-8 text-center text-gray-500">Verifying access...</div>;
 
     if (!isAdmin) {
@@ -43,13 +49,6 @@ export default function AdminMentorPage() {
             </div>
         );
     }
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => {
-        if (isAdmin) {
-            fetchSettings();
-        }
-    }, [isAdmin]);
 
     const fetchSettings = async () => {
         setLoadingSettings(true);
