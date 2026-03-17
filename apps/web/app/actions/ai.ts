@@ -129,8 +129,14 @@ RULES:
         // 6. Save to History - IF enabled via the admin panel (checked via user_roles hack)
         if (userId) {
             try {
-                // Check if any user has the 'ai_logging_enabled' role
-                const { data: loggingEnabledData } = await supabase
+                // Create an admin client to bypass RLS for BOTH the toggle check and the logging insert
+                const adminSupabase = createClient(
+                    supabaseUrl,
+                    process.env.SUPABASE_SERVICE_ROLE_KEY!
+                );
+
+                // Check if any user has the 'ai_logging_enabled' role (bypassing RLS)
+                const { data: loggingEnabledData } = await adminSupabase
                     .from('user_roles')
                     .select('role')
                     .eq('role', 'ai_logging_enabled')
@@ -139,12 +145,6 @@ RULES:
                 const isLoggingEnabled = !!loggingEnabledData && loggingEnabledData.length > 0;
 
                 if (isLoggingEnabled) {
-                    // Create an admin client to bypass RLS for logging
-                    const adminSupabase = createClient(
-                        supabaseUrl,
-                        process.env.SUPABASE_SERVICE_ROLE_KEY!
-                    );
-
                     const { error: insertErr } = await adminSupabase.from('ai_qa_history').insert({
                         user_id: userId,
                         question_original: question,
