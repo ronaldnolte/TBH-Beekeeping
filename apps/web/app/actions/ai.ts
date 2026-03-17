@@ -139,13 +139,24 @@ RULES:
                 const isLoggingEnabled = !!loggingEnabledData && loggingEnabledData.length > 0;
 
                 if (isLoggingEnabled) {
-                    await supabase.from('ai_qa_history').insert({
+                    // Create an admin client to bypass RLS for logging
+                    const adminSupabase = createClient(
+                        supabaseUrl,
+                        process.env.SUPABASE_SERVICE_ROLE_KEY!
+                    );
+
+                    const { error: insertErr } = await adminSupabase.from('ai_qa_history').insert({
                         user_id: userId,
                         question_original: question,
                         answer: answer,
                         context_data: { apiaryId, weatherContext }
                     });
-                    console.log('AI Action: QA History Saved');
+                    
+                    if (insertErr) {
+                         console.error('AI Action: QA History Save Failed', insertErr);
+                    } else {
+                         console.log('AI Action: QA History Saved');
+                    }
                 } else {
                     console.log('AI Action: QA History skipped (Feature disabled in Admin Panel)');
                 }
