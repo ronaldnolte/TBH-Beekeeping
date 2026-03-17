@@ -126,10 +126,34 @@ RULES:
         const response = result.response;
         const answer = response.text();
 
-        // 6. Save to History - DISABLED per user request
-        // if (userId) {
-        //     await supabase.from('ai_qa_history').insert({ ... });
-        // }
+        // 6. Save to History - IF enabled via the admin panel (checked via user_roles hack)
+        if (userId) {
+            try {
+                // Check if any user has the 'ai_logging_enabled' role
+                const { data: loggingEnabledData } = await supabase
+                    .from('user_roles')
+                    .select('role')
+                    .eq('role', 'ai_logging_enabled')
+                    .limit(1);
+
+                const isLoggingEnabled = !!loggingEnabledData && loggingEnabledData.length > 0;
+
+                if (isLoggingEnabled) {
+                    await supabase.from('ai_qa_history').insert({
+                        user_id: userId,
+                        question_original: question,
+                        answer: answer,
+                        context_data: { apiaryId, weatherContext }
+                    });
+                    console.log('AI Action: QA History Saved');
+                } else {
+                    console.log('AI Action: QA History skipped (Feature disabled in Admin Panel)');
+                }
+            } catch (historyErr) {
+                console.error('Failed to save AI history:', historyErr);
+                // Do not throw; we still want to return the answer to the user
+            }
+        }
 
         return { answer };
 
