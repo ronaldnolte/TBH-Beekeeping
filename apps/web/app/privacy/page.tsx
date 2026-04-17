@@ -90,12 +90,15 @@ export default function PrivacyPolicyPage() {
                     <section>
                         <h2 className="text-xl font-bold text-amber-700 mb-2">Your Rights</h2>
                         <p>You have the right to:</p>
-                        <ul className="list-disc list-inside space-y-2 mt-2">
+                        <ul className="list-disc list-inside text-gray-700 mt-2 mb-4 space-y-2">
                             <li>Access the personal data we hold about you.</li>
                             <li>Request correction of inaccurate data.</li>
-                            <li>Request deletion of your account and data.</li>
                             <li>Withdraw consent at any time by discontinuing use of the app.</li>
                         </ul>
+                        <p className="mt-4">
+                            <strong>Account Deletion:</strong> You can request the deletion of your account and all associated data at any time by visiting our 
+                            <a href="/delete-account" className="text-amber-600 underline ml-1">Account Deletion Page</a>.
+                        </p>
                     </section>
 
                     <section>
