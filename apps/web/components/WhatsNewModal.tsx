@@ -7,7 +7,7 @@ export function WhatsNewModal() {
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        const hasSeen = localStorage.getItem('whats-new-seen-v1.3');
+        const hasSeen = localStorage.getItem('whats-new-seen-v1.4');
         if (!hasSeen) {
             // Delay slightly for better UX
             const timer = setTimeout(() => setIsOpen(true), 1500);
@@ -17,7 +17,7 @@ export function WhatsNewModal() {
 
     const handleClose = () => {
         setIsOpen(false);
-        localStorage.setItem('whats-new-seen-v1.3', 'true');
+        localStorage.setItem('whats-new-seen-v1.4', 'true');
     };
 
     return (
@@ -48,6 +48,19 @@ export function WhatsNewModal() {
                         <p className="text-sm text-gray-600 leading-relaxed">
                             Have a beekeeping question? Tap <strong>Ask AI</strong> on your apiary screen for
                             instant, season- and location-aware advice powered by Google Gemini.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Feature 3: Coming to Google Play */}
+                <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-2xl shadow-sm">
+                        📱
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-[#8B4513]">Coming Soon to Google Play</h4>
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                            TBH Beekeeper is getting an official Android app! Soon you'll be able to download it directly from the Google Play Store for an even smoother beekeeping experience.
                         </p>
                     </div>
                 </div>
