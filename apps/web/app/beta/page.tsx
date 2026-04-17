@@ -5,7 +5,7 @@ import { submitBetaSignup } from '../actions/beta';
 
 // TODO: Replace this with your actual Play Console Closed Testing join URL
 // Found at: Play Console → Closed testing → Alpha track → Testers tab → "How testers join your test"
-const PLAY_CONSOLE_JOIN_URL = 'https://play.google.com/apps/internaltest/YOUR_LINK_HERE';
+const PLAY_CONSOLE_JOIN_URL = 'https://play.google.com/apps/testing/com.beektools.beekeeper';
 
 export default function BetaPage() {
     const [email, setEmail] = useState('');
