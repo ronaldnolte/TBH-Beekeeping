@@ -32,7 +32,7 @@ export default function DeleteAccountPage() {
                 </p>
 
                 <a 
-                    href="mailto:ronald@beektools.com?subject=Account Deletion Request" 
+                    href="mailto:ron.nolte@gmail.com?subject=Account Deletion Request" 
                     className="inline-block bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg transition-all active:scale-95 text-xl"
                 >
                     Email Deletion Request

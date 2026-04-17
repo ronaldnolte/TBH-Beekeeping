@@ -109,14 +109,10 @@ export default function PrivacyPolicyPage() {
                         </p>
                     </section>
 
-                    <section>
-                        <h2 className="text-xl font-bold text-amber-700 mb-2">Contact</h2>
-                        <p>
-                            If you have any questions about this privacy policy or your data, please contact us at:{' '}
-                            <a href="mailto:ronald@beektools.com" className="text-amber-600 underline">
-                                ronald@beektools.com
-                            </a>
-                        </p>
+                    <section className="mt-8 pt-8 border-t border-amber-100">
+                        <h2 className="text-xl font-bold text-amber-700 mb-2">Contact Us</h2>
+                        <p>If you have any questions about this Privacy Policy, please contact us at:</p>
+                        <p className="font-bold mt-2 text-amber-800">ron.nolte@gmail.com</p>
                     </section>
 
                 </div>
