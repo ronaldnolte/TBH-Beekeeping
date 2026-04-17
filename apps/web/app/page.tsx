@@ -52,9 +52,9 @@ export default function LoginPage() {
 
     // If already authenticated, redirect to apiary selection
     if (!authLoading && session) {
-      console.log('[Login] Session found, but NOT navigating (debug test)');
-      // TEMPORARILY DISABLED FOR DEBUGGING
-      // router.push('/apiary-selection');
+      console.log('[Login] Session found, redirecting to apiary-selection');
+      localStorage.setItem('beektools-returning-user', 'true');
+      router.push('/apiary-selection');
     }
   }, [session, authLoading, router]);
 
@@ -101,10 +101,11 @@ export default function LoginPage() {
         localStorage.setItem('beektools-returning-user', 'true');
 
         // Show success message
-        setMessage('Login successful! (Navigation disabled for debug test)');
+        setMessage('Login successful! Redirecting...');
 
-        // TEMPORARILY DISABLED FOR DEBUGGING
-        // router.push('/apiary-selection');
+        console.log('[Login] Redirecting to apiary-selection via router.push');
+        await new Promise(resolve => setTimeout(resolve, 500));
+        router.push('/apiary-selection');
       }
     } catch (err: any) {
       console.error('[Login] Auth error:', err);
@@ -155,10 +156,10 @@ export default function LoginPage() {
       await resetGuestAccount();
       console.log('[Login] Guest account reset complete');
 
-      setMessage('Guest login successful! (Navigation disabled for debug test)');
-
-      // TEMPORARILY DISABLED FOR DEBUGGING
-      // router.push('/apiary-selection');
+      localStorage.setItem('beektools-returning-user', 'true');
+      setMessage('Logged in as guest! Redirecting...');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      router.push('/apiary-selection');
     } catch (err: any) {
       console.error('[Login] Guest login error:', err);
       setError(err.message);
