@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ronaldnolte.tbhbeekeeper"
+      "bundleIdentifier": "com.beektools.beekeeper"
     },
     "android": {
       "versionCode": 26,
@@ -23,7 +23,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.ronaldnolte.tbhbeekeeper",
+      "package": "com.beektools.beekeeper",
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE"

@@ -32,5 +32,24 @@ export async function submitBetaSignup(email: string): Promise<{ success: boolea
         return { success: false, error: 'Something went wrong. Please try again.' };
     }
 
+    // Send email notification (fire-and-forget — don't block the user)
+    try {
+        await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                from: 'BeekTools Beta <onboarding@resend.dev>',
+                to: 'ron.nolte@gmail.com',
+                subject: '🐝 New Beta Tester Signup!',
+                html: `<p>A new user has requested beta access:</p><p><strong>${email.toLowerCase().trim()}</strong></p><p>Add them to your <a href="https://play.google.com/console">Play Console</a> testers list.</p>`,
+            }),
+        });
+    } catch (emailError) {
+        console.error('Failed to send notification email:', emailError);
+    }
+
     return { success: true };
 }
