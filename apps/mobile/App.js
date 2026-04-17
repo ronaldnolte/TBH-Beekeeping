@@ -103,6 +103,7 @@ export default function App() {
           cacheEnabled={true}
           incognito={false}
           thirdPartyCookiesEnabled={true}
+          setSupportMultipleWindows={false}
 
           // Inject session restoration script
           injectedJavaScriptBeforeContentLoaded={initialScript}
