@@ -55,7 +55,7 @@ export default function LoginPage() {
       console.log('[Login] Session found, redirecting to apiary-selection');
       // Mark as returning user
       localStorage.setItem('beektools-returning-user', 'true');
-      navigateTo('/apiary-selection');
+      router.push('/apiary-selection');
     }
   }, [session, authLoading, router]);
 
@@ -104,10 +104,10 @@ export default function LoginPage() {
         // Show success message
         setMessage('Login successful! Redirecting...');
 
-        // Use WebView-compatible navigation
+        // Use client-side navigation (window.location.href crashes WebView)
         console.log('[Login] Redirecting to apiary-selection');
         await new Promise(resolve => setTimeout(resolve, 1000));
-        navigateTo('/apiary-selection');
+        router.push('/apiary-selection');
       }
     } catch (err: any) {
       console.error('[Login] Auth error:', err);
@@ -163,7 +163,7 @@ export default function LoginPage() {
 
       setMessage('Logged in as guest! Redirecting...');
       await new Promise(resolve => setTimeout(resolve, 500));
-      navigateTo('/apiary-selection');
+      router.push('/apiary-selection');
     } catch (err: any) {
       console.error('[Login] Guest login error:', err);
       setError(err.message);
