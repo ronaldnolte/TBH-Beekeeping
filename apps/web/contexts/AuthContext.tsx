@@ -1,8 +1,10 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { setRouterPush } from '../lib/navigation';
 
 interface AuthContextType {
     session: Session | null;
@@ -26,6 +28,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [session, setSession] = useState<Session | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
+
+    // Register router for global navigateTo function
+    useEffect(() => {
+        setRouterPush((url: string) => router.push(url));
+    }, [router]);
 
     useEffect(() => {
         console.log('[AuthProvider] Initializing...');
