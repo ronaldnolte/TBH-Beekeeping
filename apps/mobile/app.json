@@ -2,7 +2,7 @@
   "expo": {
     "name": "TBH Beekeeper",
     "slug": "tbh-beekeeper",
-    "version": "1.1.7",
+    "version": "1.1.8",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -17,7 +17,7 @@
       "bundleIdentifier": "com.ronaldnolte.tbhbeekeeper"
     },
     "android": {
-      "versionCode": 24,
+      "versionCode": 25,
       "supportsTablet": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -63,6 +63,9 @@
         "expo-build-properties",
         {
           "android": {
+            "targetSdkVersion": 35,
+            "compileSdkVersion": 35,
+            "minSdkVersion": 24,
             "usesFeature": [
               {
                 "name": "android.hardware.telephony",
