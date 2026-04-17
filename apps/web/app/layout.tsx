@@ -50,6 +50,20 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
+        {/* Global error handler — catch WebView crashes and show the error instead of silently dying */}
+        <Script id="global-error-handler" strategy="beforeInteractive">{`
+          window.onerror = function(msg, url, line, col, error) {
+            if (window.ReactNativeWebView) {
+              alert('App Error: ' + msg + '\\nAt: ' + url + ':' + line);
+            }
+            return false;
+          };
+          window.addEventListener('unhandledrejection', function(e) {
+            if (window.ReactNativeWebView) {
+              alert('Async Error: ' + (e.reason ? (e.reason.message || e.reason) : 'Unknown'));
+            }
+          });
+        `}</Script>
         {/* Capture beforeinstallprompt before React hydrates — beforeInteractive runs before any page JS */}
         <Script id="pwa-early-capture" strategy="beforeInteractive">{`
           window.addEventListener('beforeinstallprompt', function(e) {
