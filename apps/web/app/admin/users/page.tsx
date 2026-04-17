@@ -96,6 +96,8 @@ export default function AdminUsersPage() {
                             <button onClick={() => router.push('/admin/users')} className="hover:text-[#E67E22] hover:underline font-medium">User List</button>
                             <span className="text-gray-300">|</span>
                             <button onClick={() => router.push('/admin/feature-requests')} className="hover:text-[#E67E22] hover:underline font-medium">Features</button>
+                            <span className="text-gray-300">|</span>
+                            <button onClick={() => router.push('/admin/beta')} className="hover:text-[#E67E22] hover:underline font-medium">Beta</button>
                         </div>
                     </div>
                 </div>
