@@ -9,6 +9,7 @@ import { Tour } from '../components/Tour';
 import { loginTour } from '../lib/tourDefinitions';
 import { HomePage } from '../components/HomePage';
 import { AppHeader } from '../components/AppHeader';
+import ApiarySelectionPage from './apiary-selection/page';
 
 // Type declaration for React Native WebView
 declare global {
@@ -50,13 +51,12 @@ export default function LoginPage() {
   useEffect(() => {
     console.log('[Login] Component mounted, auth loading:', authLoading, 'session:', !!session);
 
-    // If already authenticated, redirect to apiary selection
+    // If already authenticated, we just stay on this page and render the dashboard content
     if (!authLoading && session) {
-      console.log('[Login] Session found, redirecting to apiary-selection');
+      console.log('[Login] Session found, staying on root page to avoid navigation crash');
       localStorage.setItem('beektools-returning-user', 'true');
-      router.push('/apiary-selection');
     }
-  }, [session, authLoading, router]);
+  }, [session, authLoading]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,7 +102,9 @@ export default function LoginPage() {
 
         // Show success message
         setMessage('Login successful! Redirecting...');
-        router.push('/apiary-selection');
+        if (!window.ReactNativeWebView) {
+          router.push('/apiary-selection');
+        }
       }
     } catch (err: any) {
       console.error('[Login] Auth error:', err);
@@ -155,8 +157,10 @@ export default function LoginPage() {
 
       localStorage.setItem('beektools-returning-user', 'true');
       setMessage('Logged in as guest! Redirecting...');
-      await new Promise(resolve => setTimeout(resolve, 500));
-      router.push('/apiary-selection');
+      if (!window.ReactNativeWebView) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        router.push('/apiary-selection');
+      }
     } catch (err: any) {
       console.error('[Login] Guest login error:', err);
       setError(err.message);
@@ -165,8 +169,14 @@ export default function LoginPage() {
     }
   };
 
-  // Show loading state while checking for existing session OR if already logged in
-  if (authLoading || session || showHomepage === null) {
+  // If logged in, RENDER THE DASHBOARD DIRECTLY on the home page.
+  // This avoids the 'navigation crash' because we never change the URL.
+  if (session) {
+    return <ApiarySelectionPage />;
+  }
+
+  // Show loading state while deciding
+  if (authLoading || showHomepage === null) {
     return (
       <div className="min-h-screen honeycomb-bg flex items-center justify-center">
         <div className="text-center">
