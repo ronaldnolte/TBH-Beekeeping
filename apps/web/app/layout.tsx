@@ -5,6 +5,7 @@ import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
 import { WhatsNewModal } from "../components/WhatsNewModal";
 import SWRegistration from "../components/SWRegistration";
+import PWAInstallPrompt from "../components/PWAInstallPrompt";
 
 
 
