@@ -180,7 +180,12 @@ const ApiarySelectionPage = () => {
 
     const handleGo = (id: string = selectedApiaryId) => {
         if (id) {
-            navigateTo(`/apiary/${id}`);
+            console.log('[ApiarySelection] Navigating to apiary:', id);
+            // Add a small delay to let the dropdown close before navigation
+            // This prevents a common Android WebView crash
+            setTimeout(() => {
+                navigateTo(`/apiary/${id}`);
+            }, 300);
         }
     };
 
