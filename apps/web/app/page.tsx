@@ -38,7 +38,7 @@ export default function LoginPage() {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
       || (window.navigator as any).standalone === true;
     const isReturningUser = localStorage.getItem('beektools-returning-user') === 'true';
-    const isWebView = /TBHBeekeeperApp/.test(navigator.userAgent);
+    const isWebView = /TBHBeekeeperApp/.test(navigator.userAgent) || (typeof window !== 'undefined' && (window as any).ReactNativeWebView);
 
     if (isStandalone || isReturningUser || isWebView) {
       setShowHomepage(false);
