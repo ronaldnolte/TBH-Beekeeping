@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.beektools.beekeeper",
+      "sha256_cert_fingerprints": [
+        "AB:D0:18:BE:82:6F:D0:A1:1F:BD:94:36:D7:F7:30:64:22:C4:45:4D:86:48:FB:41:AB:F6:ED:AF:4E:69:A5:7D"
+      ]
+    }
+  }
+]
