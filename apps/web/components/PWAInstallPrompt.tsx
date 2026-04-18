@@ -31,7 +31,7 @@ export default function PWAInstallPrompt({ variant = 'floating', theme = 'white'
         setIsChromium(isChromiumBased);
 
         // Check if already installed (standalone mode) OR running in native WebView
-        const isWebView = ua.includes('TBHBeekeeperApp');
+        const isWebView = ua.includes('TBHBeekeeperApp') || (typeof window !== 'undefined' && (window as any).ReactNativeWebView);
         const standalone = typeof window !== 'undefined' && (
             window.matchMedia('(display-mode: standalone)').matches
             || (window.navigator as any).standalone === true
