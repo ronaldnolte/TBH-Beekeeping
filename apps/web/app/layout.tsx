@@ -51,6 +51,33 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
+        {/* CRASH SILENCER: Neutralizes the buggy session-update bridge that kills the native app during navigation */}
+        <Script id="crash-silencer" strategy="beforeInteractive">{`
+          (function() {
+            if (typeof window !== 'undefined') {
+              const hookPostMessage = function() {
+                if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage && !window.ReactNativeWebView._isSilenced) {
+                  const originalPostMessage = window.ReactNativeWebView.postMessage;
+                  window.ReactNativeWebView.postMessage = function(msg) {
+                    try {
+                      const data = JSON.parse(msg);
+                      if (data.type === 'SUPABASE_SESSION_UPDATE') return; 
+                    } catch(e) {}
+                    return originalPostMessage.apply(window.ReactNativeWebView, [msg]);
+                  };
+                  window.ReactNativeWebView._isSilenced = true;
+                }
+              };
+              hookPostMessage();
+              // Re-hook every 100ms for a few seconds to catch the bridge injection
+              let attempts = 0;
+              const interval = setInterval(() => {
+                hookPostMessage();
+                if (++attempts > 50) clearInterval(interval);
+              }, 100);
+            }
+          })();
+        `}</Script>
         {/* Global error handler — catch WebView crashes and show the error instead of silently dying */}
         <Script id="global-error-handler" strategy="beforeInteractive">{`
           window.onerror = function(msg, url, line, col, error) {
