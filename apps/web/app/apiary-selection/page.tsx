@@ -168,22 +168,14 @@ const ApiarySelectionPage = () => {
     };
 
     useEffect(() => {
-        // LAZY GUARD: Only redirect if auth is DEFINITELY finished loading AND we still have no user
         if (!authLoading && !userId) {
-            console.log('[AuthGuard] No session found, waiting before redirect...');
-            // Add a 1s delay to be absolutely sure the session isn't just slow to load
-            const timeout = setTimeout(() => {
-                if (!userId) {
-                    console.log('[AuthGuard] Still no session, redirecting to login');
-                    navigateTo('/');
-                }
-            }, 1000);
-            return () => clearTimeout(timeout);
+            router.push('/');
+            return;
         }
         if (userId) {
             fetchApiaries();
         }
-    }, [userId, authLoading]);
+    }, [userId, authLoading, router]);
 
 
     const handleGo = (id: string = selectedApiaryId) => {

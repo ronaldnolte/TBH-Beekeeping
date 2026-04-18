@@ -102,12 +102,7 @@ export default function LoginPage() {
 
         // Show success message
         setMessage('Login successful! Redirecting...');
-
-        console.log('[Login] Redirecting to apiary-selection via navigateTo');
-        // Soft Navigation: Delay to let storage persist
-        setTimeout(() => {
-          navigateTo('/apiary-selection');
-        }, 500);
+        router.push('/apiary-selection');
       }
     } catch (err: any) {
       console.error('[Login] Auth error:', err);
