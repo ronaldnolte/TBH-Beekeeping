@@ -71,41 +71,6 @@ export default function RootLayout({
             window._deferredPWAPrompt = e;
           });
         `}</Script>
-        {/* Fix for WebView postMessage/Navigation race condition crash */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                // Restore original localStorage to stop the mobile app's 'spy' script
-                // which was causing postMessage/Navigation race conditions.
-                if (window.localStorage && window.localStorage.setItem && window.localStorage.setItem.name !== 'setItem') {
-                  console.log('[WebViewFix] Restoring original localStorage.setItem');
-                  const iframe = document.createElement('iframe');
-                  iframe.style.display = 'none';
-                  document.documentElement.appendChild(iframe);
-                  window.localStorage.setItem = iframe.contentWindow.localStorage.setItem;
-                  window.localStorage.removeItem = iframe.contentWindow.localStorage.removeItem;
-                  document.documentElement.removeChild(iframe);
-                }
-
-                // Prevent postMessage during navigation transitions
-                const originalPostMessage = window.ReactNativeWebView ? window.ReactNativeWebView.postMessage : null;
-                if (originalPostMessage) {
-                  let isNavigating = false;
-                  window.addEventListener('beforeunload', () => { isNavigating = true; });
-                  
-                  window.ReactNativeWebView.postMessage = function(data) {
-                    if (isNavigating) {
-                      console.log('[WebViewFix] Navigation in progress, silencing postMessage to prevent crash');
-                      return;
-                    }
-                    originalPostMessage.apply(window.ReactNativeWebView, [data]);
-                  };
-                }
-              })();
-            `,
-          }}
-        />
         <PWAInstallPrompt />
         <AuthProvider>
           {children}
