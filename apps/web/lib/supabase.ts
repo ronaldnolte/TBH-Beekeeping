@@ -18,6 +18,8 @@ console.log('[Supabase] Initializing client with URL:', supabaseUrl);
 // set on the WebView.
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
+        // Use a custom key to hide from the buggy native session-syncing script
+        storageKey: 'bt_session',
         // Use default localStorage — works in both browsers and WebViews
         autoRefreshToken: true,
         persistSession: true,
