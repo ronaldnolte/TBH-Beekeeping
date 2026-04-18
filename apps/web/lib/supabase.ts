@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { cookieStorage } from './cookieStorage';
 
 // Use environment variables for better security and flexibility
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ayeqrbcvihztxbrxmrth.supabase.co';
@@ -11,22 +10,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 console.log('[Supabase] Initializing client with URL:', supabaseUrl);
 
-// Detect WebView environment
-const isWebView = typeof navigator !== 'undefined' && /TBHBeekeeperApp/.test(navigator.userAgent);
-console.log('[Supabase] Running in WebView:', isWebView);
-
-// Create Supabase client with cookie-based storage for better WebView persistence
-// Cookies persist more reliably than localStorage in WebView environments
+// Use default localStorage for session storage.
+// Previously used a custom cookieStorage adapter, but document.cookie writes
+// with SameSite=None cause Android WebView's native CookieManager to crash
+// when navigation occurs immediately after cookie writes.
+// localStorage works reliably with domStorageEnabled={true} and incognito={false}
+// set on the WebView.
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
-        // Use cookie storage for session persistence
-        // This works better in WebView environments than localStorage
-        storage: typeof window !== 'undefined' ? cookieStorage : undefined,
-        storageKey: 'supabase-auth-token',
+        // Use default localStorage — works in both browsers and WebViews
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: false,
-        // Set token refresh threshold to 60 seconds before expiry
-        flowType: 'pkce',
+        // Use implicit flow — PKCE can trigger redirects that crash WebViews
+        flowType: 'implicit',
     },
 });
