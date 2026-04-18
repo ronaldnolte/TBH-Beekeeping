@@ -10,6 +10,14 @@ export function setRouterPush(push: (url: string) => void) {
 
 // Standard navigation helper
 export function navigateTo(url: string) {
+    // HARD RELOAD HACK: If we are in the mobile app, use window.location
+    // instead of the Next.js router. This forces the native app to reset its
+    // internal state, which bypasses the BackHandler.removeEventListener crash.
+    if (typeof window !== 'undefined' && (window as any).ReactNativeWebView) {
+        window.location.assign(url);
+        return;
+    }
+
     if (routerPush) {
         routerPush(url);
     } else {
