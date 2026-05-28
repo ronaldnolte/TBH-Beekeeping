@@ -10,12 +10,34 @@ import PWAInstallPrompt from "../components/PWAInstallPrompt";
 
 
 export const metadata: Metadata = {
-  title: "Beektools",
-  description: "Beekeeping management application",
+  title: "BeekTools",
+  description: "Manage your apiaries with native support for both Top Bar and Langstroth Hives, track inspections, and schedule perfect inspections using weather forecasting.",
+  openGraph: {
+    title: "BeekTools - Smarter Beekeeping",
+    description: "Manage your apiaries with native support for both Top Bar and Langstroth Hives, track inspections, and schedule perfect inspections using weather forecasting.",
+    url: "https://beektools.com",
+    siteName: "BeekTools",
+    images: [
+      {
+        url: "https://beektools.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "BeekTools - Smarter Beekeeping Portal",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BeekTools - Smarter Beekeeping",
+    description: "Manage your apiaries with native support for both Top Bar and Langstroth Hives, track inspections, and schedule perfect inspections using weather forecasting.",
+    images: ["https://beektools.com/og-image.png"],
+  },
   appleWebApp: {
     capable: true, // This generates apple-mobile-web-app-capable
     statusBarStyle: "default",
-    title: "Beektools",
+    title: "BeekTools",
   },
   other: {
     "mobile-web-app-capable": "yes", // Fixes deprecated warning
