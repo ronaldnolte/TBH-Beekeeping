@@ -61,7 +61,7 @@ export default function BeekToolsPortal() {
                 BeekTools Beekeeper
               </h2>
               <p className="text-sm text-[#7A7468] leading-relaxed mb-4 font-medium">
-                Your primary hive logs, inspections, tasks, and varroa mite load tracker. Fully supports both Top Bar and Langstroth hive designs with offline mobile synchronization.
+                Your primary hive logs, inspections, tasks, and varroa mite load tracker. Fully supports both Top Bar and Langstroth hive designs with real-time secure database synchronization.
               </p>
               
               {/* Dual Hive Support Pills */}
