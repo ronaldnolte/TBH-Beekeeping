@@ -1,192 +1,160 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
-import { navigateTo } from '../lib/navigation';
-import { Tour } from '../components/Tour';
-import { loginTour } from '../lib/tourDefinitions';
-import { HomePage } from '../components/HomePage';
-import { AppHeader } from '../components/AppHeader';
-import ApiarySelectionPage from './apiary-selection/page';
+import { ArrowRight, Microscope, CloudSun, Smartphone, Sparkles } from 'lucide-react';
 
-export default function LoginPage() {
-  const router = useRouter();
-  const { session, loading: authLoading } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  
-  // App State: 'loading' | 'dashboard' | 'marketing' | 'login'
-  const [appState, setAppState] = useState<'loading' | 'dashboard' | 'marketing' | 'login'>('loading');
-
-  useEffect(() => {
-    // Wait for BOTH auth and identity to be certain
-    if (authLoading) return;
-
-    const checkIdentity = () => {
-      const isStandalone = typeof window !== 'undefined' && (
-        window.matchMedia('(display-mode: standalone)').matches
-        || (window.navigator as any).standalone === true
-      );
-      const isReturningUser = localStorage.getItem('beektools-returning-user') === 'true';
-      const isWebView = /TBHBeekeeperApp/.test(navigator.userAgent) || (typeof window !== 'undefined' && (window as any).ReactNativeWebView);
-
-      if (session) {
-        setAppState('dashboard');
-      } else if (isStandalone || isReturningUser || isWebView) {
-        setAppState('login');
-      } else {
-        setAppState('marketing');
-      }
-    };
-
-    // Small delay to ensure WebView bridge has time to inject
-    const timer = setTimeout(checkIdentity, 200);
-    return () => clearTimeout(timer);
-  }, [session, authLoading]);
-
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setMessage(null);
-
-    try {
-      const { error } = isSignUp 
-        ? await supabase.auth.signUp({ email, password })
-        : await supabase.auth.signInWithPassword({ email, password });
-
-      if (error) throw error;
-      
-      localStorage.setItem('beektools-returning-user', 'true');
-      if (!isSignUp) {
-        setMessage('Login successful!');
-        // No router.push needed - the 'session' change triggers the useEffect to show 'dashboard'
-      } else {
-        setMessage('Check your email for the confirmation link!');
-      }
-    } catch (err: any) {
-      setError(err.message === 'Invalid login credentials' 
-        ? 'Invalid credentials. If you are a new user, please switch to Sign Up.' 
-        : err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGuestLogin = async () => {
-    setLoading(true);
-    setError(null);
-    setMessage(null);
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: 'guest@beektools.com',
-        password: 'Guest2026#',
-      });
-      if (error) throw error;
-
-      const { resetGuestAccount } = await import('../lib/guestReset');
-      await resetGuestAccount();
-
-      localStorage.setItem('beektools-returning-user', 'true');
-      // No router.push needed
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 1. LOADING STATE
-  if (appState === 'loading') {
-    return (
-      <div className="min-h-screen honeycomb-bg flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-pulse text-6xl mb-4">🐝</div>
-          <p className="text-[#8B4513] text-lg font-bold">Initializing...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // 2. DASHBOARD STATE (Zero-Navigation)
-  if (appState === 'dashboard') {
-    return <ApiarySelectionPage />;
-  }
-
-  // 3. MARKETING STATE
-  if (appState === 'marketing') {
-    return <HomePage onLaunchApp={() => setAppState('login')} />;
-  }
-
-  // 4. LOGIN STATE
+export default function BeekToolsPortal() {
   return (
-    <div className="min-h-screen honeycomb-bg flex flex-col">
-      <AppHeader title="Beektools" />
-      <div className="flex-1 flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-2xl border border-[#E67E22]/20">
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-bold text-[#4A3C28]">{isSignUp ? 'Create account' : 'Welcome back'}</h2>
-            <p className="text-gray-600 text-xs mt-1">Sign in to manage your hives</p>
+    <div className="min-h-screen bg-gradient-to-b from-[#FFFDF9] via-[#FFFBF0] to-[#FFF6E5] text-[#2D2A26] flex flex-col justify-between font-sans selection:bg-[#F5A623]/30 selection:text-[#723910]">
+      
+      {/* Dynamic Background Glows */}
+      <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-[#F5A623]/5 to-transparent blur-3xl pointer-events-none z-0" />
+      <div className="absolute bottom-20 left-10 w-72 h-72 bg-[#E99B1A]/5 rounded-full blur-3xl pointer-events-none z-0" />
+      <div className="absolute top-80 right-10 w-96 h-96 bg-[#F5B731]/5 rounded-full blur-3xl pointer-events-none z-0" />
+
+      {/* Header */}
+      <header className="relative z-10 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between border-b border-[#F5A623]/10">
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 bg-gradient-to-br from-[#F5A623] to-[#D97706] rounded-xl flex items-center justify-center text-white shadow-md shadow-[#F5A623]/20 animate-pulse">
+            <span className="text-xl">🐝</span>
           </div>
-
-          {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4 border border-red-200">{error}</div>}
-          {message && <div className="bg-green-50 text-green-600 p-3 rounded-lg text-sm mb-4 border border-green-200">{message}</div>}
-
-          <form onSubmit={handleAuth} className="space-y-3" autoComplete="off">
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#E67E22] outline-none"
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#E67E22] outline-none"
-              required
-              minLength={6}
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#8B4513] text-white py-3 rounded-lg font-bold hover:bg-[#723910] disabled:opacity-50 transition-all"
-            >
-              {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Login')}
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="w-full text-[#8B4513] py-2 text-sm font-medium hover:underline"
-            >
-              {isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up'}
-            </button>
-          </form>
-
-          <div className="mt-6 pt-6 border-t border-gray-100">
-            <button
-              type="button"
-              onClick={handleGuestLogin}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 text-gray-500 hover:text-[#E67E22] font-medium transition-colors"
-            >
-              <span>Continue as Guest</span>
-            </button>
-          </div>
+          <span className="text-xl font-black uppercase tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-[#8B4513] to-[#C47F0A]">
+            BeekTools
+          </span>
         </div>
-      </div>
-      <Tour tourId="login-page" steps={loginTour} autoStart={false} />
+        <div className="text-xs font-bold text-[#7A7468] uppercase tracking-widest bg-white/50 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-white/85 shadow-sm">
+          v2.0 Active
+        </div>
+      </header>
+
+      {/* Main Hero & Portals */}
+      <main className="relative z-10 w-full max-w-5xl mx-auto px-6 py-12 sm:py-16 flex-1 flex flex-col justify-center items-center">
+        
+        {/* Intro */}
+        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+          <div className="inline-flex items-center gap-1.5 bg-[#F5A623]/10 text-[#C47F0A] px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-4 border border-[#F5A623]/20">
+            <Sparkles size={12} /> The Future of Beekeeping is Here
+          </div>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-[#4A3C28] leading-[1.08] mb-4">
+            One Portal.<br/>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#D97706] via-[#E99B1A] to-[#8B4513]">
+              Smarter Beekeeping.
+            </span>
+          </h1>
+          <p className="text-base sm:text-lg font-medium text-[#7A7468] leading-relaxed max-w-xl mx-auto">
+            Manage your apiaries, monitor hive configurations, and schedule perfect inspections using weather forecasting.
+          </p>
+        </div>
+
+        {/* Dynamic Selection Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mx-auto mb-16">
+          
+          {/* 1. Beekeeper App Card */}
+          <div className="group bg-white/70 backdrop-blur-sm border-2 border-[#E0D8C8]/40 hover:border-[#F5A623]/40 p-6 sm:p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden active:scale-[0.99]">
+            {/* Warm corner glow */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#F5A623]/10 rounded-full blur-2xl group-hover:bg-[#F5A623]/15 transition-colors" />
+            
+            <div className="relative z-10">
+              <div className="w-12 h-12 bg-[#F5A623]/10 text-[#D97706] rounded-2xl flex items-center justify-center mb-6 border border-[#F5A623]/20 shadow-inner">
+                <Microscope size={24} />
+              </div>
+              <h2 className="text-2xl font-black text-[#4A3C28] mb-3 flex items-center gap-1.5">
+                BeekTools Beekeeper
+              </h2>
+              <p className="text-sm text-[#7A7468] leading-relaxed mb-6 font-medium">
+                Your primary hive logs, inspections, tasks, and varroa mite load tracker. Features real-time secure database sync and offline mobile compatibility.
+              </p>
+              
+              {/* Visual mini-illustration */}
+              <div className="flex gap-[3px] bg-[#FFFBF0] p-3 rounded-2xl border border-[#E6DCC3] mb-8 w-fit shadow-inner">
+                <div className="w-2.5 h-6 bg-[#8B4513] rounded-[2px]" />
+                <div className="w-2.5 h-6 bg-[#F59E0B] rounded-[2px]" />
+                <div className="w-2.5 h-6 bg-[#93C5FD] rounded-[2px]" />
+                <div className="w-2.5 h-6 bg-[#E5E7EB] rounded-[2px]" />
+                <div className="w-2.5 h-6 bg-[#F59E0B] rounded-[2px]" />
+                <div className="w-2.5 h-6 bg-[#8B4513] rounded-[2px]" />
+              </div>
+            </div>
+
+            <a 
+              href="https://beekeeper.beektools.com" 
+              className="relative z-10 w-full py-4 bg-gradient-to-r from-[#8B4513] to-[#723910] text-white rounded-2xl font-black text-center text-sm shadow-md hover:shadow-lg hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group-hover:gap-3"
+            >
+              Launch Beekeeper Web App <ArrowRight size={16} />
+            </a>
+          </div>
+
+          {/* 2. Forecast App Card */}
+          <div className="group bg-white/70 backdrop-blur-sm border-2 border-[#E0D8C8]/40 hover:border-[#F5A623]/40 p-6 sm:p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden active:scale-[0.99]">
+            {/* Warm corner glow */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#22C55E]/10 rounded-full blur-2xl group-hover:bg-[#22C55E]/15 transition-colors" />
+            
+            <div className="relative z-10">
+              <div className="w-12 h-12 bg-green-500/10 text-green-600 rounded-2xl flex items-center justify-center mb-6 border border-green-500/20 shadow-inner">
+                <CloudSun size={24} />
+              </div>
+              <h2 className="text-2xl font-black text-[#4A3C28] mb-3">
+                BeekTools Forecast
+              </h2>
+              <p className="text-sm text-[#7A7468] leading-relaxed mb-6 font-medium">
+                Intelligent, weather-based hive inspection planning. Automatically scores and color-codes hourly and daily slots over a 7-day forecast.
+              </p>
+              
+              {/* Visual mini-illustration */}
+              <div className="grid grid-cols-4 gap-[3px] bg-[#FFFBF0] p-3 rounded-2xl border border-[#E6DCC3] mb-8 w-fit shadow-inner">
+                <div className="w-5 h-5 bg-[#22C55E] rounded-md text-[9px] font-black text-white flex items-center justify-center shadow-sm">7</div>
+                <div className="w-5 h-5 bg-[#22C55E] rounded-md text-[9px] font-black text-white flex items-center justify-center shadow-sm">8</div>
+                <div className="w-5 h-5 bg-[#F59E0B] rounded-md text-[9px] font-black text-white flex items-center justify-center shadow-sm">5</div>
+                <div className="w-5 h-5 bg-[#EF4444] rounded-md text-[9px] font-black text-white flex items-center justify-center shadow-sm">2</div>
+              </div>
+            </div>
+
+            <a 
+              href="https://forecast.beektools.com" 
+              className="relative z-10 w-full py-4 bg-gradient-to-r from-[#E99B1A] to-[#D97706] text-white rounded-2xl font-black text-center text-sm shadow-md hover:shadow-lg hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group-hover:gap-3"
+            >
+              Launch Forecast Web App <ArrowRight size={16} />
+            </a>
+          </div>
+
+        </div>
+
+        {/* 3. Android Closed Beta Promo Card */}
+        <div className="w-full max-w-4xl bg-gradient-to-r from-[#FFFBF0] to-[#FFF3DC] border border-[#F5A623]/20 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md hover:shadow-lg transition-all duration-300">
+          <div className="flex items-center gap-4 text-center md:text-left flex-col md:flex-row">
+            <div className="w-14 h-14 bg-gradient-to-br from-[#F5A623] to-[#D97706] rounded-2xl flex items-center justify-center text-white shadow-md shadow-[#F5A623]/10">
+              <Smartphone size={28} />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-[#4A3C28] flex items-center gap-1.5 justify-center md:justify-start">
+                📱 BeekTools Beekeeper is on Android!
+              </h3>
+              <p className="text-xs sm:text-sm font-semibold text-[#7A7468] mt-1 leading-relaxed max-w-xl">
+                Get early native access on Google Play. Register your Gmail on our closed testing page for instant download authorization.
+              </p>
+            </div>
+          </div>
+          <a 
+            href="https://beekeeper.beektools.com/beta" 
+            className="px-6 py-4 bg-[#8B4513] hover:bg-[#723910] text-white rounded-2xl font-black text-center text-sm shadow-sm active:scale-95 transition-all flex-shrink-0 min-w-[170px]"
+          >
+            🚀 Join Android Beta
+          </a>
+        </div>
+
+      </main>
+
+      {/* Footer */}
+      <footer className="relative z-10 w-full max-w-6xl mx-auto px-6 py-8 border-t border-[#F5A623]/10 text-center text-xs font-black uppercase tracking-wider text-[#A19B90] flex flex-col sm:flex-row justify-between gap-4">
+        <div>
+          © 2026 BeekTools. All rights reserved.
+        </div>
+        <div className="flex justify-center gap-4">
+          <span>Smarter Apiary Management</span>
+          <span className="text-[#F5A623]">•</span>
+          <span>Forecast & Analytics</span>
+        </div>
+      </footer>
+
     </div>
   );
 }

@@ -2,22 +2,25 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
-    console.log('[Middleware] Processing request:', req.nextUrl.pathname);
+    const { pathname } = req.nextUrl;
 
-    // TEMPORARILY DISABLED: Middleware auth checks cause WebView crashes
-    // The issue: We use localStorage for session storage, but middleware
-    // only has access to cookies. This causes a mismatch where:
-    // 1. User logs in → session saved to localStorage
-    // 2. Navigation happens
-    // 3. Middleware checks cookies (empty) and redirects to login
-    // 4. Conflict causes WebView crash
-    //
-    // SOLUTION: Client-side auth checks (AuthContext + useEffect) are sufficient
-    // for protecting routes. Middleware auth can be re-enabled once we migrate
-    // to server-side session handling with cookies.
+    // List of legacy app sub-routes we want to decommission and redirect to home
+    const legacyRoutes = [
+        '/apiary',
+        '/apiary-selection',
+        '/hive',
+        '/setup',
+        '/langstroth-lab',
+        '/help',
+        '/debug',
+        '/delete-account',
+        '/auth'
+    ];
 
-    // For now, just log and allow all requests through
-    console.log('[Middleware] Auth checks disabled - relying on client-side protection');
+    if (legacyRoutes.some(route => pathname.startsWith(route))) {
+        console.log(`[Middleware] Decommissioned legacy route ${pathname}. Redirecting to portal.`);
+        return NextResponse.redirect(new URL('/', req.url));
+    }
 
     return NextResponse.next();
 }

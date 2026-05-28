@@ -17,6 +17,7 @@
     "@tbh-beekeeper/shared": "workspace:*",
     "@types/nodemailer": "^7.0.5",
     "cross-fetch": "^4.1.0",
+    "lucide-react": "^0.468.0",
     "next": "14.2.23",
     "nodemailer": "^7.0.12",
     "react": "^18.3.1",
