@@ -41,7 +41,7 @@ export default function BeekToolsPortal() {
             </span>
           </h1>
           <p className="text-base sm:text-lg font-medium text-[#7A7468] leading-relaxed max-w-xl mx-auto">
-            Manage your apiaries, monitor hive configurations, and schedule perfect inspections using weather forecasting.
+            Manage your apiaries with native support for both <strong className="text-[#8B4513] font-bold">Top Bar Hives</strong> and <strong className="text-[#D97706] font-bold">Langstroth Hives</strong>. Track inspections, forecast ideal weather slots, and care for your bees with ease.
           </p>
         </div>
 
@@ -60,9 +60,19 @@ export default function BeekToolsPortal() {
               <h2 className="text-2xl font-black text-[#4A3C28] mb-3 flex items-center gap-1.5">
                 BeekTools Beekeeper
               </h2>
-              <p className="text-sm text-[#7A7468] leading-relaxed mb-6 font-medium">
-                Your primary hive logs, inspections, tasks, and varroa mite load tracker. Features real-time secure database sync and offline mobile compatibility.
+              <p className="text-sm text-[#7A7468] leading-relaxed mb-4 font-medium">
+                Your primary hive logs, inspections, tasks, and varroa mite load tracker. Fully supports both Top Bar and Langstroth hive designs with offline mobile synchronization.
               </p>
+              
+              {/* Dual Hive Support Pills */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                <span className="bg-[#8B4513]/10 text-[#8B4513] text-[10px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl border border-[#8B4513]/25 flex items-center gap-1">
+                  📐 Top Bar Hives
+                </span>
+                <span className="bg-[#D97706]/10 text-[#D97706] text-[10px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl border border-[#D97706]/25 flex items-center gap-1">
+                  🏢 Langstroth Hives
+                </span>
+              </div>
               
               {/* Visual mini-illustration */}
               <div className="flex gap-[3px] bg-[#FFFBF0] p-3 rounded-2xl border border-[#E6DCC3] mb-8 w-fit shadow-inner">
