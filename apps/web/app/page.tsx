@@ -12,7 +12,7 @@ export default function BeekToolsPortal() {
       <div className="absolute top-80 right-10 w-96 h-96 bg-[#F5B731]/5 rounded-full blur-3xl pointer-events-none z-0" />
 
       {/* Header */}
-      <header className="relative z-10 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between border-b border-[#F5A623]/10">
+      <header className="relative z-10 w-full max-w-4xl mx-auto px-6 py-5 flex items-center justify-between border-b border-[#F5A623]/10">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 bg-gradient-to-br from-[#F5A623] to-[#D97706] rounded-xl flex items-center justify-center text-white shadow-md shadow-[#F5A623]/20 animate-pulse">
             <span className="text-xl">🐝</span>
@@ -27,26 +27,26 @@ export default function BeekToolsPortal() {
       </header>
 
       {/* Main Hero & Portals */}
-      <main className="relative z-10 w-full max-w-5xl mx-auto px-6 py-12 sm:py-16 flex-1 flex flex-col justify-center items-center">
+      <main className="relative z-10 w-full max-w-4xl mx-auto px-6 py-8 sm:py-10 flex-1 flex flex-col justify-center items-center">
         
         {/* Intro */}
-        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-1.5 bg-[#F5A623]/10 text-[#C47F0A] px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-4 border border-[#F5A623]/20">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+          <div className="inline-flex items-center gap-1.5 bg-[#F5A623]/10 text-[#C47F0A] px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-3 border border-[#F5A623]/20">
             <Sparkles size={12} /> The Future of Beekeeping is Here
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-[#4A3C28] leading-[1.08] mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-[#4A3C28] leading-[1.08] mb-3">
             One Portal.<br/>
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#D97706] via-[#E99B1A] to-[#8B4513]">
               Smarter Beekeeping.
             </span>
           </h1>
-          <p className="text-base sm:text-lg font-medium text-[#7A7468] leading-relaxed max-w-xl mx-auto">
+          <p className="text-sm sm:text-base font-medium text-[#7A7468] leading-relaxed max-w-xl mx-auto">
             Manage your apiaries with native support for both <strong className="text-[#8B4513] font-bold">Top Bar Hives</strong> and <strong className="text-[#D97706] font-bold">Langstroth Hives</strong>. Track inspections, forecast ideal weather slots, and care for your bees with ease.
           </p>
         </div>
 
         {/* 3. Android Closed Beta Promo Card */}
-        <div className="w-full max-w-4xl bg-gradient-to-r from-[#FFFBF0] to-[#FFF3DC] border border-[#F5A623]/20 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md hover:shadow-lg transition-all duration-300 mb-10 relative z-10">
+        <div className="w-full max-w-4xl bg-gradient-to-r from-[#FFFBF0] to-[#FFF3DC] border border-[#F5A623]/20 rounded-3xl p-5 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-md hover:shadow-lg transition-all duration-300 mb-6 relative z-10">
           <div className="flex items-center gap-4 text-center md:text-left flex-col md:flex-row">
             <div className="w-14 h-14 bg-gradient-to-br from-[#F5A623] to-[#D97706] rounded-2xl flex items-center justify-center text-white shadow-md shadow-[#F5A623]/10">
               <Smartphone size={28} />
@@ -69,7 +69,7 @@ export default function BeekToolsPortal() {
         </div>
 
         {/* Dynamic Selection Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mx-auto mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl mx-auto mb-10">
           
           {/* 1. Beekeeper App Card */}
           <div className="group bg-white/70 backdrop-blur-sm border-2 border-[#E0D8C8]/40 hover:border-[#F5A623]/40 p-6 sm:p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden active:scale-[0.99]">
@@ -154,7 +154,7 @@ export default function BeekToolsPortal() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 w-full max-w-6xl mx-auto px-6 py-8 border-t border-[#F5A623]/10 text-center text-xs font-black uppercase tracking-wider text-[#A19B90] flex flex-col sm:flex-row justify-between gap-4">
+      <footer className="relative z-10 w-full max-w-4xl mx-auto px-6 py-6 border-t border-[#F5A623]/10 text-center text-xs font-black uppercase tracking-wider text-[#A19B90] flex flex-col sm:flex-row justify-between gap-4">
         <div>
           © 2026 BeekTools. All rights reserved.
         </div>
