@@ -56,7 +56,7 @@ export default function BeekToolsPortal() {
                 📱 BeekTools Beekeeper is on Android!
               </h3>
               <p className="text-xs font-semibold text-[#7A7468] mt-0.5 leading-relaxed max-w-xl">
-                Get early native access on Google Play. Register your Gmail on our closed testing page for instant download authorization.
+                Get early native access on Google Play. Register your Google Account email on our closed testing page for instant download authorization.
               </p>
             </div>
           </div>

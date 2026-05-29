@@ -112,7 +112,7 @@ export default function BetaPage() {
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="your-google-email@gmail.com"
+                                            placeholder="your-google-email@example.com"
                                             required
                                             className="w-full bg-[#FFFBF0] border-2 border-[#E6DCC3] focus:border-[#F5A623] rounded-2xl px-4 py-3.5 text-sm text-[#4A3C28] font-semibold focus:outline-none transition-all placeholder:text-[#A19B90]"
                                         />
