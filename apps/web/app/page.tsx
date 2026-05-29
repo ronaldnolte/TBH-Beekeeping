@@ -45,6 +45,29 @@ export default function BeekToolsPortal() {
           </p>
         </div>
 
+        {/* 3. Android Closed Beta Promo Card */}
+        <div className="w-full max-w-4xl bg-gradient-to-r from-[#FFFBF0] to-[#FFF3DC] border border-[#F5A623]/20 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md hover:shadow-lg transition-all duration-300 mb-10 relative z-10">
+          <div className="flex items-center gap-4 text-center md:text-left flex-col md:flex-row">
+            <div className="w-14 h-14 bg-gradient-to-br from-[#F5A623] to-[#D97706] rounded-2xl flex items-center justify-center text-white shadow-md shadow-[#F5A623]/10">
+              <Smartphone size={28} />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-[#4A3C28] flex items-center gap-1.5 justify-center md:justify-start">
+                📱 BeekTools Beekeeper is on Android!
+              </h3>
+              <p className="text-xs sm:text-sm font-semibold text-[#7A7468] mt-1 leading-relaxed max-w-xl">
+                Get early native access on Google Play. Register your Gmail on our closed testing page for instant download authorization.
+              </p>
+            </div>
+          </div>
+          <a 
+            href="https://beekeeper.beektools.com/beta" 
+            className="px-6 py-4 bg-[#8B4513] hover:bg-[#723910] text-white rounded-2xl font-black text-center text-sm shadow-sm active:scale-95 transition-all flex-shrink-0 min-w-[170px]"
+          >
+            🚀 Join Android Beta
+          </a>
+        </div>
+
         {/* Dynamic Selection Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mx-auto mb-16">
           
@@ -126,29 +149,6 @@ export default function BeekToolsPortal() {
             </a>
           </div>
 
-        </div>
-
-        {/* 3. Android Closed Beta Promo Card */}
-        <div className="w-full max-w-4xl bg-gradient-to-r from-[#FFFBF0] to-[#FFF3DC] border border-[#F5A623]/20 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md hover:shadow-lg transition-all duration-300">
-          <div className="flex items-center gap-4 text-center md:text-left flex-col md:flex-row">
-            <div className="w-14 h-14 bg-gradient-to-br from-[#F5A623] to-[#D97706] rounded-2xl flex items-center justify-center text-white shadow-md shadow-[#F5A623]/10">
-              <Smartphone size={28} />
-            </div>
-            <div>
-              <h3 className="text-lg font-black text-[#4A3C28] flex items-center gap-1.5 justify-center md:justify-start">
-                📱 BeekTools Beekeeper is on Android!
-              </h3>
-              <p className="text-xs sm:text-sm font-semibold text-[#7A7468] mt-1 leading-relaxed max-w-xl">
-                Get early native access on Google Play. Register your Gmail on our closed testing page for instant download authorization.
-              </p>
-            </div>
-          </div>
-          <a 
-            href="https://beekeeper.beektools.com/beta" 
-            className="px-6 py-4 bg-[#8B4513] hover:bg-[#723910] text-white rounded-2xl font-black text-center text-sm shadow-sm active:scale-95 transition-all flex-shrink-0 min-w-[170px]"
-          >
-            🚀 Join Android Beta
-          </a>
         </div>
 
       </main>
