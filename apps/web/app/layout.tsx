@@ -128,7 +128,7 @@ export default function RootLayout({
         </AuthProvider>
         <SWRegistration />
         <WhatsNewModal />
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} />
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || "G-9JW6ZWQSE3"} />
       </body>
     </html>
   );
